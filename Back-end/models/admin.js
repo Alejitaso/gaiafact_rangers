@@ -15,7 +15,7 @@ const adminSchema = new Schema({
     tipo_documento: {
         type:Schema.Types.ObjectId,
         required: true,
-        ref: 'TipoDeDocumento',
+        ref: 'tipodedocumento',
     },
     numero_documento:{
         type:String,
