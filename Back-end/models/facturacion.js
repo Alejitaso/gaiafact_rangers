@@ -24,4 +24,4 @@ const facturacionSchema = new Schema({
   }
 });
 
-module.exports = mongoose.model('Facturacion', facturacionSchema);
+module.exports = mongoose.model('facturacion', facturacionSchema);
