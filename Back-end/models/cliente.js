@@ -37,7 +37,7 @@ const clientesSchema = new Schema({
         trim:true
     },
 
-      tipo_usuario:{
+    tipo_usuario:{
         type: Schema.Types.ObjectId,
         required:true,
         ref: 'TipoDeUsaurio'
