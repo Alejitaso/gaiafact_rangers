@@ -8,7 +8,7 @@ const tipodedocumentoSchema = new Schema ({
         maxlength: 10,
         trim: true,
     },
-    Cedula_ciudadania:{
+    Cedula_extranjeria:{
         type:String,
         required: true,
         maxlength: 10,
