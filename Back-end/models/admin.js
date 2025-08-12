@@ -38,7 +38,7 @@ const adminSchema = new Schema({
     estado:{
         type:Schema.Types.ObjectId,
         required: true,
-        ref: 'ESTADO',
+        ref: 'estado',
     }
 });
 
