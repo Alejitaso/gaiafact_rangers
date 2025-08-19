@@ -1,6 +1,6 @@
 const Notificacion = require("../models/notificacion");
 
-// Crear una notificacion
+// CREAR UNA notificacion
 exports.crearNotificacion = async (req, res) => {
     try {
         const nuevaNotificacion = new Notificacion(req.body);
