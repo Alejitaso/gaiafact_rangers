@@ -1,0 +1,82 @@
+# .github/workflows/auto-review-pr.yml
+# ⚠️ IMPORTANTE: Este archivo debe estar SOLO en la rama main
+# ⚠️ NO debe existir en la rama dev por seguridad
+
+name: Auto Review Pull Request
+
+# Se ejecuta cuando hay push a dev, pero el workflow está en main
+on:
+  push:
+    branches: 
+      - dev
+
+jobs:
+  create-review-pr:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Necesario para comparar commits
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Get commit info
+      id: commit_info
+      run: |
+        COMMIT_MESSAGE=$(git log -1 --pretty=format:'%s')
+        COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an')
+        COMMIT_HASH=$(git log -1 --pretty=format:'%h')
+        echo "message=$COMMIT_MESSAGE" >> $GITHUB_OUTPUT
+        echo "author=$COMMIT_AUTHOR" >> $GITHUB_OUTPUT  
+        echo "hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
+    
+    - name: Create temporary branch for review
+      run: |
+        BRANCH_NAME="review/dev-$(date +%Y%m%d-%H%M%S)-${{ steps.commit_info.outputs.hash }}"
+        git checkout -b $BRANCH_NAME
+        git push origin $BRANCH_NAME
+        echo "REVIEW_BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
+    
+    - name: Reset dev to previous commit
+      run: |
+        git checkout dev
+        git reset --hard HEAD~1
+        git push --force origin dev
+    
+    - name: Create Pull Request for Review
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        title: "🔍 Review Required: ${{ steps.commit_info.outputs.message }}"
+        body: |
+          ## Cambios pendientes de revisión
+          
+          **Autor:** ${{ steps.commit_info.outputs.author }}
+          **Commit:** ${{ steps.commit_info.outputs.hash }}
+          **Mensaje original:** ${{ steps.commit_info.outputs.message }}
+          
+          ---
+          
+          ### ⚠️ Este PR fue creado automáticamente
+          
+          Los cambios fueron enviados via `git push origin dev` y están esperando aprobación.
+          
+          **Para aprobar:**
+          - ✅ Revisar los cambios
+          - ✅ Aprobar este PR  
+          - ✅ Hacer merge para integrar a dev
+          
+          **Para rechazar:**
+          - ❌ Cerrar este PR sin hacer merge
+          - ❌ Los cambios se perderán
+          
+        branch: ${{ env.REVIEW_BRANCH }}
+        base: dev
+        draft: false
+        reviewers: |
+          Alejitaso
+          liss
+        assignees: |
+          Alejitaso
+          liss
