@@ -1,7 +1,7 @@
 const mongoose = require ("mongoose")
 const Schema = mongoose.Schema
 
-const super_adminSchema = new Schema({
+const usuarioSchema = new Schema({
     nombre:{
         type:String,
         required: true,
@@ -13,9 +13,9 @@ const super_adminSchema = new Schema({
         trim: true,
     },
     tipo_documento: {
-        type:Schema.Types.ObjectId,
+        type: String,
         required: true,
-        ref: 'TipoDeDocumento',
+        enum: ['Cedula de ciudadania', 'Cedula extranjeria', 'Nit', 'Pasaporte']
     }, 
     numero_documento:{
         type:String,
@@ -36,10 +36,15 @@ const super_adminSchema = new Schema({
         trim:true,
     },
     estado:{
-        type:Schema.Types.ObjectId,
+        type: String,
         required: true,
-        ref: 'estado',
+        enum: ['Activo', 'Inactivo']
+    },
+    tipo_usuario:{
+        type: String,
+        required:true,
+        enum: ['Admin', 'Superadmin', 'cliente', 'Usuario']
     }
 });
 
-module.exports = mongoose.model('Super_admin', super_adminSchema);
+module.exports = mongoose.model('usuario', usuarioSchema);
