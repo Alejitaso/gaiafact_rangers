@@ -4,7 +4,8 @@ const router=express.Router()
 
 const clienteController= require("../controllers/clienteController.js");
 const productoController=require('../controllers/productoController.js');
-const facturaController=require('../controllers/facturaController.js'); 
+const facturaController=require('../controllers/facturaController.js');
+ 
 
 module.exports=function(){
     //registro nuevo cliente

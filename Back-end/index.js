@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+
 mongoose.set('strictQuery', true)
 // conexion a mongo
 mongoose.connect('mongodb://0.0.0.0:27017/almacen')
