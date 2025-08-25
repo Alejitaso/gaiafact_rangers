@@ -34,6 +34,35 @@ exports.mostrarUsuario = async (req, res, next) => {
     res.json(usuario);
 };
 
+// Buscar cliente por documento
+exports.buscarPorDocumento = async (req, res, next) => {
+    try {
+        const cliente = await Cliente.findOne({ 
+            $or: [
+                { documento: req.params.documento },
+                { numero_documento: req.params.documento }
+            ]
+        });
+        
+        if (!cliente) {
+            res.json({ 
+                mensaje: 'Cliente no encontrado',
+                cliente: null 
+            });
+            return next();
+        }
+
+        res.json({ 
+            mensaje: 'Cliente encontrado', 
+            cliente: cliente 
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ mensaje: 'Error al buscar cliente', error: error.message });
+        next();
+    }
+}
+
 exports.actualizarUsuario = async (req, res, next) => {
     try {
         const usuario = await Usuario.findOneAndUpdate(
