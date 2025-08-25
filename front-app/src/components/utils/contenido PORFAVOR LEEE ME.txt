@@ -1,0 +1,5 @@
+Codigo barras
+
+codigo qr
+
+notify (notificacion)
