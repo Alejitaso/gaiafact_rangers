@@ -35,6 +35,11 @@ const usuarioSchema = new Schema({
         required: true,
         trim:true,
     },
+    telefono:{
+        type: String,
+        required: true,
+        trim:true,
+    },
     estado:{
         type: String,
         required: true,
