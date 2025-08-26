@@ -46,6 +46,54 @@ const usuarioSchema = new Schema({
     required: true,
     enum: ["Admin", "Superadmin", "Cliente", "Usuario"],
   },
+    nombre:{
+        type:String,
+        required: true,
+        trim: true,
+    },
+    apellido: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    tipo_documento: {
+        type: String,
+        required: true,
+        enum: ['Cedula de ciudadania', 'Cedula extranjeria', 'Nit', 'Pasaporte']
+    }, 
+    numero_documento:{
+        type:String,
+        required: true,
+        unique:true,
+        trim:true,
+    },
+    correo_electronico:{
+        type:String,
+        required: true, 
+        unique:true,
+        lowercase:true,
+        trim:true,
+    },
+    contraseña:{
+        type:String,
+        required: true,
+        trim:true,
+    },
+    telefono:{
+        type: String,
+        required: true,
+        trim:true,
+    },
+    estado:{
+        type: String,
+        required: true,
+        enum: ['Activo', 'Inactivo']
+    },
+    tipo_usuario:{
+        type: String,
+        required:true,
+        enum: ['Admin', 'Superadmin', 'cliente', 'Usuario']
+    }
 });
 
 // 🔹 Encriptar contraseña antes de guardar
