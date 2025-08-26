@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import usuarioAxios from '../../config/axios';
 import Swal from 'sweetalert2';
 
-
 function Perfil({ idUsuario }) {
     const [perfil, setPerfil] = useState({
         nombre: '',
@@ -55,6 +54,26 @@ function Perfil({ idUsuario }) {
         }
     };
 
+    const habilitarDeshabilitarUsuario = async () => {
+        const nuevoEstado = perfil.estado === 'activo' ? 'inactivo' : 'activo';
+
+        try {
+            await usuarioAxios.put(`/usuarios/${idUsuario}/estado`, { estado: nuevoEstado });
+            Swal.fire(
+                'Actualizado!',
+                `El usuario ha sido ${nuevoEstado === 'activo' ? 'habilitado' : 'deshabilitado'}.`,
+                'success'
+            );
+            setPerfil({ ...perfil, estado: nuevoEstado });
+        } catch (error) {
+            Swal.fire(
+                'Error',
+                'Hubo un error al actualizar el estado del usuario.',
+                'error'
+            );
+        }
+    };
+
     const validarFormulario = () => {
         const { nombre, apellido, email, tipo_documento, numero_documento, telefono } = perfil;
         return !nombre.length || !apellido.length || !email.length || !tipo_documento.length || !numero_documento.length || !telefono.length;
@@ -85,8 +104,16 @@ function Perfil({ idUsuario }) {
                     <p className="email">{perfil.email}</p>
                     <p className="documento">{perfil.tipo_documento}: {perfil.numero_documento}</p>
                     <p className="telefono">{perfil.telefono}</p>
+                    <p className="estado">Estado: **{perfil.estado}**</p>
                     <button type="button" className="btn btn-azul" onClick={() => setEditando(true)}>
                         <i className="fas fa-pen-alt"></i> Editar Perfil
+                    </button>
+                    <button
+                        type="button"
+                        className={perfil.estado === 'activo' ? 'btn btn-rojo' : 'btn btn-verde'}
+                        onClick={habilitarDeshabilitarUsuario}
+                    >
+                        {perfil.estado === 'activo' ? 'Deshabilitar' : 'Habilitar'}
                     </button>
                 </div>
             )}
