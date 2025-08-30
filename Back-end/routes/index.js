@@ -5,6 +5,7 @@ const router=express.Router()
 const clienteController= require("../controllers/clienteController.js");
 const productoController=require('../controllers/productoController.js');
 const facturaController=require('../controllers/facturaController.js');
+const authController = require("../controllers/authcontroller.js");
  
 
 module.exports=function(){
@@ -70,6 +71,11 @@ module.exports=function(){
             next();
         }
     });
+
+    //auth(login,recuperar contraseña, nueva contraseña)
+    router.post("/auth/login", authController.login);
+    router.post("/auth/recover", authController.recoverPassword);
+    router.post("/auth/reset-password", authController.resetPassword);
     
     return router;
 }
