@@ -83,68 +83,6 @@
     background-color: rgba(255, 255, 255, 0.05); /* Efecto de filas rayadas sutil */
 }
 
-/* Línea decorativa del footer */
-.linea {
-    /* Degradado sutil para la línea, de azul a morado */
-    background-image: linear-gradient(to right, var(--color-tres), var(--color-cinco));
-    height: 3px; /* Altura de la línea */
-    width: 80%; /* Ancho relativo */
-    margin: 50px auto 10px auto; /* Márgenes (arriba, horizontal, abajo) */
-    border-radius: 2px; /* Bordes redondeados */
-    opacity: 0.8; /* Ligera transparencia */
-}
-
-/* Sección de copyright - integrada y elegante */
-.copyright {
-    text-align: center; /* Texto centrado */
-    height: 60px; /* Altura de la sección */
-    display: flex; /* Contenedor flexible */
-    justify-content: center; /* Centrado horizontal */
-    align-items: center; /* Centrado vertical */
-    padding: 10px 0; /* Espaciado superior e inferior */
-}
-
-.copyright h2 {
-    color: var(--color-uno); /* Color del texto */
-    margin: 0; /* Sin margen exterior */
-    font-size: 16px; /* Tamaño del texto */
-    opacity: 0.9; /* Ligera transparencia */
-    text-shadow: 0.5px 0.5px 1px rgba(255,255,255,0.2); /* Sombra tenue para el texto */
-}
-
-.footer {
-    height: 0; /* Altura cero (contenedor vacío o decorativo) */
-}
-
-/* Información de contacto en el menú lateral */
-.contact-info {
-    padding: 15px 25px; /* Relleno interno */
-    color: var(--color-dos); /* Color del texto */
-    font-size: 14px; /* Tamaño del texto */
-    opacity: 0; /* Oculto por defecto */
-    max-height: 0; /* Altura colapsada */
-    overflow: hidden; /* Oculta contenido que se desborde */
-    transition: opacity 0.4s ease-in-out, max-height 0.4s ease-in-out; /* Transición suave al expandir */
-}
-
-.contact-info.expanded {
-    opacity: 1; /* Hace visible el contenido */
-    max-height: 200px; /* Altura máxima al expandirse */
-}
-
-.contact-info p {
-    margin: 5px 0; /* Margen vertical en los párrafos */
-}
-
-.contact-info a {
-    color: var(--color-cuatro); /* Color de los enlaces */
-    text-decoration: none; /* Sin subrayado */
-}
-
-.contact-info a:hover {
-    text-decoration: underline; /* Subrayado al pasar el cursor */
-}
-
 .barra-busqueda-completa {
     display: flex; /* Contenedor flexible */
     align-items: center; /* Centrado vertical */

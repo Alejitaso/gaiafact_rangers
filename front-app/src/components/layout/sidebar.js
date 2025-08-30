@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import './main.css';
+import './sidebar.css'
 
 const Sidebar = () => {
   const toggleNav = () => {

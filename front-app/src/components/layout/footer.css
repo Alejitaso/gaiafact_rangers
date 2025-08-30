@@ -1,0 +1,28 @@
+/* Línea decorativa del footer */
+.linea {
+    /* Degradado sutil para la línea, de azul a morado */
+    background-image: linear-gradient(to right, var(--color-tres), var(--color-cinco));
+    height: 3px; /* Altura de la línea */
+    width: 80%; /* Ancho relativo */
+    margin: 50px auto 10px auto; /* Márgenes (arriba, horizontal, abajo) */
+    border-radius: 2px; /* Bordes redondeados */
+    opacity: 0.8; /* Ligera transparencia */
+}
+
+/* Sección de copyright - integrada y elegante */
+.copyright {
+    text-align: center; /* Texto centrado */
+    height: 60px; /* Altura de la sección */
+    display: flex; /* Contenedor flexible */
+    justify-content: center; /* Centrado horizontal */
+    align-items: center; /* Centrado vertical */
+    padding: 10px 0; /* Espaciado superior e inferior */
+}
+
+.copyright h2 {
+    color: var(--color-uno); /* Color del texto */
+    margin: 0; /* Sin margen exterior */
+    font-size: 16px; /* Tamaño del texto */
+    opacity: 0.9; /* Ligera transparencia */
+    text-shadow: 0.5px 0.5px 1px rgba(255,255,255,0.2); /* Sombra tenue para el texto */
+}
