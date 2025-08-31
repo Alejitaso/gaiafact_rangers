@@ -5,6 +5,7 @@ import Header from './components/layout/Header.js';
 import Footer from './components/layout/footer.js';
 import VisFactura from './components/billing/visFactura.js';
 import Facturacion from './components/billing/facturacion.js';
+import Inicio from './components/onset/inicio.js';
 
 
 function App() {
@@ -16,6 +17,9 @@ function App() {
           <Header title="GaiaFact" />
           <div className="content">
             <Routes>
+              <Route exact path="/" component={Inicio}/>
+              <Route path="/inicio" element={<Inicio />} />
+              <Route path="/vis-factura" element={<VisFactura />} />
               <Route path="/vis-factura" element={<VisFactura />} />
               <Route path="/facturacion" element={<Facturacion />} />
               

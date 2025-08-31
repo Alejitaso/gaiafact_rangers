@@ -1,0 +1,117 @@
+/* Variables CSS para colores */
+:root {
+    --color-uno: #254454;
+    --color-dos: #F0F4F8;
+    --color-tres: #276177;
+    --color-cuatro: #D1DCE6;
+    --color-cinco: #8E9BE8;
+    --color-seis: #C7BEDB;
+    --color-siete: #F61507;
+    --color-ocho: #406f81;
+}
+
+/* contenedor del carrusel*/
+.curved-carousel-wrapper {
+    width: 900px; 
+    height: 450px; 
+    margin: 50px auto;
+    perspective: 1700px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* contenedor del contenido del carrrusel*/
+.curved-carousel {
+    width: 100%; 
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(-15deg) rotateY(0deg); 
+    transition: transform 0.8s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30%;
+    margin-top: 10%;
+}
+
+/* modificador de los contenedores de las imagenes del carrusel*/
+.curved-carousel-item {
+    position: absolute;
+    width: 160px;
+    height: 250px;
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backface-visibility: hidden;
+    transition: transform 0.6s ease, opacity 0.6s ease, z-index 0.6s step-end; 
+    transform: rotateY(calc(var(--angle) * 1deg)) translateZ(400px) scale(0.6);
+    opacity: 0;
+    z-index: 1;
+}
+
+/* modificador de las imagenes del carrusel*/
+.curved-carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    border-radius: 8px;
+    display: block;
+}
+
+/* Clases para el control de visibilidad y escala por JavaScript */
+.curved-carousel-item.visible {
+    opacity: 1;
+    z-index: 10;
+}
+
+/* Clases para control de pocicion del carrusel*/
+.curved-carousel-item.center-item {
+    transform: rotateY(calc(var(--angle) * 1deg)) translateZ(350px) scale(1.2);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.6);
+    z-index: 20;
+}
+
+/* Estilos para pantallas pequeñas (móviles) */
+@media (max-width: 768px) {
+    
+    .curved-carousel-wrapper {
+        width: 95%;
+        height: 280px;
+        margin: 30px auto;
+        perspective: 900px;
+    }
+
+    .curved-carousel-item {
+        width: 100px;
+        height: 160px;
+        transform: rotateY(calc(var(--angle) * 1deg)) translateZ(200px) scale(0.6);
+    }
+
+    .curved-carousel-item.center-item {
+        transform: rotateY(calc(var(--angle) * 1deg)) translateZ(150px) scale(1.0);
+    }
+
+    .slang h2 {
+        font-size: 16px;
+        padding: 0 15px;
+    }
+
+    .linea {
+        width: 90%;
+        margin: 30px auto 10px auto;
+    }
+
+    .copyright h2 {
+        font-size: 14px;
+    }
+
+    .linea_1, .footer {
+        justify-content: center; 
+        align-items: center;
+    }
+}
