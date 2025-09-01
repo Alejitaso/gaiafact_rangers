@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import usuarioAxios from '../../config/axios';
 import Swal from 'sweetalert2';
+const express = require("express");
+const router = express.Router();
+const Usuario = require("../models/usuario");
+
 
 function Perfil({ idUsuario }) {
     const [perfil, setPerfil] = useState({
@@ -15,7 +19,7 @@ function Perfil({ idUsuario }) {
     });
 
     const [editando, setEditando] = useState(false);
-
+    //funcion para buscar usuario por id para admin 
     useEffect(() => {
         const obtenerPerfil = async () => {
             try {
