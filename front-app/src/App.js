@@ -6,6 +6,7 @@ import Footer from './components/layout/footer.js';
 import VisFactura from './components/billing/visFactura.js';
 import Facturacion from './components/billing/facturacion.js';
 import Inicio from './components/onset/inicio.js';
+import Img from './components/utils/loadImg.js';
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
               <Route path="/vis-factura" element={<VisFactura />} />
               <Route path="/vis-factura" element={<VisFactura />} />
               <Route path="/facturacion" element={<Facturacion />} />
+              <Route path="/Img" element={<Img />} />
               
               {/* Agrega más rutas aquí según sea necesario */}
             </Routes>

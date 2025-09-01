@@ -137,6 +137,9 @@ const Sidebar = () => {
           <a onClick={() => (window.location.href = "../products/registro_p.html")}>
             <i className="fa-solid fa-box"></i> <span className="link-text">Producto</span>
           </a>
+          <a onClick={(e) => { e.preventDefault(); window.location.href = "/Img"; }}>
+            <i className="fa-solid fa-home"></i> <span className="link-text">Inicio</span>
+          </a>
         </div>
         <a onClick={() => (window.location.href = "../utils/notify.html")}>
           <i className="fa-solid fa-bell"></i> <span className="link-text">Notificaciones</span>
