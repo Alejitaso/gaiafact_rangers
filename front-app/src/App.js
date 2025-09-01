@@ -20,7 +20,6 @@ function App() {
               <Route exact path="/" component={Inicio}/>
               <Route path="/inicio" element={<Inicio />} />
               <Route path="/vis-factura" element={<VisFactura />} />
-              <Route path="/vis-factura" element={<VisFactura />} />
               <Route path="/facturacion" element={<Facturacion />} />
               
               {/* Agrega más rutas aquí según sea necesario */}

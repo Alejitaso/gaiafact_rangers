@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react';
-import './main.css';
-import './sidebar.css'
+import styles from './sidebar.module.css';
 
 const Sidebar = () => {
   const toggleNav = () => {
@@ -103,61 +102,109 @@ const Sidebar = () => {
 
   return (
     <Fragment>
-      <div id="mySidebar" className="sidebar">
-        <button className="openbtn" onClick={toggleNav}>
+      <div id="mySidebar" className={styles.sidebar}>
+        <button className={styles.openbtn} onClick={toggleNav}>
           &#9776;
         </button>
-        <a onClick={(e) => { e.preventDefault(); window.location.href = "/inicio"; }}>
-          <i className="fa-solid fa-home"></i> <span className="link-text">Inicio</span>
+        <a 
+          onClick={(e) => { e.preventDefault(); window.location.href = "/inicio"; }} 
+          className={styles.sidebarLink}
+        >
+          <i className="fa-solid fa-home"></i> 
+          <span className={styles.linkText}>Inicio</span>
         </a>
-        <a onClick={(e) => { e.preventDefault(); window.location.href = "/facturacion"; }}>
-          <i className="fa-solid fa-money-bills"></i> <span className="link-text">Facturación</span>
+        <a 
+          onClick={(e) => { e.preventDefault(); window.location.href = "/facturacion"; }} 
+          className={styles.sidebarLink}
+        >
+          <i className="fa-solid fa-money-bills"></i> 
+          <span className={styles.linkText}>Facturación</span>
         </a>
-        <a onClick={(e) => { e.preventDefault(); window.location.href = "/facturacion"; }}>
-          <i className="fa-solid fa-list-ul"></i> <span className="link-text">Facturación</span>
+        <a 
+          onClick={(e) => { e.preventDefault(); window.location.href = "/vis-factura"; }} 
+          className={styles.sidebarLink}
+        >
+          <i className="fa-solid fa-list-ul"></i> 
+          <span className={styles.linkText}>Ver factura</span>
         </a>
-        <a className="code_info" onClick={toggleCodeInfo}>
-          <i className="fa-solid fa-qrcode"></i> <span className="link-text">Códigos</span>
+        <a className={styles.codeInfo} onClick={toggleCodeInfo}>
+          <i className="fa-solid fa-qrcode"></i> 
+          <span className={styles.linkText}>Códigos</span>
         </a>
-        <div id="codeInfo" className="contact-info expan">
-          <a onClick={() => (window.location.href = "../utils/codigo_qr.html")}>
-            <i className="fa-solid fa-qrcode"></i> <span className="link-text">QR</span>
+        <div id="codeInfo" className={`${styles.contactInfo} ${styles.expan}`}>
+          <a 
+            onClick={() => (window.location.href = "../utils/codigo_qr.html")} 
+            className={styles.sidebarLink}
+          >
+            <i className="fa-solid fa-qrcode"></i> 
+            <span className={styles.linkText}>QR</span>
           </a>
-          <a onClick={() => (window.location.href = "../utils/codigo_br.html")}>
-            <i className="fa-solid fa-barcode"></i> <span className="link-text">Barras</span>
+          <a 
+            onClick={() => (window.location.href = "../utils/codigo_br.html")} 
+            className={styles.sidebarLink}
+          >
+            <i className="fa-solid fa-barcode"></i> 
+            <span className={styles.linkText}>Barras</span>
           </a>
         </div>
-        <a onClick={toggleRegInfo}>
-          <i className="fa-solid fa-folder-plus"></i> <span className="link-text">Registro</span>
+        <a onClick={toggleRegInfo} className={styles.sidebarLink}>
+          <i className="fa-solid fa-folder-plus"></i> 
+          <span className={styles.linkText}>Registro</span>
         </a>
-        <div id="regInfo" className="contact-info expan">
-          <a href="#" onClick={() => (window.location.href = "../auth/registro_u_super.html")}>
-            <i className="fa-solid fa-user"></i> <span className="link-text">Usuario</span>
+        <div id="regInfo" className={`${styles.contactInfo} ${styles.expan}`}>
+          <a 
+            href="#" 
+            onClick={() => (window.location.href = "../auth/registro_u_super.html")} 
+            className={styles.sidebarLink}
+          >
+            <i className="fa-solid fa-user"></i> 
+            <span className={styles.linkText}>Usuario</span>
           </a>
-          <a onClick={() => (window.location.href = "../products/registro_p.html")}>
-            <i className="fa-solid fa-box"></i> <span className="link-text">Producto</span>
+          <a 
+            onClick={() => (window.location.href = "../products/registro_p.html")} 
+            className={styles.sidebarLink}
+          >
+            <i className="fa-solid fa-box"></i> 
+            <span className={styles.linkText}>Producto</span>
           </a>
         </div>
-        <a onClick={() => (window.location.href = "../utils/notify.html")}>
-          <i className="fa-solid fa-bell"></i> <span className="link-text">Notificaciones</span>
+        <a 
+          onClick={() => (window.location.href = "../utils/notify.html")} 
+          className={styles.sidebarLink}
+        >
+          <i className="fa-solid fa-bell"></i> 
+          <span className={styles.linkText}>Notificaciones</span>
         </a>
-        <a onClick={() => (window.location.href = "../products/inventario.html")}>
-          <i className="fa-solid fa-clipboard-list"></i> <span className="link-text">Inventario</span>
+        <a 
+          onClick={() => (window.location.href = "../products/inventario.html")} 
+          className={styles.sidebarLink}
+        >
+          <i className="fa-solid fa-clipboard-list"></i> 
+          <span className={styles.linkText}>Inventario</span>
         </a>
-        <a onClick={() => (window.location.href = "../user/perfil.html")}>
-          <i className="fa-solid fa-user-secret"></i> <span className="link-text">Perfil</span>
+        <a 
+          onClick={() => (window.location.href = "../user/perfil.html")} 
+          className={styles.sidebarLink}
+        >
+          <i className="fa-solid fa-user-secret"></i> 
+          <span className={styles.linkText}>Perfil</span>
         </a>
-        <a className="contact-toggle" onClick={toggleContactInfo}>
-          <i className="fa-solid fa-envelope"></i> <span className="link-text">Contacto</span>
+        <a className={styles.contactToggle} onClick={toggleContactInfo}>
+          <i className="fa-solid fa-envelope"></i> 
+          <span className={styles.linkText}>Contacto</span>
         </a>
-        <div id="contactInfo" className="contact-info">
+        <div id="contactInfo" className={styles.contactInfo}>
           <p>Email: contacto@gaiafact.com</p>
           <p>Tel: +57 310 123 4567</p>
           <p>Dir: Cra 10 # 20-30, Dosquebradas</p>
         </div>
-        <div className="salir">
-          <a onClick={() => (window.location.href = "../auth/login.html")}>
-            <i className="fa-solid fa-sign-out-alt"></i> <span className="link-text">Salir</span>
+        <div className={styles.salir}>
+          <a 
+            onClick={() => (window.location.href = "../auth/login.html")} 
+            className={styles.sidebarLink}
+          >
+            <i className="fa-solid fa-sign-out-alt"></i> 
+            <span className={styles.linkText}>Salir</span>
           </a>
         </div>
       </div>

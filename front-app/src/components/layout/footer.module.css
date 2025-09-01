@@ -26,3 +26,25 @@
     opacity: 0.9; /* Ligera transparencia */
     text-shadow: 0.5px 0.5px 1px rgba(255,255,255,0.2); /* Sombra tenue para el texto */
 }
+
+@media (max-width: 768px) {
+    .slang h2 {
+        font-size: 16px;
+        padding: 0 15px;
+    }
+
+    .linea {
+        width: 90%;
+        margin: 30px auto 10px auto;
+    }
+
+    .copyright h2 {
+        font-size: 14px;
+    }
+
+    .linea_1, .footer {
+        justify-content: center; 
+        align-items: center;
+    }
+    
+}

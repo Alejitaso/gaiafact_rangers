@@ -1,22 +1,21 @@
 import React, { Fragment } from 'react';
-import './main.css';
-import './header.css'
+import styles from'./header.module.css'
 
 const Header = ({ title }) => {
     return (
     <Fragment>
         <header>
-            <div className="linea_1"></div>
-        <div className="logos">
-            <div className="logo-izquierdo">
+            <div className={styles.linea_1}></div>
+        <div className={styles.logos}>
+            <div className={styles.logoizquierdo}>
             <img src="../logos/logo_final (1).png" alt="Logo Izquierdo" />
             </div>
-            <div className="nombre-tienda">Athena'S</div>
-            <div className="logo-derecho">
+            <div className={styles.nombretienda}>Athena'S</div>
+            <div className={styles.logoderecho}>
             <img src="../logos/logo_athena_S.png" alt="Logo Derecho" />
             </div>
         </div>
-        <div className="linea_2">
+        <div className={styles.linea_2}>
             <h1>{title}</h1>
         </div>
         </header>

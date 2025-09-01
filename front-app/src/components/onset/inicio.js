@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import './inicio.css';
 
 
-const inicio = () => {
+const Inicio = () => {
     return (
     <Fragment>
         <div className="curved-carousel-wrapper">
@@ -27,4 +27,4 @@ const inicio = () => {
 };
 
 
-export default inicio;
+export default Inicio;
