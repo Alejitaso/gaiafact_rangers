@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import './main.css';
+import './sidebar.css'
 
 const Sidebar = () => {
   const toggleNav = () => {
@@ -106,47 +107,47 @@ const Sidebar = () => {
         <button className="openbtn" onClick={toggleNav}>
           &#9776;
         </button>
-        <a href="#" onClick={() => (window.location.href = "../index.html")}>
+        <a onClick={(e) => { e.preventDefault(); window.location.href = "/inicio"; }}>
           <i className="fa-solid fa-home"></i> <span className="link-text">Inicio</span>
         </a>
-        <a href="#" onClick={(e) => { e.preventDefault(); window.location.href = "/facturacion"; }}>
+        <a onClick={(e) => { e.preventDefault(); window.location.href = "/facturacion"; }}>
           <i className="fa-solid fa-money-bills"></i> <span className="link-text">Facturación</span>
         </a>
-        <a href="/vis-factura">
-          <i className="fa-solid fa-list-ul"></i> <span className="link-text">ver factura</span>
+        <a onClick={(e) => { e.preventDefault(); window.location.href = "/facturacion"; }}>
+          <i className="fa-solid fa-list-ul"></i> <span className="link-text">Facturación</span>
         </a>
-        <a href="#" className="code_info" onClick={toggleCodeInfo}>
+        <a className="code_info" onClick={toggleCodeInfo}>
           <i className="fa-solid fa-qrcode"></i> <span className="link-text">Códigos</span>
         </a>
         <div id="codeInfo" className="contact-info expan">
-          <a href="#" onClick={() => (window.location.href = "../utils/codigo_qr.html")}>
+          <a onClick={() => (window.location.href = "../utils/codigo_qr.html")}>
             <i className="fa-solid fa-qrcode"></i> <span className="link-text">QR</span>
           </a>
-          <a href="#" onClick={() => (window.location.href = "../utils/codigo_br.html")}>
+          <a onClick={() => (window.location.href = "../utils/codigo_br.html")}>
             <i className="fa-solid fa-barcode"></i> <span className="link-text">Barras</span>
           </a>
         </div>
-        <a href="#" onClick={toggleRegInfo}>
+        <a onClick={toggleRegInfo}>
           <i className="fa-solid fa-folder-plus"></i> <span className="link-text">Registro</span>
         </a>
         <div id="regInfo" className="contact-info expan">
           <a href="#" onClick={() => (window.location.href = "../auth/registro_u_super.html")}>
             <i className="fa-solid fa-user"></i> <span className="link-text">Usuario</span>
           </a>
-          <a href="#" onClick={() => (window.location.href = "../products/registro_p.html")}>
+          <a onClick={() => (window.location.href = "../products/registro_p.html")}>
             <i className="fa-solid fa-box"></i> <span className="link-text">Producto</span>
           </a>
         </div>
-        <a href="#" onClick={() => (window.location.href = "../utils/notify.html")}>
+        <a onClick={() => (window.location.href = "../utils/notify.html")}>
           <i className="fa-solid fa-bell"></i> <span className="link-text">Notificaciones</span>
         </a>
-        <a href="#" onClick={() => (window.location.href = "../products/inventario.html")}>
+        <a onClick={() => (window.location.href = "../products/inventario.html")}>
           <i className="fa-solid fa-clipboard-list"></i> <span className="link-text">Inventario</span>
         </a>
-        <a href="#" onClick={() => (window.location.href = "../user/perfil.html")}>
+        <a onClick={() => (window.location.href = "../user/perfil.html")}>
           <i className="fa-solid fa-user-secret"></i> <span className="link-text">Perfil</span>
         </a>
-        <a href="#" className="contact-toggle" onClick={toggleContactInfo}>
+        <a className="contact-toggle" onClick={toggleContactInfo}>
           <i className="fa-solid fa-envelope"></i> <span className="link-text">Contacto</span>
         </a>
         <div id="contactInfo" className="contact-info">
@@ -155,7 +156,7 @@ const Sidebar = () => {
           <p>Dir: Cra 10 # 20-30, Dosquebradas</p>
         </div>
         <div className="salir">
-          <a href="#" onClick={() => (window.location.href = "../auth/login.html")}>
+          <a onClick={() => (window.location.href = "../auth/login.html")}>
             <i className="fa-solid fa-sign-out-alt"></i> <span className="link-text">Salir</span>
           </a>
         </div>

@@ -1,73 +1,34 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import "./App.css";
+import React, { Fragment } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Sidebar from './components/layout/sidebar.js';
+import Header from './components/layout/Header.js';
+import Footer from './components/layout/footer.js';
+import VisFactura from './components/billing/visFactura.js';
+import Facturacion from './components/billing/facturacion.js';
+import Inicio from './components/onset/inicio.js';
 
-//pantallas de autenticación
-import Login from "./auth/Login";
-import Recuperar from "./auth/Recuperar";       
-import NuevaContra from "./auth/Nueva_contra"; 
-
-//pantallas del sistema
-import Dashboard from "./pages/Dashboard";
-import Clientes from "./pages/Clientes";
-import Productos from "./pages/Productos";
-import Facturas from "./pages/Facturas";
-
-//rutas privadas
-const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/login" />;
-};
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Rutas públicas (auth) */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/recuperar" element={<Recuperar />} />
-        <Route path="/nueva-contra" element={<NuevaContra />} />
-
-        {/* Rutas privadas */}
-        <Route
-          path="/"//en cualquier parte que diga dashboard va el nombre de la pagina inicial
-          element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/clientes"
-          element={
-            <PrivateRoute>
-              <Clientes />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/productos"
-          element={
-            <PrivateRoute>
-              <Productos />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/facturas"
-          element={
-            <PrivateRoute>
-              <Facturas />
-            </PrivateRoute>
-          }
-        />
-
-        {/* Redirección inicial */}
-        <Route path="/" element={<Navigate to="/paginainicio" />} />
-
-        {/* 404 */}
-        <Route path="*" element={<h2>404 - Página no encontrada</h2>} />
-      </Routes>
+  <Router>
+      <Fragment>
+        <Sidebar />
+        <div id="main">
+          <Header title="GaiaFact" />
+          <div className="content">
+            <Routes>
+              <Route exact path="/" component={Inicio}/>
+              <Route path="/inicio" element={<Inicio />} />
+              <Route path="/vis-factura" element={<VisFactura />} />
+              <Route path="/vis-factura" element={<VisFactura />} />
+              <Route path="/facturacion" element={<Facturacion />} />
+              
+              {/* Agrega más rutas aquí según sea necesario */}
+            </Routes>
+          </div>
+          <Footer />
+        </div>
+      </Fragment>
     </Router>
   );
 }
