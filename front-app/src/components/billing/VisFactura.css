@@ -1,27 +1,9 @@
-:root {
-    --color-uno: #254454;
-    --color-dos: #F0F4F8;
-    --color-tres: #276177;
-    --color-cuatro: #D1DCE6;
-    --color-cinco: #8E9BE8;
-    --color-seis: #C7BEDB;
-    --color-siete: #F61507;
-    --color-ocho: #406f81; /* botones sobre color uno */
-}
-
-.content {
-    margin-top: 5%;
-    display: flex;
-    justify-content: center;
-    width: 100%;
-
-}
-
 /* Formulario con efecto 'frosted glass' */
 .vis-form {
     background-color: rgba(255, 255, 255, 0.15); /* Fondo blanco semitransparente */
-    backdrop-filter: blur(10px); /* Aplica desenfoque al fondo detrás del formulario */
+     /* Aplica desenfoque al fondo detrás del formulario */
     -webkit-backdrop-filter: blur(10px); /* Compatibilidad con Safari */
+    backdrop-filter: blur(10px);
     border-radius: 15px; /* Bordes redondeados */
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); /* Sombra externa pronunciada */
     border: 1px solid rgba(255, 255, 255, 0.18); /* Borde sutil blanco */

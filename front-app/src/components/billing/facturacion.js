@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import './Facturacion.css';
+import './../layout/main.css'
 
 const Facturacion = () => {
     return (
@@ -19,7 +20,7 @@ const Facturacion = () => {
             <input type="text" placeholder="Teléfono" />
             <input type="email" placeholder="Correo" />
         </div>
-        <div class="boton_añadir">
+        <div className="boton_añadir">
             <button className="fa-solid fa-plus"></button>
         </div>
         <table className="facturacion-tabla">

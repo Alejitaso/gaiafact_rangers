@@ -7,7 +7,7 @@ const inicio = () => {
     <Fragment>
         <div className="curved-carousel-wrapper">
             <div className="curved-carousel">
-                <div className="curved-carousel-item"><img src="" alt="Imagen 1" /></div>
+                <div className="curved-carousel-item"><img src="./img/4efd6dbf44cd2dfd258b6577cf36622b.webp" alt="Imagen 1" /></div>
                 <div className="curved-carousel-item"><img src="" alt="Imagen 2" /></div>
                 <div className="curved-carousel-item"><img src="" alt="Imagen 3" /></div>
                 <div className="curved-carousel-item"><img src="" alt="Imagen 4" /></div>
