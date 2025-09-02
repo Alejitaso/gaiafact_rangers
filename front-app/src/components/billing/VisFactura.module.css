@@ -1,14 +1,4 @@
-/* Adaptación de VisFactura.css a CSS Module */
-:root {
-    --color-uno: #254454;
-    --color-dos: #F0F4F8;
-    --color-tres: #276177;
-    --color-cuatro: #D1DCE6;
-    --color-cinco: #8E9BE8;
-    --color-seis: #C7BEDB;
-    --color-siete: #F61507;
-    --color-ocho: #406f81;
-}
+/* NO incluir :root en CSS Modules - las variables deben estar en main.css global */
 
 .visFactura {
     width: 90%;
@@ -21,6 +11,7 @@
     align-items: center;
     justify-content: center;
 }
+
 .visForm {
     background-color: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
@@ -36,48 +27,8 @@
     gap: 20px;
     position: relative;
 }
-.searchBar {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.searchBarInput {
-    padding: 8px 12px;
-    border: 1px solid var(--color-cuatro);
-    border-radius: 5px;
-    background-color: var(--color-dos);
-    color: var(--color-uno);
-    font-size: 14px;
-}
-.searchBarIcon {
-    color: var(--color-uno);
-    font-size: 18px;
-    cursor: pointer;
-}
-.inventoryTable {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-.inventoryTableTh,
-.inventoryTableTd {
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-left: 0cm;
-    border-right: 0cm;
-    padding: 10px;
-    text-align: left;
-    color: var(--color-uno);
-}
-.inventoryTableTh {
-    background-color: rgba(37, 68, 84, 0.1);
-    font-weight: bold;
-}
-.inventoryTableTrEven {
-    background-color: rgba(255, 255, 255, 0.05);
-}
+
+/* Barra de búsqueda completa */
 .barraBusquedaCompleta {
     display: flex;
     align-items: center;
@@ -88,6 +39,12 @@
     position: relative;
     width: 100%;
 }
+
+/* Filtro de búsqueda */
+.filtroBusqueda {
+    flex-shrink: 0;
+}
+
 .filtroBusquedaSelect {
     padding: 8px 10px;
     font-size: 14px;
@@ -96,21 +53,26 @@
     background-color: var(--color-dos);
     color: var(--color-uno);
 }
+
+/* Barra de búsqueda */
 .barraBusqueda {
     display: flex;
     align-items: center;
     position: relative;
     flex-grow: 1;
+    margin: 0 10px;
 }
+
 .barraBusquedaInput {
     width: 100%;
-    padding: 8px 12px 8px 12px;
+    padding: 8px 12px;
     border-radius: 5px;
     border: 1px solid var(--color-cuatro);
     background-color: var(--color-dos);
     color: var(--color-uno);
     font-size: 14px;
 }
+
 .barraBusquedaIcon {
     position: absolute;
     right: 10px;
@@ -118,6 +80,12 @@
     font-size: 16px;
     cursor: pointer;
 }
+
+/* Calendario de búsqueda */
+.calendarioBusqueda {
+    flex-shrink: 0;
+}
+
 .calendarioBusquedaInput {
     padding: 8px 10px;
     font-size: 14px;
@@ -125,4 +93,50 @@
     border: 1px solid var(--color-cuatro);
     background-color: var(--color-dos);
     color: var(--color-uno);
+}
+
+/* Tabla de inventario */
+.inventoryTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.inventoryTableTh,
+.inventoryTableTd {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-left: 0;
+    border-right: 0;
+    padding: 10px;
+    text-align: left;
+    color: var(--color-uno);
+}
+
+.inventoryTableTh {
+    background-color: rgba(37, 68, 84, 0.1);
+    font-weight: bold;
+}
+
+.inventoryTableTrEven {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .barraBusquedaCompleta {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .filtroBusqueda,
+    .barraBusqueda,
+    .calendarioBusqueda {
+        width: 100%;
+        margin: 0;
+    }
+    
+    .visForm {
+        padding: 20px;
+    }
 }

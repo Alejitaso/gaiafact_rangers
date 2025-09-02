@@ -129,7 +129,7 @@ const Sidebar = () => {
         </a>
         <a className={styles.codeInfo} onClick={toggleCodeInfo}>
           <i className="fa-solid fa-qrcode"></i> 
-          <span className={styles.linkText}>Códigos</span>
+          <span className={styles.linkText}>Codigos</span>
         </a>
         <div id="codeInfo" className={`${styles.contactInfo} ${styles.expan}`}>
           <a 

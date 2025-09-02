@@ -33,8 +33,10 @@
     cursor: pointer;
 }
 
-/* Modificar para los logos del menu*/
-.sidebarLink i {
+/* Modificar para los logos del menu - APLICAR A TODAS LAS CLASES */
+.sidebarLink i,
+.codeInfo i,
+.contactToggle i {
     margin-right: 15px; 
     font-size: 20px; 
     width: 20px; 
