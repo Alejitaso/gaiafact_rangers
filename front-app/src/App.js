@@ -6,23 +6,29 @@ import Footer from './components/layout/footer.js';
 import VisFactura from './components/billing/visFactura.js';
 import Facturacion from './components/billing/facturacion.js';
 import Inicio from './components/onset/inicio.js';
-
+import RegistroUsuario from './components/auth/registroUsuario.js';
+import EditarProducto from './components/products/editarProducto.js';
+import CodigoBarras from './components/utils/codigoBarras.js';
 
 function App() {
   return (
-  <Router>
+    <Router>
       <Fragment>
         <Sidebar />
         <div id="main">
           <Header title="GaiaFact" />
           <div className="content">
             <Routes>
-              <Route exact path="/" component={Inicio}/>
+              <Route path="/" element={<Inicio />} />
               <Route path="/inicio" element={<Inicio />} />
               <Route path="/vis-factura" element={<VisFactura />} />
               <Route path="/facturacion" element={<Facturacion />} />
-              
-              {/* Agrega más rutas aquí según sea necesario */}
+              <Route path="/registro" element={<RegistroUsuario />} />
+              {/* Ruta actualizada para recibir el ID como parámetro */}
+              <Route path="/editar/:id" element={<EditarProducto />} />
+              {/* Ruta alternativa si quieres mantener la original */}
+              <Route path="/editar" element={<EditarProducto />} />
+              <Route path="/codbarras" element={<CodigoBarras />} />
             </Routes>
           </div>
           <Footer />

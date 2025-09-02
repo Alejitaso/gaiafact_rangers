@@ -1,7 +1,7 @@
-// src/componentes/CodigoBarras.js
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import clienteAxios from '../../config/axios';
 import Swal from 'sweetalert2';
+import styles from './codigoBr.module.css';
 
 function CodigoBarras() {
   const [codigo, setCodigo] = useState('');
@@ -35,44 +35,63 @@ function CodigoBarras() {
   };
 
   return (
-    <React.Fragment>
-      <h1>Generar Código de Barras</h1>
-      <form onSubmit={(e) => e.preventDefault()}>
-        <legend>Usa el generador y aplícalo a una factura</legend>
+    <Fragment>
+      <div className={styles.content}>
+        <div className={styles.form}>
+          {/* Campo para N° de factura */}
+          <div>
+            <div>
+              <label htmlFor="numfactura">Ingrese N° de factura</label>
+            </div>
+            <input
+              type="text"
+              id="res_factura"
+              name="numfactura"
+              value={idFactura}
+              onChange={(e) => setIdFactura(e.target.value)}
+            />
+          </div>
 
-        <div className="campo">
-          <label>Código de Barras:</label>
-          <input
-            type="text"
-            placeholder="Genera el código"
-            name="codigo_barras"
-            value={codigo}
-            readOnly
-          />
-          <button type="button" className="btn btn-azul" onClick={generarCodigo}>
-            Generar Código
-          </button>
-          <button type="button" className="btn btn-azul" onClick={copiar} disabled={!codigo}>
-            Copiar
-          </button>
+          {/* Sección para código de barras */}
+          <div>
+            <label htmlFor="codebr">Código De Barras</label>
+            <div className={styles.QR} name="codebr">
+              <div id="BRCode">
+                {codigo ? <img src={`https://barcodeapi.org/api/128/${codigo}`} alt="Código de barras" /> : null}
+              </div>
+            </div>
+          </div>
+
+          {/* Botones */}
+          <div className={styles.botones}>
+            <div className={styles.boton}>
+              <button type="button" onClick={() => { setCodigo(''); setIdFactura(''); }}>
+                Cancelar
+              </button>
+            </div>
+            <div className={styles.boton}>
+              <button type="button" onClick={guardarEnFactura} disabled={!codigo || !idFactura}>
+                Guardar
+              </button>
+            </div>
+          </div>
+
+          {/* Botones extra: generar y copiar */}
+          <div className={styles.botones}>
+            <div className={styles.boton}>
+              <button type="button" onClick={generarCodigo}>
+                Generar Código
+              </button>
+            </div>
+            <div className={styles.boton}>
+              <button type="button" onClick={copiar} disabled={!codigo}>
+                Copiar
+              </button>
+            </div>
+          </div>
         </div>
-
-        <div className="campo">
-          <label>ID de Factura:</label>
-          <input
-            type="text"
-            placeholder="ID de la factura (MongoID)"
-            name="idFactura"
-            value={idFactura}
-            onChange={(e) => setIdFactura(e.target.value)}
-          />
-        </div>
-
-        <button type="button" className="btn btn-azul" onClick={guardarEnFactura} disabled={!codigo || !idFactura}>
-          Guardar en Factura
-        </button>
-      </form>
-    </React.Fragment>
+      </div>
+    </Fragment>
   );
 }
 

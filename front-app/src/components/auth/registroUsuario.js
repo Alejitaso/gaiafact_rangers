@@ -1,19 +1,17 @@
-// src/componentes/RegistroUsuario.js
 import React, { useState } from 'react';
 import clienteAxios from '../../config/axios';
 import Swal from 'sweetalert2';
-
+import styles from './registro.module.css';
 
 function RegistroUsuario() {
   const [usuario, setUsuario] = useState({
     nombre: '',
     apellido: '',
+    email: '',
     tipo_documento: '',
-    numero_documento: '',
-    correo_electronico: '',
-    contraseña: '',
-    estado: 'Activo',
-    tipo_usuario: 'Superadmin'
+    documento: '',
+    telefono: '',
+    tipo_usuario: '',
   });
 
   const manejarCambio = (e) => {
@@ -24,8 +22,8 @@ function RegistroUsuario() {
   };
 
   const validarFormulario = () => {
-    const { nombre, apellido, tipo_documento, numero_documento, correo_electronico, contraseña } = usuario;
-    return !nombre || !apellido || !tipo_documento || !numero_documento || !correo_electronico || !contraseña;
+    const { nombre, apellido, email, tipo_documento, documento, telefono, tipo_usuario } = usuario;
+    return !nombre || !apellido || !email || !tipo_documento || !documento || !telefono || !tipo_usuario;
   };
 
   const manejarEnvio = async (e) => {
@@ -36,82 +34,132 @@ function RegistroUsuario() {
       setUsuario({
         nombre: '',
         apellido: '',
+        email: '',
         tipo_documento: '',
-        numero_documento: '',
-        correo_electronico: '',
-        contraseña: '',
-        estado: 'Activo',
-        tipo_usuario: 'Superadmin'
+        documento: '',
+        telefono: '',
+        tipo_usuario: ''
       });
     } catch (error) {
+      console.error('Error al registrar usuario:', error);
       Swal.fire('Error', error?.response?.data?.mensaje || 'No se pudo registrar el usuario', 'error');
     }
   };
 
   return (
-    <React.Fragment>
-      <h1>Registrar Super Admin</h1>
-      <form onSubmit={manejarEnvio}>
-        <legend>Llena todos los campos</legend>
+    <div className={styles.content}>
+      <div className={styles['login-box']}>
+        <h2>Registro</h2>
+        <p>
+          ¿Ya tienes una cuenta?{' '}
+          <a className={styles.link} onClick={() => (window.location.href = 'login.html')}>
+            Iniciar sesión
+          </a>
+        </p>
 
-        <div className="campo">
-          <label>Nombre:</label>
-          <input type="text" placeholder="Nombre" name="nombre" onChange={manejarCambio} value={usuario.nombre} />
-        </div>
+        <form className={styles['register-form']} id="registro-form" onSubmit={manejarEnvio}>
+          <label htmlFor="nombre">NOMBRE</label>
+          <input
+            type="text"
+            id="nombre"
+            name="nombre"
+            placeholder="Ingresa tu nombre"
+            value={usuario.nombre}
+            onChange={manejarCambio}
+            required
+          />
 
-        <div className="campo">
-          <label>Apellido:</label>
-          <input type="text" placeholder="Apellido" name="apellido" onChange={manejarCambio} value={usuario.apellido} />
-        </div>
+          <label htmlFor="apellido">APELLIDO</label>
+          <input
+            type="text"
+            id="apellido"
+            name="apellido"
+            placeholder="Ingresa tu apellido"
+            value={usuario.apellido}
+            onChange={manejarCambio}
+            required
+          />
 
-        <div className="campo">
-          <label>Tipo Documento:</label>
-          <select name="tipo_documento" onChange={manejarCambio} value={usuario.tipo_documento}>
-            <option value="">-- Selecciona --</option>
-            <option value="Cedula de ciudadania">Cédula de ciudadanía</option>
-            <option value="Cedula extranjeria">Cédula de extranjería</option>
-            <option value="Nit">NIT</option>
-            <option value="Pasaporte">Pasaporte</option>
+          <label htmlFor="email">CORREO ELECTRÓNICO</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Ingresa tu correo"
+            value={usuario.email}
+            onChange={manejarCambio}
+            required
+          />
+
+          <label htmlFor="tipo-documento">TIPO DE DOCUMENTO</label>
+          <select
+            id="tipo-documento"
+            name="tipo_documento"
+            value={usuario.tipo_documento}
+            onChange={manejarCambio}
+            required
+          >
+            <option value="">Seleccione...</option>
+            <option value="CC">Cédula de Ciudadanía (CC)</option>
+            <option value="CE">Cédula de Extranjería (CE)</option>
+            <option value="TI">Tarjeta de Identidad (TI)</option>
+            <option value="PA">Pasaporte (PA)</option>
+            <option value="NIT">NIT</option>
           </select>
-        </div>
 
-        <div className="campo">
-          <label>Número Documento:</label>
-          <input type="text" placeholder="Número de documento" name="numero_documento" onChange={manejarCambio} value={usuario.numero_documento} />
-        </div>
+          <label htmlFor="documento">NÚMERO DE DOCUMENTO</label>
+          <input
+            type="text"
+            id="documento"
+            name="documento"
+            placeholder="Número de documento"
+            value={usuario.documento}
+            onChange={manejarCambio}
+            required
+          />
 
-        <div className="campo">
-          <label>Correo Electrónico:</label>
-          <input type="email" placeholder="Correo electrónico" name="correo_electronico" onChange={manejarCambio} value={usuario.correo_electronico} />
-        </div>
+          <label htmlFor="telefono">TELÉFONO</label>
+          <input
+            type="tel"
+            id="telefono"
+            name="telefono"
+            placeholder="Ingresa tu número"
+            value={usuario.telefono}
+            onChange={manejarCambio}
+            required
+          />
 
-        <div className="campo">
-          <label>Contraseña:</label>
-          <input type="password" placeholder="Contraseña" name="contraseña" onChange={manejarCambio} value={usuario.contraseña} />
-        </div>
-
-        <div className="campo">
-          <label>Estado:</label>
-          <select name="estado" onChange={manejarCambio} value={usuario.estado}>
-            <option value="Activo">Activo</option>
-            <option value="Inactivo">Inactivo</option>
+          <label htmlFor="tipo-usuario">TIPO DE USUARIO</label>
+          <select
+            id="tipo-usuario"
+            name="tipo_usuario"
+            value={usuario.tipo_usuario}
+            onChange={manejarCambio}
+            required
+          >
+            <option value="">Seleccione...</option>
+            <option value="Administrador">ADMINISTRADOR</option>
+            <option value="Usuario">USUARIO</option>
+            <option value="Cliente">CLIENTE</option>
           </select>
-        </div>
 
-        <div className="campo">
-          <label>Tipo de Usuario:</label>
-          <select name="tipo_usuario" onChange={manejarCambio} value={usuario.tipo_usuario}>
-            <option value="Superadmin">Superadmin</option>
-            <option value="Admin">Admin</option>
-            <option value="cliente">Cliente</option>
-            <option value="Usuario">Usuario</option>
-          </select>
-        </div>
+          <button type="submit" disabled={validarFormulario()}>
+            Registrar
+          </button>
 
-        <button type="submit" className="btn btn-azul" disabled={validarFormulario()}>Registrar</button>
-      </form>
-    </React.Fragment>
+          {/* Modal */}
+          <div id="modal" className={styles.modal}>
+            <div id="modalContenido" className={styles['modal-contenido']}>
+              <h2>Usuario registrado correctamente</h2>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
 
 export default RegistroUsuario;
+
+
+

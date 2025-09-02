@@ -154,7 +154,7 @@ const Sidebar = () => {
         <div id="regInfo" className={`${styles.contactInfo} ${styles.expan}`}>
           <a 
             href="#" 
-            onClick={() => (window.location.href = "../auth/registro_u_super.html")} 
+            onClick={() => (window.location.href = "/registro")} 
             className={styles.sidebarLink}
           >
             <i className="fa-solid fa-user"></i> 
