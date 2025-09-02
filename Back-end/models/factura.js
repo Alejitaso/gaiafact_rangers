@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const factiraSchema = new Schema({
+const facturaSchema = new Schema({
     id_cliente :{
         type: Number,
         ref: 'cliente',

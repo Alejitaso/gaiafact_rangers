@@ -3,7 +3,7 @@ const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
 const JsBarcode = require('jsbarcode');
 const nodemailer = require('nodemailer');
-const { Canvas } = require('canvas');
+
 
 // =====================================================
 // GENERAR XML DIAN
