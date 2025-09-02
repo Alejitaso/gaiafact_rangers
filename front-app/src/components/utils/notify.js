@@ -2,6 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react';
 import usuarioAxios from '../../config/axios';
 import Swal from 'sweetalert2';
 
+
 function Notificaciones({ idUsuario }) {
     const [notificaciones, setNotificaciones] = useState([]);
     const [cargando, setCargando] = useState(true);

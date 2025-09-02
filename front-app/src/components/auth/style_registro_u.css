@@ -1,0 +1,222 @@
+:root {
+    --color-uno: #254454;
+    --color-dos: #F0F4F8;
+    --color-tres: #276177;
+    --color-cuatro: #D1DCE6;
+    --color-cinco: #8E9BE8;
+    --color-seis: #C7BEDB;
+    --color-siete: #F61507;
+    --color-ocho: #406f81; /* botones sobre color uno */
+}
+
+#mensaje-error{
+    color:var(--color-siete)
+}
+
+/* ===================================
+   Formulario de Registro de Cliente
+=================================== */
+.login-box {
+    background-color: rgba(37, 68, 84, 0.95); /* Fondo con transparencia usando color similar a var(--color-uno) */
+    max-width: 600px; /* Ancho máximo de la caja de login */
+    margin: 40px auto; /* Margen superior e inferior 40px, centrado horizontalmente */
+    padding: 40px 50px; /* Espaciado interno: 40px arriba/abajo, 50px izquierda/derecha */
+    border-radius: 15px; /* Bordes redondeados */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4); /* Sombra alrededor de la caja */
+    backdrop-filter: blur(4px); /* Efecto de desenfoque del fondo (para navegadores compatibles) */
+    -webkit-backdrop-filter: blur(4px); /* Prefijo para compatibilidad con Safari */
+    color: var(--color-dos); /* Color del texto dentro de la caja */
+}
+
+.login-box h2 {
+    font-size: 28px; /* Tamaño de fuente para el título */
+    margin-bottom: 15px; /* Espacio inferior */
+    text-align: center; /* Centrado del texto */
+    color: var(--color-dos); /* Color del título */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2); /* Sombra sutil para dar profundidad al texto */
+}
+
+.login-box p {
+    text-align: center; /* Centrado del párrafo */
+    margin-bottom: 25px; /* Espacio inferior */
+    font-size: 16px; /* Tamaño del texto */
+    color: var(--color-cuatro); /* Color del texto */
+}
+
+.login-box p a {
+    color: var(--color-cinco); /* Color del enlace */
+    text-decoration: none; /* Sin subrayado */
+    font-weight: bold; /* Texto en negrita */
+    transition: color 0.3s; /* Transición suave al cambiar color */
+}
+
+.link {
+    transition: text-decorration 0.3s ease;
+    cursor: pointer;
+}
+
+.link:hover {
+    text-decoration: underline;
+    color: var(--color-cinco);
+}
+
+.register-form {
+    display: flex; /* Contenedor flexible */
+    flex-direction: column; /* Organiza los elementos en columna */
+    gap: 15px; /* Espaciado entre los elementos */
+}
+
+.register-form label {
+    font-size: 14px; /* Tamaño de fuente de etiquetas */
+    font-weight: 600; /* Negrita media */
+    color: var(--color-dos); /* Color del texto de la etiqueta */
+    margin-bottom: 5px; /* Espacio debajo de cada etiqueta */
+}
+
+.register-form input,
+.register-form select {
+    padding: 12px 15px; /* Espaciado interno */
+    border-radius: 8px; /* Bordes redondeados */
+    border: 1px solid rgba(255,255,255,0.4); /* Borde semitransparente */
+    background-color: rgba(255,255,255,0.9); /* Fondo blanco casi opaco */
+    font-size: 15px; /* Tamaño del texto */
+    color: var(--color-uno); /* Color del texto */
+    transition: box-shadow 0.3s, border-color 0.3s; /* Transición en sombra y borde */
+}
+
+.register-form input::placeholder {
+    color: rgba(37, 68, 84, 0.4); /* Color del placeholder con transparencia */
+}
+
+.register-form input:focus,
+.register-form select:focus {
+    outline: none; /* Quita el borde azul por defecto */
+    border-color: var(--color-cinco); /* Color del borde al enfocar */
+    box-shadow: 0 0 10px rgba(142, 155, 232, 0.8); /* Sombra alrededor al enfocar */
+    background-color: var(--color-dos); /* Cambia el fondo al enfocar */
+}
+
+/* Botón de registro */
+.register-form button[type="submit"] {
+    background-color: var(--color-dos); /* Fondo del botón */
+    color: var(--color-uno); /* Color del texto del botón */
+    padding: 12px 25px; /* Espaciado interno */
+    border: 2px solid var(--color-tres); /* Borde sólido */
+    border-radius: 8px; /* Bordes redondeados */
+    font-size: 18px; /* Tamaño del texto */
+    font-weight: bold; /* Texto en negrita */
+    cursor: pointer; /* Cursor tipo puntero */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Transiciones suaves */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2); /* Sombra del botón */
+}
+
+.register-form button[type="submit"]:hover {
+    background-color: var(--color-tres); /* Cambia color de fondo al pasar el cursor */
+    color: var(--color-dos); /* Cambia color del texto */
+    border-color: var(--color-uno); /* Cambia el borde */
+    transform: translateY(-2px); /* Efecto de elevación */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Sombra diferente al hacer hover */
+}
+
+.modal {
+  display: none; /* Oculta por defecto */
+  position: fixed; /* Fijado en la ventana */
+  z-index: 999; /* Aparece por encima de casi todo */
+    left: 0;
+    top: 0;
+  width: 100%; /* Ocupa todo el ancho */
+  height: 100%; /* Ocupa toda la altura */
+  background-color: rgba(0,0,0,0.5); /* Fondo negro semitransparente */
+}
+
+.modal-contenido h2 {
+    color: #254454; /* Color específico para el título */
+}
+
+.modal-contenido p {
+    color: #254454; /* Color específico para el párrafo */
+}
+
+.modal-contenido {
+  position: relative; /* Posicionamiento relativo para elementos internos */
+  background-color: var(--color-dos); /* Fondo del modal */
+  margin: 10% auto; /* Centrado horizontal y margen superior */
+  padding: 30px; /* Espaciado interno */
+  border-radius: 30px; /* Bordes redondeados */
+  width: 320px; /* Ancho fijo */
+  text-align: center; /* Texto centrado */
+  color: var(--color-uno); /* Color del texto */
+  box-shadow: 0 5px 25px rgba(0,0,0,0.3); /* Sombra para profundidad */
+}
+
+.modal-contenido::before {
+  content: ''; /* Elemento pseudo para el borde interno */
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+  border-radius: 25px; /* Borde menos redondeado que el contenedor */
+  border: 3px solid var(--color-tres); /* Borde interno visible */
+  pointer-events: none; /* No interfiere con clics o eventos */
+}
+
+.modal-contenido input {
+  width: 80%; /* Ancho del input dentro del modal */
+  padding: 10px; /* Espaciado interno */
+  margin: 10px 0; /* Margen vertical */
+  border: none; /* Sin borde */
+  border-radius: 20px; /* Bordes redondeados */
+  background-color: var(--color-cuatro); /* Color de fondo */
+  font-weight: bold; /* Texto en negrita */
+  color: var(--color-tres); /* Color del texto */
+}
+
+.modal-contenido button {
+  background-color: var(--color-ocho); /* Fondo del botón */
+  color: white; /* Texto blanco */
+  padding: 10px 20px; /* Espaciado interno */
+  border: none; /* Sin borde */
+  border-radius: 20px; /* Bordes redondeados */
+  cursor: pointer; /* Cursor tipo puntero */
+  font-weight: bold; /* Texto en negrita */
+}
+
+.error-mensaje {
+  font-weight: bold; /* Negrita para mensajes de error */
+  margin-top: 5px; /* Espacio superior */
+  font-size: 0.9em; /* Tamaño ligeramente menor */
+}
+
+/* ===================================
+   Footer
+=================================== */
+.linea {
+    background-image: linear-gradient(to right, var(--color-tres), var(--color-cinco)); /* Línea degradada de color */
+    height: 3px; /* Altura de la línea */
+    width: 80%; /* Anchura relativa */
+    margin: 50px auto 10px auto; /* Márgenes arriba, abajo, y centrado */
+    border-radius: 2px; /* Bordes ligeramente redondeados */
+    opacity: 0.8; /* Opacidad reducida */
+}
+
+.footer {
+    height: 0; /* No tiene altura, tal vez se use como contenedor vacío */
+}
+
+.copyright {
+    text-align: center; /* Centrado del contenido */
+    height: 60px; /* Altura del área */
+    display: flex; /* Flexbox */
+    justify-content: center; /* Centrado horizontal */
+    align-items: center; /* Centrado vertical */
+    padding: 10px 0; /* Espaciado vertical */
+}
+
+.copyright h2 {
+    color: var(--color-uno); /* Color del texto */
+    margin: 0; /* Sin margen */
+    font-size: 16px; /* Tamaño del texto */
+    opacity: 0.9; /* Ligera transparencia */
+    text-shadow: 0.5px 0.5px 1px rgba(255,255,255,0.2); /* Sombra leve para el texto */
+}

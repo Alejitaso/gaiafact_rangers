@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import clienteAxios from '../../config/axios';
 import Swal from 'sweetalert2';
 
+
 function RegistroUsuario() {
   const [usuario, setUsuario] = useState({
     nombre: '',
