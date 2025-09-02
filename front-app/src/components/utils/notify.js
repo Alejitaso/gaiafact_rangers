@@ -5,7 +5,9 @@ import Swal from 'sweetalert2';
 
 function Notificaciones({ idUsuario }) {
     const [notificaciones, setNotificaciones] = useState([]);
-    const [cargando, setCargando] = useState(true);
+
+    const [numeroFactura, setNumeroFactura] = useState("");
+    const [numeroDocumentoUsuario, setNumeroDocumentoUsuario] = useState("");
 
     const obtenerNotificaciones = async () => {
         try {
@@ -22,51 +24,89 @@ function Notificaciones({ idUsuario }) {
         obtenerNotificaciones();
     }, [idUsuario]);
 
-    const marcarComoLeida = async (idNotificacion) => {
+    const crearNotificacion = async (e) => {
+        e.preventDefault();
         try {
-            await usuarioAxios.put(`/notificaciones/${idNotificacion}/leida`);
-            Swal.fire(
-                'Notificación',
-                'Marcada como leída',
-                'success'
-            );
-            setNotificaciones(notificaciones.map(notif =>
-                notif._id === idNotificacion ? { ...notif, leida: true } : notif
-            ));
-        } catch (error) {
-            Swal.fire({
-                title: "Error",
-                text: "Hubo un error al marcar la notificación como leída",
-                icon: "error"
+            const { data } = await usuarioAxios.post("/notificaciones/crear", {
+                numeroFactura,
+                numeroDocumentoUsuario
             });
+            Swal.fire("Éxito", data.mensaje, "success");
+            setNumeroFactura("");
+            setNumeroDocumentoUsuario("");
+            obtenerNotificaciones();
+        } catch (error) {
+            console.error(error);
+            Swal.fire("Error", "No se pudo crear la notificación", "error");
         }
     };
 
-    if (cargando) {
-        return <div>Cargando notificaciones...</div>;
-    }
+    const enviarFactura = async (idFactura) => {
+        try {
+            const { data } = await usuarioAxios.post(`/facturas/enviar/${idFactura}`);
+            Swal.fire("Éxito", data.mensaje, "success");
+        } catch (error) {
+            console.error(error);
+            Swal.fire("Error", "No se pudo enviar la factura", "error");
+        }
+    };
 
-    if (notificaciones.length === 0) {
-        return <div>No tienes notificaciones.</div>;
-    }
+    const cancelarAccion = (idNotificacion) => {
+        Swal.fire("Cancelado", `Se canceló la acción para la notificación ${idNotificacion}`, "info");
+    };
 
     return (
         <Fragment>
             <h1>Notificaciones</h1>
+
+            {/* Formulario para crear notificación */}
+            <form onSubmit={crearNotificacion} style={{ marginBottom: "2rem" }}>
+                <h2>Crear Notificación</h2>
+                <div>
+                    <label>Número de Factura:</label>
+                    <input
+                        type="text"
+                        value={numeroFactura}
+                        onChange={(e) => setNumeroFactura(e.target.value)}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Número de Documento del Usuario:</label>
+                    <input
+                        type="text"
+                        value={numeroDocumentoUsuario}
+                        onChange={(e) => setNumeroDocumentoUsuario(e.target.value)}
+                        required
+                    />
+                </div>
+                <button type="submit" className="btn btn-verde">Crear</button>
+            </form>
+
+            {/* Lista de notificaciones */}
             <ul className="listado-notificaciones">
                 {notificaciones.map(notif => (
-                    <li key={notif._id} className={notif.leida ? 'notificacion notificacion-leida' : 'notificacion notificacion-no-leida'}>
+                    <li key={notif._id} className="notificacion">
                         <div className="info-notificacion">
-                            <p className="titulo"><strong>{notif.titulo}</strong></p>
-                            <p className="mensaje">{notif.mensaje}</p>
+                            <p className="titulo"><strong>{notif.titulo || "Notificación"}</strong></p>
+                            <p className="mensaje">{notif.mensaje || "Se generó una nueva notificación."}</p>
                             <p className="fecha">{new Date(notif.createdAt).toLocaleDateString()}</p>
                         </div>
                         <div className="acciones">
-                            {!notif.leida && (
-                                <button type="button" className="btn btn-azul" onClick={() => marcarComoLeida(notif._id)}>
-                                    <i className="fas fa-check"></i> Marcar como leída
-                                </button>
-                            )}
+                            <button
+                                type="button"
+                                className="btn btn-verde"
+                                onClick={() => enviarFactura(notif.factura || notif._id)}
+                            >
+                                <i className="fas fa-paper-plane"></i> Enviar
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-rojo"
+                                onClick={() => cancelarAccion(notif._id)}
+                            >
+                                <i className="fas fa-times"></i> Cancelar
+                            </button>
                         </div>
                     </li>
                 ))}
@@ -76,4 +116,7 @@ function Notificaciones({ idUsuario }) {
 }
 
 export default Notificaciones;
+
+
+
 

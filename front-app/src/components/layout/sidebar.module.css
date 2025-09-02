@@ -1,0 +1,242 @@
+/* Estilos para el menú desplegable */
+.sidebar {
+    height: 100%;
+    width: 80px; 
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    background-image: linear-gradient(to top, var(--color-uno), var(--color-tres));
+    overflow-x: hidden; 
+    transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+    padding-top: 80px; 
+    box-shadow: 4px 0 20px rgba(0,0,0,0.5); 
+    white-space: nowrap; 
+    border-right: 1px solid rgba(255,255,255,0.1); 
+    display: flex; 
+    flex-direction: column; 
+    overflow-y: auto;
+}
+
+/* Modificar para los elementos del menú */
+.sidebarLink {
+    padding: 15px 8px 15px 25px; 
+    text-decoration: none;
+    font-size: 17px;
+    color: var(--color-dos); 
+    display: flex; 
+    align-items: center;
+    transition: 0.3s ease-in-out;
+    overflow: hidden; 
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+/* Modificar para los logos del menu - APLICAR A TODAS LAS CLASES */
+.sidebarLink i,
+.codeInfo i,
+.contactToggle i {
+    margin-right: 15px; 
+    font-size: 20px; 
+    width: 20px; 
+    text-align: center; 
+}
+
+/* Clase específica para code_info */
+.codeInfo {
+    padding: 15px 8px 15px 25px; 
+    text-decoration: none;
+    font-size: 17px;
+    color: var(--color-dos); 
+    display: flex; 
+    align-items: center;
+    transition: 0.3s ease-in-out;
+    overflow: hidden; 
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+/* Clase específica para contact-toggle */
+.contactToggle {
+    padding: 15px 8px 15px 25px; 
+    text-decoration: none;
+    font-size: 17px;
+    color: var(--color-dos); 
+    display: flex; 
+    align-items: center;
+    transition: 0.3s ease-in-out;
+    overflow: hidden; 
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+/* Cuando el sidebar está abierto */
+.sidebar:global(.open) {
+    width: 250px;
+}
+
+/* Ocultar texto de los enlaces cuando el sidebar está colapsado */
+.sidebar:not(:global(.open)) .linkText {
+    opacity: 0;
+    pointer-events: none; 
+    transition: opacity 0.1s ease;
+}
+
+/* Mostrar texto de los enlaces cuando el sidebar está abierto */
+.sidebar:global(.open) .linkText {
+    opacity: 1;
+    pointer-events: auto; 
+    transition: opacity 0.3s ease 0.1s;
+}
+
+/* hover para los enlaces del sidebar */
+.sidebarLink:hover,
+.codeInfo:hover,
+.contactToggle:hover {
+    background-color: var(--color-tres); 
+    color: var(--color-dos); 
+    padding-left: 30px; 
+    box-shadow: inset 3px 0 0 var(--color-cinco);
+}
+
+/* Estilos para el botón de abrir/cerrar el menú */
+.openbtn {
+    font-size: 32px;
+    cursor: pointer;
+    background-color: transparent;
+    color: var(--color-dos); 
+    padding: 15px 20px; 
+    border: none;
+    position: absolute;
+    left: 0;
+    top: 15px;
+    z-index: 1001;
+    transition: 0.3s ease;
+}
+
+/* El nuevo azul-morado claro al pasar el ratón */
+.openbtn:hover {
+    color: var(--color-cinco); 
+}
+
+/* Contenido del formulario de contacto (inicialmente oculto) */
+.contactInfo {
+    max-height: 0; 
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out; 
+    padding: 0 25px;
+    color: var(--color-dos); 
+    font-size: 14px;
+    line-height: 1.4;
+    padding-bottom: 0; 
+    background-color: var(--color-tres);
+}
+
+/* Espaciado entre párrafos del contacto*/
+.contactInfo p {
+    margin: 8px 0; 
+}
+
+/* Contenido de contacto al expandirse*/
+.contactInfo:global(.expanded) {
+    max-height: 200px; 
+    padding-bottom: 15px; 
+    z-index: 1010;
+    background-color: var(--color-tres);
+}
+
+/* Estilos para los botones del menu expandidos*/
+.expan .sidebarLink {
+    width: 100%;
+}
+
+/* hover para el hover de los botones del menu*/
+.expan .sidebarLink:hover {
+    width: 100%;
+    background-color: var(--color-ocho);
+}
+
+/*div del salir*/
+.salir {
+    position: absolute;
+    top: 82%;
+    width: 100%;
+}
+
+/* Logo del salir*/
+.salir .sidebarLink {
+    flex-grow: 1;
+    text-align: left;
+}
+
+/* Modificador para pantallas pequeñas*/
+@media (max-width: 767px) {
+
+    .sidebar {
+        height: 100%;
+        width: 0; 
+        position: fixed;
+        left: 0;
+        z-index: 1;
+        background-color: var(--color-uno);
+        overflow-x: hidden; 
+        transition: width 0.5s ease;
+        width: 50px;
+        padding-top: 60px;
+    }
+
+    .sidebar.open {
+        width: 200px; 
+        left: 0;
+    }
+
+    #main {
+        transition: margin-left 0.5s ease; 
+        margin-left: 50px;
+        padding: 16px;
+        box-sizing: border-box;
+    }
+
+    #main.shifted {
+        margin-left: 200px; 
+    }
+
+    .logos .logo-izquierdo img, .logos .logo-derecho img {
+        height: 50px; 
+        max-width: 50px;
+    }
+
+    .logos .nombre-tienda {
+        font-size: 24px; 
+    }
+
+    .sidebar .openbtn {
+        position: absolute; 
+        top: 15px; 
+        font-size: 25px;
+        cursor: pointer;
+        background-color: transparent;
+        color: white;
+        border: none;
+        z-index: 2;
+        left: -10px;
+        top: 8px;
+    }
+
+    .sidebar a {
+        font-size: 16px;
+        padding: 8px 5px 8px 10px; 
+        text-align: left;
+    }
+    .sidebar a i {
+        font-size: 20px;
+        margin-right: 10px;
+    }
+    .sidebar.open a .link-text {
+        margin-left: 10px;
+    }
+    
+}
