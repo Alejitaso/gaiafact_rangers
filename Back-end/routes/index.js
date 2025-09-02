@@ -5,16 +5,15 @@ const router=express.Router()
 const usuarioController= require("../controllers/usuarioController.js");
 const productoController=require('../controllers/productoController.js');
 const facturaController=require('../controllers/facturaController.js');
-const authController = require("../controllers/authcontroller.js");
-
+// FIX: Cambiar el nombre del archivo para que coincida
+const authController = require("../controllers/authController.js"); // Note: authController con C mayúscula
 const imagenesController = require('../controllers/imagenesController.js');
-
 
 module.exports=function(){
     //registro nuevo cliente
     router.post('/Usuario',usuarioController.nuevoUsuario)
-    //consultar cliente
-    router.get('/Usuario',usuarioController.mostrarUsuario)
+    //consultar todos los usuarios (FIX: cambiar a mostrarUsuarios)
+    router.get('/Usuario',usuarioController.mostrarUsuarios)
     //consultar cliente por ID
     router.get('/Usuario/:idUsuario',usuarioController.mostrarUsuario)
     //buscar cliente por documento
@@ -54,11 +53,6 @@ module.exports=function(){
     router.get('/facturas/pdf/:idFactura', facturaController.obtenerFacturaPDF);
     router.post('/facturas/enviar-correo/:idFactura', facturaController.enviarFacturaPorCorreo);
 
-
-    // cargar imagenes para el carousel
-    router.post('/imagenes/upload-carousel', imagenesController.upload.single('imagen'), imagenesController.subirImagenCarousel);
-    router.get('/imagenes/carousel-images', imagenesController.obtenerImagenesCarousel);
-
     // Obtener XML de la factura
     router.get('/facturas/xml/:idFactura', async (req, res, next) => {
         try {
@@ -78,6 +72,10 @@ module.exports=function(){
             next();
         }
     });
+
+    // cargar imagenes para el carousel (comentadas temporalmente hasta completar imagenesController)
+    // router.post('/imagenes/upload-carousel', imagenesController.upload.single('imagen'), imagenesController.subirImagenCarousel);
+    // router.get('/imagenes/carousel-images', imagenesController.obtenerImagenesCarousel);
 
     //auth(login,recuperar contraseña, nueva contraseña)
     router.post("/auth/login", authController.login);
