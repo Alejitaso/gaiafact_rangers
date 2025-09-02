@@ -7,6 +7,8 @@ import VisFactura from './components/billing/visFactura.js';
 import Facturacion from './components/billing/facturacion.js';
 import Inicio from './components/onset/inicio.js';
 import Img from './components/utils/loadImg.js';
+import Perfil from './components/user/perfil.js';
+import Notify from './components/utils/notify.js';
 
 
 function App() {
@@ -23,6 +25,8 @@ function App() {
               <Route path="/vis-factura" element={<VisFactura />} />
               <Route path="/facturacion" element={<Facturacion />} />
               <Route path="/Img" element={<Img />} />
+              <Route path="/perfil" element={<Perfil />} />
+              <Route path="/notificaciones" element={<Notify />} />
               
               {/* Agrega más rutas aquí según sea necesario */}
             </Routes>
