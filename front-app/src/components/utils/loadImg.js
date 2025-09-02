@@ -1,5 +1,5 @@
 import React, { Fragment, useState, useRef } from "react";
-import { withRouter } from "react-router-dom/cjs/react-router-dom.min";
+import styles from "./loadImg.module.css";
 import Swal from "sweetalert2";
 import clienteAxios from "../../config/axios";
 
@@ -57,7 +57,9 @@ function SubirImagen(props) {
 
     // Función para abrir el selector de archivos
     const abrirSelectorArchivos = () => {
-        fileInputRef.current.click();
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
     };
 
     // Función para agregar/subir la imagen
@@ -82,7 +84,17 @@ function SubirImagen(props) {
             formData.append('tipo', archivo.type);
             formData.append('fechaSubida', new Date().toISOString());
 
-            const res = await clienteAxios.post('/api/imagenes', formData, {
+            // Crear nombre único para evitar conflictos
+            const timestamp = Date.now();
+            const extension = archivo.name.split('.').pop();
+            const nombreUnico = `imagen_${timestamp}.${extension}`;
+            
+            // Actualizar FormData con el nombre único
+            formData.set('nombre', nombreUnico);
+            formData.set('carpetaDestino', 'onset/img');
+            formData.set('limite', '10'); // Límite de 10 imágenes
+            
+            const res = await clienteAxios.post('/api/imagenes/upload-carousel', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 },
@@ -90,7 +102,6 @@ function SubirImagen(props) {
                     const porcentaje = Math.round(
                         (progressEvent.loaded * 100) / progressEvent.total
                     );
-                    // Aquí podrías actualizar una barra de progreso
                     console.log(`Progreso: ${porcentaje}%`);
                 }
             });
@@ -212,13 +223,55 @@ function SubirImagen(props) {
         });
     };
 
+    // Estilos para los botones
+    const estilosBotonAgregar = {
+        backgroundColor: (!archivo || cargando) ? '#6c757d' : 'var(--color-dos)',
+        color: (!archivo || cargando) ? '#ffffff' : 'var(--color-uno)',
+        padding: '12px 25px',
+        border: `2px solid ${(!archivo || cargando) ? '#6c757d' : 'var(--color-tres)'}`,
+        borderRadius: '8px',
+        cursor: (!archivo || cargando) ? 'not-allowed' : 'pointer',
+        fontSize: '18px',
+        fontWeight: 'bold',
+        transition: 'all 0.3s ease',
+        marginTop: '20px',
+        minWidth: '150px',
+        opacity: (!archivo || cargando) ? 0.6 : 1
+    };
+
+    const estilosBotonRemover = {
+        position: 'absolute',
+        top: '8px',
+        right: '8px',
+        backgroundColor: 'rgba(220, 53, 69, 0.9)',
+        color: 'white',
+        border: 'none',
+        borderRadius: '50%',
+        width: '30px',
+        height: '30px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '14px',
+        transition: 'all 0.3s ease'
+    };
+
     return (
         <Fragment>
-            <main className="agregar-imagen-container">
-                <section className="upload-card">
-                    {/* Área de upload */}
-                    <div 
-                        className={`upload-box ${arrastrando ? 'dragging' : ''} ${previewImagen ? 'has-image' : ''}`}
+            {/* Input de archivo oculto */}
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={manejarSeleccionArchivo}
+                style={{ display: 'none' }}
+            />
+            
+            <main className={styles.agregarimagencontainer}>
+                <section className={styles.uploadcard}>
+                    <div
+                        className={`${styles.uploadbox} ${arrastrando ? styles.dragging : ""} ${previewImagen ? styles.hasImage : ""}`}
                         id="uploadBox"
                         onClick={abrirSelectorArchivos}
                         onDragEnter={manejarDragEnter}
@@ -227,50 +280,31 @@ function SubirImagen(props) {
                         onDrop={manejarDrop}
                     >
                         {previewImagen ? (
-                            // Vista previa de la imagen
-                            <div className="image-preview">
+                            <div className={styles.imagepreview}>
                                 <img src={previewImagen} alt="Vista previa" />
-                                <div className="image-overlay">
-                                    <div className="image-info">
-                                        <p><strong>{archivo?.name}</strong></p>
-                                        <p>{formatearTamaño(archivo?.size || 0)}</p>
-                                        <div className="image-actions">
-                                            <button 
-                                                type="button"
-                                                className="btn-change"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    abrirSelectorArchivos();
-                                                }}
-                                            >
-                                                <i className="fa-solid fa-edit"></i>
-                                                Cambiar
-                                            </button>
-                                            <button 
-                                                type="button"
-                                                className="btn-remove"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    removerImagen();
-                                                }}
-                                            >
-                                                <i className="fa-solid fa-trash"></i>
-                                                Remover
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                                <button 
+                                    style={estilosBotonRemover}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        removerImagen();
+                                    }}
+                                    title="Remover imagen"
+                                    onMouseEnter={(e) => {
+                                        e.target.style.backgroundColor = 'rgba(220, 53, 69, 1)';
+                                        e.target.style.transform = 'scale(1.1)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.target.style.backgroundColor = 'rgba(220, 53, 69, 0.9)';
+                                        e.target.style.transform = 'scale(1)';
+                                    }}
+                                >
+                                    <i className="fa-solid fa-times"></i>
+                                </button>
                             </div>
                         ) : (
-                            // Vista por defecto sin imagen
                             <>
                                 <i className="fa-solid fa-upload"></i>
-                                <p>
-                                    {arrastrando ? 
-                                        'Suelta la imagen aquí' : 
-                                        'Subir imagen'
-                                    }
-                                </p>
+                                <p>{arrastrando ? "Suelta la imagen aquí" : "Subir imagen"}</p>
                                 <small>
                                     Haz clic aquí o arrastra una imagen
                                     <br />
@@ -278,48 +312,62 @@ function SubirImagen(props) {
                                 </small>
                             </>
                         )}
-                        
-                        <input 
-                            type="file" 
-                            id="fileInput"
-                            ref={fileInputRef}
-                            accept="image/*" 
-                            hidden
-                            onChange={manejarSeleccionArchivo}
-                        />
                     </div>
 
-                    {/* Información adicional */}
                     {archivo && (
-                        <div className="file-details">
+                        <div style={{
+                            marginTop: '20px',
+                            padding: '15px',
+                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            borderRadius: '8px',
+                            textAlign: 'left'
+                        }}>
                             <h3>Detalles de la imagen:</h3>
-                            <div className="details-grid">
-                                <div className="detail-item">
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1fr',
+                                gap: '8px',
+                                marginTop: '10px'
+                            }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0' }}>
                                     <strong>Nombre:</strong>
                                     <span>{archivo.name}</span>
                                 </div>
-                                <div className="detail-item">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0' }}>
                                     <strong>Tamaño:</strong>
                                     <span>{formatearTamaño(archivo.size)}</span>
                                 </div>
-                                <div className="detail-item">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0' }}>
                                     <strong>Tipo:</strong>
                                     <span>{archivo.type}</span>
                                 </div>
-                                <div className="detail-item">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0' }}>
                                     <strong>Última modificación:</strong>
-                                    <span>{new Date(archivo.lastModified).toLocaleDateString('es-CO')}</span>
+                                    <span>{new Date(archivo.lastModified).toLocaleDateString()}</span>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* Botón agregar */}
-                    <button 
-                        className={`btn-agregar ${!archivo || cargando ? 'disabled' : ''}`}
+                    <button
+                        style={estilosBotonAgregar}
                         id="agregarBtn"
                         onClick={agregarImagen}
                         disabled={!archivo || cargando}
+                        onMouseEnter={(e) => {
+                            if (!(!archivo || cargando)) {
+                                e.target.style.backgroundColor = 'var(--color-cinco)';
+                                e.target.style.transform = 'translateY(-2px)';
+                                e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            if (!(!archivo || cargando)) {
+                                e.target.style.backgroundColor = 'var(--color-dos)';
+                                e.target.style.transform = 'translateY(0)';
+                                e.target.style.boxShadow = 'none';
+                            }
+                        }}
                     >
                         {cargando ? (
                             <>
@@ -334,14 +382,19 @@ function SubirImagen(props) {
                         )}
                     </button>
 
-                    {/* Consejos */}
-                    <div className="upload-tips">
+                    <div style={{
+                        marginTop: '20px',
+                        padding: '15px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        borderRadius: '8px',
+                        textAlign: 'left'
+                    }}>
                         <h4><i className="fa-solid fa-lightbulb"></i> Consejos:</h4>
-                        <ul>
-                            <li>Formatos soportados: JPG, PNG, GIF, WebP</li>
-                            <li>Tamaño máximo: 5MB por imagen</li>
-                            <li>Puedes arrastrar y soltar la imagen</li>
-                            <li>Para mejor calidad, usa imágenes de alta resolución</li>
+                        <ul style={{ listStyleType: 'none', paddingLeft: '0' }}>
+                            <li style={{ padding: '3px 0', fontSize: '14px' }}>✓ Formatos soportados: JPG, PNG, GIF, WebP</li>
+                            <li style={{ padding: '3px 0', fontSize: '14px' }}>✓ Tamaño máximo: 5MB por imagen</li>
+                            <li style={{ padding: '3px 0', fontSize: '14px' }}>✓ Puedes arrastrar y soltar la imagen</li>
+                            <li style={{ padding: '3px 0', fontSize: '14px' }}>✓ Para mejor calidad, usa imágenes de alta resolución</li>
                         </ul>
                     </div>
                 </section>

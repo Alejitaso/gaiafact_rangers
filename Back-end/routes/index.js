@@ -2,25 +2,27 @@ const express = require("express")
 
 const router=express.Router()
 
-const clienteController= require("../controllers/clienteController.js");
+const usuarioController= require("../controllers/usuarioController.js");
 const productoController=require('../controllers/productoController.js');
 const facturaController=require('../controllers/facturaController.js');
 const authController = require("../controllers/authcontroller.js");
- 
+
+const imagenesController = require('../controllers/imagenesController.js');
+
 
 module.exports=function(){
     //registro nuevo cliente
-    router.post('/clientes',clienteController.nuevoCliente)
+    router.post('/Usuario',usuarioController.nuevoUsuario)
     //consultar cliente
-    router.get('/clientes',clienteController.mostrarClientes)
+    router.get('/Usuario',usuarioController.mostrarUsuario)
     //consultar cliente por ID
-    router.get('/clientes/:idCliente',clienteController.mostrarCliente)
+    router.get('/Usuario/:idUsuario',usuarioController.mostrarUsuario)
     //buscar cliente por documento
-    router.get('/clientes/documento/:documento',clienteController.buscarPorDocumento)
+    router.get('/Usuario/documento/:documento',usuarioController.buscarPorDocumento)
     //actualizar cliente
-    router.put('/clientes/:idCliente',clienteController.actualizarCliente)
+    router.put('/Usuario/:idUsuario',usuarioController.actualizarUsuario)
     //eliminar cliente
-    router.delete('/clientes/:idCliente',clienteController.eliminarCliente)
+    router.delete('/Usuario/:idUsuario',usuarioController.eliminarUsuario)
 
     /*productos*/
     //se agrega nuevo producto
@@ -51,6 +53,11 @@ module.exports=function(){
     // Rutas específicas para archivos
     router.get('/facturas/pdf/:idFactura', facturaController.obtenerFacturaPDF);
     router.post('/facturas/enviar-correo/:idFactura', facturaController.enviarFacturaPorCorreo);
+
+
+    // cargar imagenes para el carousel
+    router.post('/imagenes/upload-carousel', imagenesController.upload.single('imagen'), imagenesController.subirImagenCarousel);
+    router.get('/imagenes/carousel-images', imagenesController.obtenerImagenesCarousel);
 
     // Obtener XML de la factura
     router.get('/facturas/xml/:idFactura', async (req, res, next) => {
