@@ -1,17 +1,16 @@
 /* contenedor principal de facturacion */
-.facturacion-container {
+.facturacionContainer {
     width: 90%;
     max-width: 900px;
     margin: 40px auto;
     padding: 30px;
     background-color: var(--color-uno);
     border-radius: 12px;
-    color: white;;
+    color: white;
 }
 
 /* formulario de facturacion */
-.facturacion-form {
-
+.facturacionForm {
     background-color: #f0f4f8;
     padding: 20px;
     border-radius: 10px;
@@ -23,19 +22,29 @@
 }
 
 /* campos de entrada */
-.facturacion-form input {
+.facturacionForm input {
     padding: 10px;
     border: 2px solid var(--color-tres);
     border-radius: 6px;
     font-size: 14px;
     width: calc(50% - 15px);
     box-sizing: border-box;
-    
 }
 
+/* estilo para el select */
+.facturacionForm select {
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid var(--color-tres);
+    font-size: 16px;
+    width: calc(50% - 15px);
+    background-color: var(--color-dos);
+    color: var(--color-tres);
+    box-sizing: border-box;
+}
 
 /* tabla para productos */
-.facturacion-tabla {
+.facturacionTabla {
     width: 100%;
     background-color: #f0f4f8;
     border-collapse: collapse;
@@ -43,8 +52,8 @@
 }
 
 /* celdas de la tabla */
-.facturacion-tabla th,
-.facturacion-tabla td {
+.facturacionTabla th,
+.facturacionTabla td {
     border: 1px solid #000;
     padding: 10px;
     text-align: center;
@@ -52,12 +61,54 @@
 }
 
 /* encabezado de la tabla */
-.facturacion-tabla th {
+.facturacionTabla th {
     background-color: #D1DCE6;
 }
 
+/* botones dentro de la tabla de productos */
+.facturacionTabla tbody tr td button {
+    font-size: 32px;
+    cursor: pointer;
+    background-color: transparent;
+    color: var(--color-uno);
+    padding: 15px 20px;
+    border: none;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+.facturacionTabla tbody tr td button:hover {
+    color: var(--color-tres);
+    transform: translateY(-2px);
+}
+
+/* botón de añadir */
+.botonAnadir {
+    margin-bottom: 30px;
+}
+
+.botonAnadir button {
+    background-color: var(--color-dos);
+    color: var(--color-uno);
+    padding: 12px 25px;
+    border: 2px solid var(--color-tres);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+/* efecto hover en boton de añadir */
+.botonAnadir button:hover {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    border-color: var(--color-uno);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
 /* contenedor de los botones finales */
-.botones-finales {
+.botonesFinales {
     display: flex;
     justify-content: space-between;
     width: 300px;
@@ -65,7 +116,7 @@
 }
 
 /* estilo base del boton */
-.botones-finales button {
+.botonesFinales button {
     background-color: var(--color-dos);
     color: var(--color-uno);
     padding: 12px 25px;
@@ -78,7 +129,7 @@
 }
 
 /* efecto hover en boton */
-.botones-finales button:hover {
+.botonesFinales button:hover {
     background-color: var(--color-tres);
     color: var(--color-dos);
     border-color: var(--color-uno);
@@ -86,64 +137,7 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.boton_añadir button {
-    background-color: var(--color-dos);
-    color: var(--color-uno);
-    padding: 12px 25px;
-    border: 2px solid var(--color-tres);
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: bold;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
-    margin-bottom: 30px;
-}
-
-/* efecto hover en boton */
-.boton_añadir button:hover {
-    background-color: var(--color-tres);
-    color: var(--color-dos);
-    border-color: var(--color-uno);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* estilo para el select */
-select {
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    width: 100%;
-    background-color: var(--color-dos);
-    color: var(--color-tres);
-    border: 2px solid #276177;
-}
-
-/* boton del popup */
-.popup-content button {
-    background-color: var(--color-uno);
-    color: var(--color-dos);
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 20px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* efecto hover en boton del popup */
-.popup-content button:hover {
-    background-color: var(--color-ocho);
-    color: var(--color-dos);
-}
-
-/* fondo del popup */
+/* Estilos para popup */
 .popup {
     display: none;
     position: fixed;
@@ -162,28 +156,7 @@ select {
 }
 
 /* contenido principal del popup */
-.popup-content {
-    background-color: var(--color-dos);
-    margin: 50% auto;
-    padding: 40px 60px;
-    border-radius: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    text-align: center;
-    color: var(--color-tres);
-    font-size: 30px;
-    font-weight: bold;
-    line-height: 1.3;
-    height: 250px;
-    width: 90%;
-    position: relative;
-    transform: scale(0.9);
-    align-items: center;
-    display: flex;
-    animation: popup-bounce 0.3s ease-out forwards;
-}
-
-/* popup adicional */
-.popup-content {
+.popupContent {
     position: relative;
     background-color: var(--color-dos);
     margin: 10% auto;
@@ -193,10 +166,14 @@ select {
     text-align: center;
     color: var(--color-uno);
     box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 /* borde decorativo dentro del popup */
-.popup-content::before {
+.popupContent::before {
     content: '';
     position: absolute;
     top: 15px;
@@ -209,12 +186,12 @@ select {
 }
 
 /* quitar margen al texto del popup */
-.popup-content p {
+.popupContent p {
     margin: 0;
 }
 
 /* popup de error */
-.popup-content.error-content {
+.errorContent {
     background-color: var(--color-dos);
     color: var(--color-siete);
     font-size: 24px;
@@ -224,34 +201,27 @@ select {
     justify-content: space-around;
 }
 
-/* estructura del popup */
-.popup-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-/* boton dentro del popup */
-.popup-content button {
-    background-color: var(--color-dos);
-    color: var(--color-uno);
-    padding: 12px 25px;
-    border: 2px solid var(--color-tres);
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: bold;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
-}
-
-/* efecto hover para el boton del popup */
-.popup-content button:hover {
-    background-color: var(--color-tres);
+/* boton del popup */
+.popupContent button {
+    background-color: var(--color-uno);
     color: var(--color-dos);
-    border-color: var(--color-tres);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 20px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* efecto hover en boton del popup */
+.popupContent button:hover {
+    background-color: var(--color-ocho);
+    color: var(--color-dos);
 }
 
 /* animacion de entrada del popup */
@@ -267,20 +237,4 @@ select {
     100% {
         transform: scale(1);
     }
-}
-
-/* botones dentro de la tabla de productos */
-.facturacion-tabla tbody tr td button {
-    font-size: 32px;
-    cursor: pointer;
-    background-color: transparent;
-    color: var(--color-uno);
-    padding: 15px 20px;
-    border: none;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
-}
-
-.facturacion-tabla tbody tr td button:hover {
-    color: var(--color-tres);
-    transform: translateY(-2px);
 }
