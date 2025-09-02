@@ -1,13 +1,12 @@
 import React, { Fragment } from 'react';
-import './main.css';
-import './footer.css'
+import styles from './footer.module.css';
 
 const Footer = () => {
     return (
     <Fragment>
         <footer className="footer">
-        <div className="linea"></div>
-        <div className="copyright">
+        <div className={styles.linea}></div>
+        <div className={styles.copyright}>
             <h2>© 2025 Gaiafact</h2>
         </div>
         </footer>

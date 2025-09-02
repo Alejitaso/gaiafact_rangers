@@ -19,7 +19,7 @@
 }
 
 /* Modificar para los elementos del menú */
-.sidebar a {
+.sidebarLink {
     padding: 15px 8px 15px 25px; 
     text-decoration: none;
     font-size: 17px;
@@ -33,35 +33,69 @@
     cursor: pointer;
 }
 
-/* Modificar para los losgos del menu*/
-.sidebar a i {
+/* Modificar para los logos del menu - APLICAR A TODAS LAS CLASES */
+.sidebarLink i,
+.codeInfo i,
+.contactToggle i {
     margin-right: 15px; 
     font-size: 20px; 
     width: 20px; 
     text-align: center; 
 }
 
+/* Clase específica para code_info */
+.codeInfo {
+    padding: 15px 8px 15px 25px; 
+    text-decoration: none;
+    font-size: 17px;
+    color: var(--color-dos); 
+    display: flex; 
+    align-items: center;
+    transition: 0.3s ease-in-out;
+    overflow: hidden; 
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+/* Clase específica para contact-toggle */
+.contactToggle {
+    padding: 15px 8px 15px 25px; 
+    text-decoration: none;
+    font-size: 17px;
+    color: var(--color-dos); 
+    display: flex; 
+    align-items: center;
+    transition: 0.3s ease-in-out;
+    overflow: hidden; 
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
 /* Cuando el sidebar está abierto */
-.sidebar.open {
+.sidebar:global(.open) {
     width: 250px;
 }
 
 /* Ocultar texto de los enlaces cuando el sidebar está colapsado */
-.sidebar:not(.open) a .link-text {
+.sidebar:not(:global(.open)) .linkText {
     opacity: 0;
     pointer-events: none; 
     transition: opacity 0.1s ease;
 }
 
 /* Mostrar texto de los enlaces cuando el sidebar está abierto */
-.sidebar.open a .link-text {
+.sidebar:global(.open) .linkText {
     opacity: 1;
     pointer-events: auto; 
     transition: opacity 0.3s ease 0.1s;
 }
 
 /* hover para los enlaces del sidebar */
-.sidebar a:hover {
+.sidebarLink:hover,
+.codeInfo:hover,
+.contactToggle:hover {
     background-color: var(--color-tres); 
     color: var(--color-dos); 
     padding-left: 30px; 
@@ -89,7 +123,7 @@
 }
 
 /* Contenido del formulario de contacto (inicialmente oculto) */
-.contact-info {
+.contactInfo {
     max-height: 0; 
     overflow: hidden;
     transition: max-height 0.5s ease-in-out; 
@@ -102,12 +136,12 @@
 }
 
 /* Espaciado entre párrafos del contacto*/
-.contact-info p {
+.contactInfo p {
     margin: 8px 0; 
 }
 
-/* Contenido de contacto al expanderce*/
-.contact-info.expanded {
+/* Contenido de contacto al expandirse*/
+.contactInfo:global(.expanded) {
     max-height: 200px; 
     padding-bottom: 15px; 
     z-index: 1010;
@@ -115,22 +149,14 @@
 }
 
 /* Estilos para los botones del menu expandidos*/
-.expan a {
+.expan .sidebarLink {
     width: 100%;
 }
 
 /* hover para el hover de los botones del menu*/
-.expan a:hover {
+.expan .sidebarLink:hover {
     width: 100%;
     background-color: var(--color-ocho);
-}
-
-
-/* Contenido principal, para empujarlo al abrir el menú */
-#main {
-    transition: margin-left .4s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
-    padding: 25px; 
-    margin-left: 80px;
 }
 
 /*div del salir*/
@@ -141,7 +167,7 @@
 }
 
 /* Logo del salir*/
-.salir a {
+.salir .sidebarLink {
     flex-grow: 1;
     text-align: left;
 }

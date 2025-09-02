@@ -1,5 +1,5 @@
-/* contenedor del carrusel*/
-.curved-carousel-wrapper {
+/* Contenedor del carrusel */
+.curvedCarouselWrapper {
     width: 900px; 
     height: 450px; 
     margin: 50px auto;
@@ -9,8 +9,8 @@
     align-items: center;
 }
 
-/* contenedor del contenido del carrrusel*/
-.curved-carousel {
+/* Contenedor del contenido del carrusel */
+.curvedCarousel {
     width: 100%; 
     height: 100%;
     position: relative;
@@ -24,8 +24,8 @@
     margin-top: 10%;
 }
 
-/* modificador de los contenedores de las imagenes del carrusel*/
-.curved-carousel-item {
+/* Modificador de los contenedores de las imágenes del carrusel */
+.curvedCarouselItem {
     position: absolute;
     width: 160px;
     height: 250px;
@@ -42,8 +42,8 @@
     z-index: 1;
 }
 
-/* modificador de las imagenes del carrusel*/
-.curved-carousel-item img {
+/* Modificador de las imágenes del carrusel */
+.curvedCarouselItem img {
     width: 100%;
     height: 100%;
     object-fit: cover; 
@@ -52,35 +52,80 @@
 }
 
 /* Clases para el control de visibilidad y escala por JavaScript */
-.curved-carousel-item.visible {
+.curvedCarouselItem.visible {
     opacity: 1;
     z-index: 10;
 }
 
-/* Clases para control de pocicion del carrusel*/
-.curved-carousel-item.center-item {
+/* Clases para control de posición del carrusel */
+.curvedCarouselItem.centerItem {
     transform: rotateY(calc(var(--angle) * 1deg)) translateZ(350px) scale(1.2);
     box-shadow: 0 12px 35px rgba(0,0,0,0.6);
     z-index: 20;
 }
 
-/* Estilos para pantallas pequeñas (móviles) */
-@media (max-width: 768px) {
-    
-    .curved-carousel-wrapper {
+/* Slogan */
+.slang {
+    text-align: center;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.slang h2 {
+    font-size: 28px;
+    color: var(--color-uno);
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+}
+
+/* Estilos para pantallas pequeñas (móviles) - siguiendo la misma regla que tu prototipo */
+@media (max-width: 767px) {
+    .curvedCarouselWrapper {
         width: 95%;
         height: 280px;
         margin: 30px auto;
         perspective: 900px;
     }
 
-    .curved-carousel-item {
+    .curvedCarouselItem {
         width: 100px;
         height: 160px;
         transform: rotateY(calc(var(--angle) * 1deg)) translateZ(200px) scale(0.6);
     }
 
-    .curved-carousel-item.center-item {
+    .curvedCarouselItem.centerItem {
         transform: rotateY(calc(var(--angle) * 1deg)) translateZ(150px) scale(1.0);
     }
+<<<<<<< HEAD:front-app/src/components/onset/inicio.css
+=======
+
+    .slang h2 {
+        font-size: 16px;
+        padding: 0 15px;
+    }
+
+    .slang {
+        margin: 15px auto;
+        padding: 10px;
+    }
+>>>>>>> feature/dev3:front-app/src/components/onset/inicio.module.css
+}
+
+/* Animación de carga suave */
+@keyframes fadeInCarousel {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.curvedCarouselWrapper {
+    animation: fadeInCarousel 0.8s ease-out;
 }

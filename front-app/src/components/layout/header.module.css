@@ -28,7 +28,7 @@
 }
 
 /* Estilos para el nombre de la tienda en la línea de logos */
-.logos .nombre-tienda {
+.logos .nombretienda {
     font-size: 32px; 
     color: var(--color-uno); 
     font-weight: bold;
@@ -37,13 +37,13 @@
 }
 
 /* Estilos para los logos dentro de la barra logos */
-.logos .logo-derecho img {
+.logos .logoderecho img {
     height: 90px; 
     max-width: 100px; 
     object-fit: contain; 
 }
 
-.logo-izquierdo img {
+.logoizquierdo img {
     height: 100px; 
     max-width: 70px; 
     object-fit: contain;
