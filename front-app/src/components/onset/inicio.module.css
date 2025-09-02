@@ -99,8 +99,6 @@
     .curvedCarouselItem.centerItem {
         transform: rotateY(calc(var(--angle) * 1deg)) translateZ(150px) scale(1.0);
     }
-<<<<<<< HEAD:front-app/src/components/onset/inicio.css
-=======
 
     .slang h2 {
         font-size: 16px;
@@ -111,7 +109,6 @@
         margin: 15px auto;
         padding: 10px;
     }
->>>>>>> feature/dev3:front-app/src/components/onset/inicio.module.css
 }
 
 /* Animación de carga suave */
