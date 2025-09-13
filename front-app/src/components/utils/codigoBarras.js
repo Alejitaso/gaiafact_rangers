@@ -34,15 +34,16 @@ function CodigoBarras() {
     }
   };
 
+  
+
   return (
     <Fragment>
-      <div className={styles.content}>
+      <form className={styles.content}>
         <div className={styles.form}>
-          {/* Campo para N° de factura */}
-          <div>
-            <div>
-              <label htmlFor="numfactura">Ingrese N° de factura</label>
-            </div>
+          
+          {/* Campo de número de factura */}
+          <div className={styles.campo}>
+            <label htmlFor="numfactura">Ingrese N° de factura</label>
             <input
               type="text"
               id="res_factura"
@@ -52,12 +53,17 @@ function CodigoBarras() {
             />
           </div>
 
-          {/* Sección para código de barras */}
-          <div>
-            <label htmlFor="codebr">Código De Barras</label>
-            <div className={styles.QR} name="codebr">
+          {/* Código de barras */}
+          <div className={styles.campo}>
+            <label htmlFor="codebr">Código de barras</label>
+            <div className={styles.qr} name="codebr">
               <div id="BRCode">
-                {codigo ? <img src={`https://barcodeapi.org/api/128/${codigo}`} alt="Código de barras" /> : null}
+                {codigo ? (
+                  <img
+                    src={`https://barcodeapi.org/api/128/${codigo}`}
+                    alt="Código de barras"
+                  />
+                ) : null}
               </div>
             </div>
           </div>
@@ -65,32 +71,43 @@ function CodigoBarras() {
           {/* Botones */}
           <div className={styles.botones}>
             <div className={styles.boton}>
-              <button type="button" onClick={() => { setCodigo(''); setIdFactura(''); }}>
+              <button 
+                type="button" 
+                onClick={() => { setCodigo(''); setIdFactura(''); }}
+              >
                 Cancelar
               </button>
             </div>
             <div className={styles.boton}>
-              <button type="button" onClick={guardarEnFactura} disabled={!codigo || !idFactura}>
+              <button 
+                type="button" 
+                onClick={guardarEnFactura} 
+                disabled={!codigo || !idFactura}
+              >
                 Guardar
               </button>
             </div>
-          </div>
-
-          {/* Botones extra: generar y copiar */}
-          <div className={styles.botones}>
             <div className={styles.boton}>
-              <button type="button" onClick={generarCodigo}>
+              <button 
+                type="button" 
+                onClick={generarCodigo}
+              >
                 Generar Código
               </button>
             </div>
             <div className={styles.boton}>
-              <button type="button" onClick={copiar} disabled={!codigo}>
+              <button 
+                type="button" 
+                onClick={copiar} 
+                disabled={!codigo}
+              >
                 Copiar
               </button>
             </div>
           </div>
+
         </div>
-      </div>
+      </form>
     </Fragment>
   );
 }

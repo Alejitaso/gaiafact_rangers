@@ -1,3 +1,4 @@
+
 .content {
     margin-top: 5%;
     display: flex;
@@ -10,7 +11,7 @@
 }
 
 .form input[type="text"] {
-    width: calc(100% - 30px);
+    width: 100%;
     padding: 14px 15px;
     border: 1px solid rgba(142, 155, 232, 0.6);
     border-radius: 10px;
@@ -19,6 +20,7 @@
     font-family: 'Segoe UI', 'Roboto', sans-serif;
     color: var(--color-uno);
     transition: all 0.3s ease;
+    
 }
 
 .form input[type="text"]::placeholder {
@@ -49,14 +51,31 @@
     position: relative;
 }
 
-/* Espacio para el código QR */
-.QR {
-    background-color: var(--color-dos);
-    height: 100%;
-    padding: 35px 40px;
-    margin: 12px 0;
-    border-radius: 20px;
+
+
+/* Adaptado a los nuevos nombres */
+.campo label {
+    color: var(--color-dos);
 }
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.qr {
+  background-color: var(--color-dos);
+  height: 100%;
+  padding: 35px 40px;
+  margin: 15px 0;
+  border-radius: 20px;
+  width: 100%;
+  justify-content: center;
+  display: flex;
+}
+
+
 
 .botones {
     display: flex;
