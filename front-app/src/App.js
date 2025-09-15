@@ -9,6 +9,7 @@ import Inicio from './components/onset/inicio.js';
 import Img from './components/utils/loadImg.js';
 import Perfil from './components/user/perfil.js';
 import Notify from './components/utils/notify.js';
+import CodigoBarras from './components/utils/codigoBarras.js';
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
               <Route path="/Img" element={<Img />} />
               <Route path="/perfil" element={<Perfil />} />
               <Route path="/notificaciones" element={<Notify />} />
+              <Route path="/codigo-Barras" element={<CodigoBarras />} />
               
               {/* Agrega más rutas aquí según sea necesario */}
             </Routes>

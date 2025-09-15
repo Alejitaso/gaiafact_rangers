@@ -9,7 +9,7 @@ mongoose.set("strictQuery", true);
 
 // conexion a mongo
 mongoose
-  .connect("mongodb://0.0.0.0:27017/almacen")
+  .connect("mongodb://0.0.0.0:27017/tienda")
   .then(() => {
     console.log("✅ Se conectó correctamente a la BD Mongo");
   })

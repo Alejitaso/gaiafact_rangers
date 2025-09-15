@@ -140,12 +140,12 @@ const Sidebar = () => {
             <span className={styles.linkText}>QR</span>
           </a>
           <a 
-            onClick={() => (window.location.href = "../utils/codigo_br.html")} 
-            className={styles.sidebarLink}
-          >
-            <i className="fa-solid fa-barcode"></i> 
-            <span className={styles.linkText}>Barras</span>
-          </a>
+          onClick={(e) => { e.preventDefault(); window.location.href = "/codigoBarras"; }} 
+          className={styles.sidebarLink}
+        >
+          <i className="fa-solid fa-barcode"></i> 
+          <span className={styles.linkText}>Barras</span>
+        </a>
         </div>
         <a onClick={toggleRegInfo} className={styles.sidebarLink}>
           <i className="fa-solid fa-folder-plus"></i> 
