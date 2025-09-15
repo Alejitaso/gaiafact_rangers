@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 function Login() {
-  const [email, setEmail] = useState("");
+  const [correo_electronico, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
@@ -39,7 +39,7 @@ function Login() {
       const res = await fetch("http://localhost:3000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ correo_electronico, password })
       });
 
       const data = await res.json();

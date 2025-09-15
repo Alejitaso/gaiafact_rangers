@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-const authController = require("./controllers/authcontroller");
+const authController = require("./controllers/authController");
 
 mongoose.set("strictQuery", true);
 
