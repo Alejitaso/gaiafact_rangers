@@ -10,6 +10,7 @@ import Img from './components/utils/loadImg.js';
 import Perfil from './components/user/perfil.js';
 import Notify from './components/utils/notify.js';
 import CodigoBarras from './components/utils/codigoBarras.js';
+import RegistroUsuario from './components/auth/registroUsuario.js';
 
 
 function App() {
@@ -29,7 +30,7 @@ function App() {
               <Route path="/perfil" element={<Perfil />} />
               <Route path="/notificaciones" element={<Notify />} />
               <Route path="/codigo-Barras" element={<CodigoBarras />} />
-              
+              <Route path="/Usuario" element={<RegistroUsuario />} />
               {/* Agrega más rutas aquí según sea necesario */}
             </Routes>
           </div>

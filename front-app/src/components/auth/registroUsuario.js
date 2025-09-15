@@ -11,7 +11,9 @@ function RegistroUsuario() {
     tipo_documento: '',
     numero_documento: '',
     telefono: '',
+    estado: 'Activo',
     tipo_usuario: '',
+    password: 'temporal123'
   });
 
   const manejarCambio = (e) => {
@@ -21,15 +23,15 @@ function RegistroUsuario() {
     });
   };
 
-  const validarFormulario = () => {
+const validarFormulario = () => {
     const { nombre, apellido, correo_electronico, tipo_documento, numero_documento, telefono, tipo_usuario } = usuario;
     return !nombre || !apellido || !correo_electronico || !tipo_documento || !numero_documento || !telefono || !tipo_usuario;
-  };
+};
 
   const manejarEnvio = async (e) => {
     e.preventDefault();
     try {
-      await clienteAxios.post('/Usuario', usuario);
+      await clienteAxios.post('', usuario);
       Swal.fire('Correcto', 'Usuario registrado correctamente', 'success');
       setUsuario({
         nombre: '',
@@ -38,7 +40,9 @@ function RegistroUsuario() {
         tipo_documento: '',
         numero_documento: '',
         telefono: '',
-        tipo_usuario: ''
+        estado: 'Activo',
+        tipo_usuario: '',
+        password: 'temporal123'
       });
     } catch (error) {
       console.error('Error al registrar usuario:', error);
@@ -86,7 +90,7 @@ function RegistroUsuario() {
             id="email"
             name="correo_electronico"
             placeholder="Ingresa tu correo"
-            value={usuario.email}
+            value={usuario.correo_electronico}
             onChange={manejarCambio}
             required
           />
@@ -100,11 +104,10 @@ function RegistroUsuario() {
             required
           >
             <option value="">Seleccione...</option>
-            <option value="CC">Cédula de Ciudadanía (CC)</option>
-            <option value="CE">Cédula de Extranjería (CE)</option>
-            <option value="TI">Tarjeta de Identidad (TI)</option>
-            <option value="PA">Pasaporte (PA)</option>
-            <option value="NIT">NIT</option>
+            <option value="Cedula de ciudadania">Cédula de Ciudadanía (CC)</option>
+            <option value="Cedula extranjeria">Cédula de Extranjería (CE)</option>
+            <option value="Pasaporte">Pasaporte (PA)</option>
+            <option value="Nit">NIT</option>
           </select>
 
           <label htmlFor="documento">NÚMERO DE DOCUMENTO</label>
@@ -113,7 +116,7 @@ function RegistroUsuario() {
             id="documento"
             name="numero_documento"
             placeholder="Número de documento"
-            value={usuario.documento}
+            value={usuario.numero_documento}
             onChange={manejarCambio}
             required
           />
@@ -138,9 +141,10 @@ function RegistroUsuario() {
             required
           >
             <option value="">Seleccione...</option>
-            <option value="Administrador">ADMINISTRADOR</option>
-            <option value="Usuario">USUARIO</option>
-            <option value="Cliente">CLIENTE</option>
+            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+            <option value="USUARIO">USUARIO</option>
+            <option value="CLIENTE">CLIENTE</option>
+            <option value="SUPERADMIN">SUPERADMIN</option>
           </select>
 
           <button type="submit" disabled={validarFormulario()}>

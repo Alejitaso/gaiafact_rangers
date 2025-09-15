@@ -1,14 +1,14 @@
 const Usuario = require('../models/usuario'); 
 
 // Agrega un nuevo usuario
-exports.nuevoUsuario = async (req, res, next) => {
+exports.nuevoUsuario = async (req, res) => {
     const usuario = new Usuario(req.body);
     try {
         await usuario.save();
         res.json({ mensaje: 'Se agregó un nuevo usuario' });
     } catch (error) {
-        res.json(error);
-        next();
+        // Elimina la llamada a next()
+        res.status(500).json({ mensaje: 'Hubo un error al registrar el usuario', error: error.message });
     }
 };
 

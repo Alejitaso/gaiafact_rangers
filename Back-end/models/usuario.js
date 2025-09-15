@@ -49,7 +49,7 @@ const usuarioSchema = new Schema({
     tipo_usuario:{
         type: String,
         required:true,
-        enum: ['Admin', 'Superadmin', 'cliente', 'Usuario']
+        enum: ['ADMINISTRADOR','CLIENTE', 'USUARIO', 'SUPERADMIN' ]
     }
 });
 
