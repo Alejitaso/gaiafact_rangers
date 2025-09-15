@@ -7,9 +7,9 @@ function RegistroUsuario() {
   const [usuario, setUsuario] = useState({
     nombre: '',
     apellido: '',
-    email: '',
+    correo_electronico: '',
     tipo_documento: '',
-    documento: '',
+    numero_documento: '',
     telefono: '',
     tipo_usuario: '',
   });
@@ -22,21 +22,21 @@ function RegistroUsuario() {
   };
 
   const validarFormulario = () => {
-    const { nombre, apellido, email, tipo_documento, documento, telefono, tipo_usuario } = usuario;
-    return !nombre || !apellido || !email || !tipo_documento || !documento || !telefono || !tipo_usuario;
+    const { nombre, apellido, correo_electronico, tipo_documento, numero_documento, telefono, tipo_usuario } = usuario;
+    return !nombre || !apellido || !correo_electronico || !tipo_documento || !numero_documento || !telefono || !tipo_usuario;
   };
 
   const manejarEnvio = async (e) => {
     e.preventDefault();
     try {
-      await clienteAxios.post('/usuarios', usuario);
+      await clienteAxios.post('/Usuario', usuario);
       Swal.fire('Correcto', 'Usuario registrado correctamente', 'success');
       setUsuario({
         nombre: '',
         apellido: '',
-        email: '',
+        correo_electronico: '',
         tipo_documento: '',
-        documento: '',
+        numero_documento: '',
         telefono: '',
         tipo_usuario: ''
       });
@@ -80,11 +80,11 @@ function RegistroUsuario() {
             required
           />
 
-          <label htmlFor="email">CORREO ELECTRÓNICO</label>
+          <label htmlFor="correo_electronico">CORREO ELECTRÓNICO</label>
           <input
             type="email"
             id="email"
-            name="email"
+            name="correo_electronico"
             placeholder="Ingresa tu correo"
             value={usuario.email}
             onChange={manejarCambio}
@@ -111,7 +111,7 @@ function RegistroUsuario() {
           <input
             type="text"
             id="documento"
-            name="documento"
+            name="numero_documento"
             placeholder="Número de documento"
             value={usuario.documento}
             onChange={manejarCambio}

@@ -15,11 +15,11 @@ function NewPassword() {
     }
 
     try {
-      // Aquí deberías pasar también un token o ID de usuario
-      const res = await fetch("http://localhost:3000/api/auth/reset-password", {
+      // 🟢 Corregir la URL y los campos de la solicitud
+      const res = await fetch("http://localhost:4000/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: newPassword })
+        body: JSON.stringify({ token: "un_token_de_prueba", nuevaPassword: newPassword })
       });
 
       const data = await res.json();

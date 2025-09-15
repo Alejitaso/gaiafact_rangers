@@ -42,7 +42,6 @@ exports.buscarPorDocumento = async (req, res, next) => {
     try {
         const usuario = await Usuario.findOne({ 
             $or: [
-                { documento: req.params.documento },
                 { numero_documento: req.params.documento }
             ]
         });
