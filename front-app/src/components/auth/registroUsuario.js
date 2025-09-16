@@ -31,7 +31,7 @@ const validarFormulario = () => {
   const manejarEnvio = async (e) => {
     e.preventDefault();
     try {
-      await clienteAxios.post('', usuario);
+      await clienteAxios.post('/api/Usuario', usuario);
       Swal.fire('Correcto', 'Usuario registrado correctamente', 'success');
       setUsuario({
         nombre: '',

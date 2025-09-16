@@ -1,67 +1,107 @@
 import React, { Fragment, useState } from "react";
-import { withRouter } from "react-router-dom/cjs/react-router-dom.min";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import clienteAxios from "../../config/axios";
+import styles from './registroProduct.module.css';
 
-function RegistroProducto(props) {
-    // Estado del producto
-    const [producto, datosProducto] = useState({
+function RegistroProducto() {
+    const navigate = useNavigate();
+    
+    // ===== ESTADOS DEL COMPONENTE =====
+    const [producto, setProducto] = useState({
         nombre: '',
         cantidad: '',
         precio: '',
-        tipoPrenda: '',
+        tipo_prenda: '',
         descripcion: ''
     });
 
-    // Estado para manejar loading
     const [cargando, setCargando] = useState(false);
+    const [showPopup, setShowPopup] = useState(false);
 
-    // Función para registrar el producto
-    const registrarProducto = async e => {
+    // ===== FUNCIONES DE VALIDACIÓN =====
+    const validarCamposCompletos = () => {
+        const { nombre, cantidad, precio, tipo_prenda, descripcion } = producto;
+        return nombre && cantidad && precio && tipo_prenda && descripcion;
+    };
+
+    const validarCantidad = () => {
+        return !isNaN(producto.cantidad) && producto.cantidad >= 0;
+    };
+
+    const validarPrecio = () => {
+        return !isNaN(producto.precio) && producto.precio >= 0;
+    };
+
+    const mostrarErrorValidacion = (titulo, mensaje) => {
+        Swal.fire({
+            icon: 'error',
+            title: titulo,
+            text: mensaje,
+            confirmButtonColor: '#d33'
+        });
+    };
+
+    // ===== FUNCIONES DE MANEJO DE DATOS =====
+    const leerInformacionProducto = (e) => {
+        setProducto({
+            ...producto,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const limpiarFormulario = () => {
+        setProducto({
+            nombre: '',
+            cantidad: '',
+            precio: '',
+            tipo_prenda: '',
+            descripcion: ''
+        });
+    };
+
+    const formatearPrecio = (precio) => {
+        return precio.toLocaleString('es-CO', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        });
+    };
+
+    const prepararDatosEnvio = () => {
+        return {
+            nombre: producto.nombre.trim(),
+            cantidad: parseInt(producto.cantidad),
+            precio: parseFloat(producto.precio),
+            tipo_prenda: producto.tipo_prenda,
+            descripcion: producto.descripcion.trim()
+        };
+    };
+
+    // ===== FUNCIÓN PRINCIPAL DE REGISTRO =====
+    const registrarProducto = async (e) => {
         e.preventDefault();
 
-        // Validar que todos los campos estén llenos
-        if (!producto.nombre || !producto.cantidad || !producto.precio || 
-            !producto.tipoPrenda || !producto.descripcion) {
-            Swal.fire({
-                type: 'error',
-                title: 'Campos incompletos',
-                text: 'Por favor llena todos los campos'
-            });
+        // Validaciones
+        if (!validarCamposCompletos()) {
+            mostrarErrorValidacion('Campos incompletos', 'Por favor llena todos los campos');
             return;
         }
 
-        // Validar que cantidad y precio sean números válidos
-        if (isNaN(producto.cantidad) || producto.cantidad < 0) {
-            Swal.fire({
-                type: 'error',
-                title: 'Cantidad inválida',
-                text: 'La cantidad debe ser un número mayor o igual a 0'
-            });
+        if (!validarCantidad()) {
+            mostrarErrorValidacion('Cantidad inválida', 'La cantidad debe ser un número mayor o igual a 0');
             return;
         }
 
-        if (isNaN(producto.precio) || producto.precio < 0) {
-            Swal.fire({
-                type: 'error',
-                title: 'Precio inválido',
-                text: 'El precio debe ser un número mayor o igual a 0'
-            });
+        if (!validarPrecio()) {
+            mostrarErrorValidacion('Precio inválido', 'El precio debe ser un número mayor o igual a 0');
             return;
         }
 
         setCargando(true);
 
         try {
-            // Preparar datos para enviar
-            const datosEnvio = {
-                nombre: producto.nombre.trim(),
-                cantidad: parseInt(producto.cantidad),
-                precio: parseFloat(producto.precio),
-                tipoPrenda: producto.tipoPrenda,
-                descripcion: producto.descripcion.trim()
-            };
-
+            const datosEnvio = prepararDatosEnvio();
+            
             const res = await clienteAxios.post('/api/productos', datosEnvio, {
                 headers: {
                     'Content-Type': 'application/json'
@@ -71,40 +111,8 @@ function RegistroProducto(props) {
             setCargando(false);
 
             if (res.status === 201) {
-                // Mostrar modal de éxito con opciones
-                const result = await Swal.fire({
-                    title: 'Producto registrado correctamente',
-                    html: `
-                        <div style="text-align: left; margin: 20px 0;">
-                            <h4><i class="fas fa-box"></i> ${res.data.producto.nombre}</h4>
-                            <p><strong>Cantidad:</strong> ${res.data.producto.cantidad} unidades</p>
-                            <p><strong>Precio:</strong> $${formatearPrecio(res.data.producto.precio)}</p>
-                            <p><strong>Tipo:</strong> ${res.data.producto.tipoPrenda}</p>
-                            <p><strong>Descripción:</strong> ${res.data.producto.descripcion}</p>
-                        </div>
-                    `,
-                    icon: 'success',
-                    showCancelButton: true,
-                    showDenyButton: true,
-                    confirmButtonText: 'Ver Inventario',
-                    cancelButtonText: 'Registrar otro',
-                    denyButtonText: 'Editar producto',
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#28a745',
-                    denyButtonColor: '#ffc107'
-                });
-
-                // Limpiar formulario
                 limpiarFormulario();
-
-                // Manejar respuesta del modal
-                if (result.isConfirmed) {
-                    props.history.push('/inventario');
-                } else if (result.isDenied) {
-                    props.history.push(`/productos/editar/${res.data.producto._id}`);
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    // Quedarse en la misma página para registrar otro producto
-                }
+                mostrarPopupExito(res.data.producto);
             }
 
         } catch (error) {
@@ -113,69 +121,59 @@ function RegistroProducto(props) {
             
             let mensajeError = 'Intente nuevamente';
             
-            if (error.response && error.response.data && error.response.data.mensaje) {
+            if (error.response?.data?.mensaje) {
                 mensajeError = error.response.data.mensaje;
             }
 
-            Swal.fire({
-                type: 'error',
-                title: 'Hubo un error',
-                text: mensajeError
-            });
+            mostrarErrorValidacion('Hubo un error', mensajeError);
         }
-    }
+    };
 
-    // Leer datos del formulario
-    const leerInformacionProducto = e => {
-        datosProducto({
-            ...producto,
-            [e.target.name]: e.target.value
+    // ===== FUNCIÓN PARA MOSTRAR POPUP DE ÉXITO =====
+    const mostrarPopupExito = async (productoRegistrado) => {
+        // Primero mostrar el popup personalizado
+        setShowPopup(true);
+        
+        // También mostrar el mensaje de éxito con SweetAlert
+        Swal.fire({
+            title: '¡Producto registrado correctamente!',
+            html: `
+                <div style="text-align: left; margin: 20px 0;">
+                    <h4><i class="fas fa-box"></i> ${productoRegistrado.nombre}</h4>
+                    <p><strong>Cantidad:</strong> ${productoRegistrado.cantidad} unidades</p>
+                    <p><strong>Precio:</strong> $${formatearPrecio(productoRegistrado.precio)}</p>
+                    <p><strong>Tipo:</strong> ${productoRegistrado.tipo_prenda}</p>
+                    <p><strong>Descripción:</strong> ${productoRegistrado.descripcion}</p>
+                </div>
+            `,
+            icon: 'success',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#28a745',
+            timer: 5000,
+            timerProgressBar: true
         });
-    }
+    };
 
-    // Limpiar formulario
-    const limpiarFormulario = () => {
-        datosProducto({
-            nombre: '',
-            cantidad: '',
-            precio: '',
-            tipoPrenda: '',
-            descripcion: ''
-        });
-    }
+    // ===== FUNCIONES DEL POPUP =====
+    const cerrarPopup = () => {
+        setShowPopup(false);
+    };
 
-    // Formatear precio
-    const formatearPrecio = (precio) => {
-        return precio.toLocaleString('es-CO', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2
-        });
-    }
+    const handleNavigation = (ruta) => {
+        navigate(ruta);
+        cerrarPopup();
+    };
 
+    // ===== RENDER DEL COMPONENTE =====
     return (
         <Fragment>
             <div className="background-container"></div>
             
             <div className="main-content">
-                <header>
-                    <div className="logos">
-                        <div className="logo-izquierdo">
-                            <img src="../img/logo_final (1).png" alt="Logo Izquierdo" />
-                        </div>
-                        <div className="nombre-tienda">
-                            Athena'S
-                        </div>
-                        <div className="logo-derecho">
-                            <img src="../img/logo_athena_S.png" alt="Logo Derecho" />
-                        </div>
-                    </div>
-                    <div className="nombre">
-                        <h1>Registro de producto</h1>
-                    </div>
-                </header>
-
-                <form className="register-form" onSubmit={registrarProducto}>
-                    <div className="text">
+                <form className={`register-form ${styles['register-form'] || ''}`} onSubmit={registrarProducto}>
+                    
+                    {/* Campo Nombre */}
+                    <div className={`text ${styles.text || ''}`}>
                         <input 
                             type="text" 
                             placeholder="NOMBRE DEL PRODUCTO" 
@@ -186,7 +184,8 @@ function RegistroProducto(props) {
                         />
                     </div>
 
-                    <div className="text">
+                    {/* Campo Cantidad */}
+                    <div className={`text ${styles.text || ''}`}>
                         <input 
                             type="number" 
                             placeholder="CANTIDAD" 
@@ -198,7 +197,8 @@ function RegistroProducto(props) {
                         />
                     </div>
 
-                    <div className="text">
+                    {/* Campo Precio */}
+                    <div className={`text ${styles.text || ''}`}>
                         <input 
                             type="number" 
                             placeholder="PRECIO UNITARIO" 
@@ -211,10 +211,11 @@ function RegistroProducto(props) {
                         />
                     </div>
 
-                    <div className="text">
+                    {/* Select Tipo de Prenda */}
+                    <div className={`text ${styles.text || ''}`}>
                         <select 
-                            name="tipoPrenda"
-                            value={producto.tipoPrenda}
+                            name="tipo_prenda"
+                            value={producto.tipo_prenda}
                             onChange={leerInformacionProducto}
                             required
                         >
@@ -228,9 +229,10 @@ function RegistroProducto(props) {
                         </select>
                     </div>
 
+                    {/* Campo Descripción */}
                     <div>
                         <textarea 
-                            className="textarea1" 
+                            className={`textarea1 ${styles.textarea1 || ''}`}
                             placeholder="DESCRIPCIÓN DEL PRODUCTO" 
                             name="descripcion"
                             value={producto.descripcion}
@@ -239,7 +241,8 @@ function RegistroProducto(props) {
                         />
                     </div>
 
-                    <div className="boton">
+                    {/* Botón de Envío */}
+                    <div className={`boton ${styles.boton || ''}`}>
                         <button 
                             id="enviar" 
                             type="submit" 
@@ -257,15 +260,51 @@ function RegistroProducto(props) {
                     </div>
                 </form>
 
-                <footer className="footer">
-                    <div className="linea"></div>
-                    <div className="copyright">
-                        <h2>© 2025 Gaiafact</h2>
+                {/* Popup de navegación - Solo aparece después de registrar */}
+                {showPopup && (
+                    <div className={styles.popupOverlay} onClick={cerrarPopup}>
+                        <div className={styles.popupContainer} onClick={(e) => e.stopPropagation()}>
+                            <div className={styles.popupHeader}>
+                                <h3>¿Qué deseas hacer ahora?</h3>
+                                <button className={styles.popupClose} onClick={cerrarPopup}>
+                                    <i className="fas fa-times"></i>
+                                </button>
+                            </div>
+                            
+                            <div className={styles.popupContent}>
+                                <button 
+                                    className={`${styles.popupButton} ${styles.registrar}`}
+                                    onClick={() => {
+                                        cerrarPopup();
+                                        // Permanecer en la misma página para registrar otro
+                                    }}
+                                >
+                                    <i className="fas fa-plus"></i>
+                                    <span>Registrar otro producto</span>
+                                </button>
+
+                                <button 
+                                    className={`${styles.popupButton} ${styles.inventario}`}
+                                    onClick={() => handleNavigation('/inventario')}
+                                >
+                                    <i className="fas fa-boxes"></i>
+                                    <span>Ver Inventario</span>
+                                </button>
+
+                                <button 
+                                    className={`${styles.popupButton} ${styles.editar}`}
+                                    onClick={() => handleNavigation('/productos/editar')}
+                                >
+                                    <i className="fas fa-edit"></i>
+                                    <span>Editar Productos</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </footer>
+                )}
             </div>
         </Fragment>
     );
 }
 
-export default withRouter(RegistroProducto);
+export default RegistroProducto;
