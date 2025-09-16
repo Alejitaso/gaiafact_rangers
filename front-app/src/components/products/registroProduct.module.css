@@ -1,0 +1,349 @@
+/* ===== FORMULARIO PRINCIPAL ===== */
+.register-form {
+    background-color: var(--color-uno);
+    margin: 3% 20%;
+    padding: 60px 70px;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+/* ===== CAMPOS DE ENTRADA ===== */
+.register-form input[type="text"],
+.register-form input[type="number"],
+.textarea1 {
+    width: 100%;
+    padding: 14px 15px;
+    border: 1px solid rgba(142, 155, 232, 0.6);
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.9);
+    margin: 12px 0;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    color: var(--color-uno);
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+/* Placeholders */
+.register-form input[type="text"]::placeholder,
+.register-form input[type="number"]::placeholder,
+.textarea1::placeholder {
+    color: rgba(37, 68, 84, 0.5);
+}
+
+/* Estados de focus */
+.register-form input[type="text"]:focus,
+.register-form input[type="number"]:focus,
+.textarea1:focus {
+    border-color: var(--color-tres);
+    box-shadow: 0 0 12px rgba(142, 155, 232, 0.8);
+    background-color: var(--color-dos);
+    outline: none;
+}
+
+/* ===== SELECT PERSONALIZADO ===== */
+.register-form select {
+    width: 100%;
+    padding: 14px 15px;
+    border: 1px solid rgba(142, 155, 232, 0.6);
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.9);
+    margin: 12px 0;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    color: var(--color-uno);
+    transition: all 0.3s ease;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23254454" d="M6 9L1.5 4.5h9z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 12px auto;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.register-form select:focus {
+    border-color: var(--color-tres);
+    box-shadow: 0 0 12px rgba(142, 155, 232, 0.8);
+    background-color: var(--color-dos);
+    outline: none;
+}
+
+/* ===== BOTONES ===== */
+.boton {
+    text-align: center;
+    margin-top: 5%;
+}
+
+.boton button {
+    background-color: var(--color-dos);
+    color: var(--color-uno);
+    padding: 12px 25px;
+    border: 2px solid var(--color-tres);
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    min-width: 120px;
+}
+
+.boton button:hover {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    border-color: var(--color-uno);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.boton button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ===== MODAL DE CONFIRMACIÓN (SweetAlert personalización) ===== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-contenido {
+    position: absolute;
+    top: 50%;
+    left: calc(50% + 40px);
+    transform: translate(-50%, -50%);
+    background-color: var(--color-dos);
+    padding: 70px;
+    border-radius: 30px;
+    width: 320px;
+    text-align: center;
+    color: var(--color-uno);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+}
+
+.modal-contenido::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    border-radius: 25px;
+    border: 3px solid var(--color-tres);
+    pointer-events: none;
+}
+
+.modal-contenido h2 {
+    margin-bottom: 20px;
+}
+
+.botones-modal {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.modal-contenido button {
+    background-color: var(--color-dos);
+    color: var(--color-uno);
+    padding: 12px 10px;
+    border: 2px solid var(--color-tres);
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    margin-top: 7px;
+}
+
+.modal-contenido button:hover {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    border-color: var(--color-uno);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* ===== POPUP DE NAVEGACIÓN ===== */
+.popupOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+.popupContainer {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 400px;
+    padding: 0;
+    position: relative;
+    animation: popupAppear 0.3s ease-out;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(142, 155, 232, 0.3);
+}
+
+@keyframes popupAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.popupHeader {
+    background: linear-gradient(135deg, var(--color-tres) 0%, var(--color-cuatro, #6c5ce7) 100%);
+    color: white;
+    padding: 20px 25px;
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.popupHeader h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.popupClose {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.popupClose:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+.popupContent {
+    padding: 30px 25px 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.popupButton {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 15px;
+    padding: 15px 20px;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--color-uno);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.popupButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.popupButton i {
+    font-size: 1.2rem;
+    width: 20px;
+    text-align: center;
+}
+
+.popupButton span {
+    flex-grow: 1;
+    text-align: left;
+}
+
+/* Estilos específicos para cada botón del popup */
+.popupButton.editar {
+    border-color: rgba(255, 193, 7, 0.5);
+}
+
+.popupButton.editar:hover {
+    background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+    color: white;
+    border-color: #ffc107;
+}
+
+.popupButton.registrar {
+    border-color: rgba(40, 167, 69, 0.5);
+}
+
+.popupButton.registrar:hover {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border-color: #28a745;
+}
+
+.popupButton.inventario {
+    border-color: rgba(0, 123, 255, 0.5);
+}
+
+.popupButton.inventario:hover {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border-color: #007bff;
+}
+
+/* ===== RESPONSIVIDAD ===== */
+@media (max-width: 768px) {
+    .register-form {
+        margin: 2% 5%;
+        padding: 40px 30px;
+    }
+    
+    .popupContainer {
+        width: 95%;
+        max-width: 350px;
+    }
+    
+    .popupContent {
+        padding: 20px 15px;
+        gap: 12px;
+    }
+    
+    .popupButton {
+        padding: 12px 15px;
+        font-size: 0.9rem;
+    }
+}

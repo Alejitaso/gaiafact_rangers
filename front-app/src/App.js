@@ -11,9 +11,8 @@ import Perfil from './components/user/perfil.js';
 import Notify from './components/utils/notify.js';
 import CodigoBarras from './components/utils/codigoBarras.js';
 import RegistroUsuario from './components/auth/registroUsuario.js';
-import Login from "./components/auth/login.js";
-import Recuperar from './components/auth/recuperar.js';
-import Nueva_contra from './components/auth/nueva_contra.js';
+import Registro_product from './components/products/registro_product.js';
+import EditProduct from './components/products/editarProducto.js';
 
 
 function App() {
@@ -34,9 +33,8 @@ function App() {
               <Route path="/notificaciones" element={<Notify />} />
               <Route path="/codigo-Barras" element={<CodigoBarras />} />
               <Route path="/Usuario" element={<RegistroUsuario />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/recuperar" element={<Recuperar />} />
-              <Route path="/nueva_contra" element={<Nueva_contra />} />
+              <Route path="/Productos" element={<Registro_product />} />
+              <Route path="/productos/editar/:idProducto" element={<EditProduct />} />
               {/* Agrega más rutas aquí según sea necesario */}
             </Routes>
           </div>
