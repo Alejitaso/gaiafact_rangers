@@ -1,2 +1,2 @@
-jij
+en esta carpeta se encuentran los componentes react y sus css dentro de cada respectiva carpeta
 

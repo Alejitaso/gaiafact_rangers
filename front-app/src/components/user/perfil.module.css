@@ -1,0 +1,220 @@
+
+/* === Contenedor principal === */
+.perfil-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 40px auto;
+    background: linear-gradient(135deg, var(--color-uno) 0%, var(--color-tres) 100%);
+    padding: 40px;
+    border-radius: 20px;
+    color: var(--color-dos);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    min-height: 400px;
+}
+
+/* === Título === */
+.perfil-container h1 {
+    text-align: center;
+    color: var(--color-dos);
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* === Vista de información === */
+.info-perfil {
+    text-align: center;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 20px;
+}
+
+.info-perfil .nombre {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--color-dos);
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.info-perfil .email,
+.info-perfil .documento,
+.info-perfil .telefono,
+.info-perfil .estado {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: var(--color-cuatro);
+}
+
+.info-perfil .estado strong {
+    color: var(--color-cinco);
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+/* === Formulario === */
+.perfil-container form {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.perfil-container form legend {
+    font-size: 1.8rem;
+    color: var(--color-dos);
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+/* === Campos === */
+.campo {
+    margin-bottom: 25px;
+}
+
+.campo label {
+    display: block;
+    color: var(--color-cuatro);
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+}
+
+.campo input {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: var(--color-dos);
+    color: var(--color-uno);
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.campo input:focus {
+    outline: none;
+    box-shadow: 0 0 20px rgba(142, 155, 232, 0.6);
+    transform: translateY(-2px);
+}
+
+/* === Botones === */
+.btn {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 10px;
+    min-width: 150px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.btn-azul {
+    background: linear-gradient(135deg, var(--color-tres), var(--color-cinco));
+    color: white;
+}
+
+.btn-azul:hover {
+    background: linear-gradient(135deg, var(--color-cinco), var(--color-tres));
+}
+
+.btn-rojo {
+    background: linear-gradient(135deg, var(--color-siete), #ff4444);
+    color: white;
+}
+
+.btn-rojo:hover {
+    background: linear-gradient(135deg, #ff4444, var(--color-siete));
+}
+
+.btn-verde {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.btn-verde:hover {
+    background: linear-gradient(135deg, #20c997, #28a745);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* === Contenedor de botones === */
+.botones-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+/* === Mensaje de carga === */
+.loading-message {
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--color-cuatro);
+    padding: 60px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+}
+
+/* === Icono === */
+.fas.fa-pen-alt {
+    margin-right: 8px;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+    .perfil-container {
+        margin: 20px;
+        padding: 25px;
+    }
+
+    .perfil-container h1 {
+        font-size: 2rem;
+    }
+
+    .info-perfil .nombre {
+        font-size: 1.6rem;
+    }
+
+    .botones-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .perfil-container {
+        margin: 10px;
+        padding: 20px;
+    }
+}

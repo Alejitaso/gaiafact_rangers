@@ -1,24 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Fragment } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Sidebar from './components/layout/sidebar.js';
+import Header from './components/layout/Header.js';
+import Footer from './components/layout/footer.js';
+import VisFactura from './components/billing/visFactura.js';
+import Facturacion from './components/billing/facturacion.js';
+import Inicio from './components/onset/inicio.js';
+import Img from './components/utils/loadImg.js';
+import Perfil from './components/user/perfil.js';
+import Notify from './components/utils/notify.js';
+import CodigoBarras from './components/utils/codigoBarras.js';
+import RegistroUsuario from './components/auth/registroUsuario.js';
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Fragment>
+        <Sidebar />
+        <div id="main">
+          <Header title="GaiaFact" />
+          <div className="content">
+            <Routes>
+              <Route path="/" element={<Inicio />} />
+              <Route path="/inicio" element={<Inicio />} />
+              <Route path="/vis-factura" element={<VisFactura />} />
+              <Route path="/facturacion" element={<Facturacion />} />
+              <Route path="/Img" element={<Img />} />
+              <Route path="/perfil" element={<Perfil />} />
+              <Route path="/notificaciones" element={<Notify />} />
+              <Route path="/codigo-Barras" element={<CodigoBarras />} />
+              <Route path="/Usuario" element={<RegistroUsuario />} />
+              {/* Agrega más rutas aquí según sea necesario */}
+            </Routes>
+          </div>
+          <Footer />
+        </div>
+      </Fragment>
+    </Router>
   );
 }
 

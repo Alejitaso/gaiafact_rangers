@@ -2,24 +2,26 @@ const express = require("express")
 
 const router=express.Router()
 
-const clienteController= require("../controllers/clienteController.js");
+const usuarioController= require("../controllers/usuarioController.js");
 const productoController=require('../controllers/productoController.js');
 const facturaController=require('../controllers/facturaController.js');
- 
+// FIX: Cambiar el nombre del archivo para que coincida
+const authController = require("../controllers/authController.js"); // Note: authController con C mayúscula
+const imagenesController = require('../controllers/imagenesController.js');
 
 module.exports=function(){
     //registro nuevo cliente
-    router.post('/clientes',clienteController.nuevoCliente)
-    //consultar cliente
-    router.get('/clientes',clienteController.mostrarClientes)
+    router.post('/Usuario',usuarioController.nuevoUsuario)
+    //consultar todos los usuarios (FIX: cambiar a mostrarUsuarios)
+    router.get('/Usuario',usuarioController.mostrarUsuarios)
     //consultar cliente por ID
-    router.get('/clientes/:idCliente',clienteController.mostrarCliente)
+    router.get('/Usuario/:idUsuario',usuarioController.mostrarUsuario)
     //buscar cliente por documento
-    router.get('/clientes/documento/:documento',clienteController.buscarPorDocumento)
+    router.get('/Usuario/documento/:documento',usuarioController.buscarPorDocumento)
     //actualizar cliente
-    router.put('/clientes/:idCliente',clienteController.actualizarCliente)
+    router.put('/Usuario/:idUsuario',usuarioController.actualizarUsuario)
     //eliminar cliente
-    router.delete('/clientes/:idCliente',clienteController.eliminarCliente)
+    router.delete('/Usuario/:idUsuario',usuarioController.eliminarUsuario)
 
     /*productos*/
     //se agrega nuevo producto
@@ -70,6 +72,11 @@ module.exports=function(){
             next();
         }
     });
-    
+
+    // cargar imagenes para el carousel (comentadas temporalmente hasta completar imagenesController)
+    // router.post('/imagenes/upload-carousel', imagenesController.upload.single('imagen'), imagenesController.subirImagenCarousel);
+    // router.get('/imagenes/carousel-images', imagenesController.obtenerImagenesCarousel);
+
+    //auth(login,recuperar contraseña, nueva contraseña)
     return router;
 }
