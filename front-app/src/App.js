@@ -12,6 +12,7 @@ import Notify from './components/utils/notify.js';
 import CodigoBarras from './components/utils/codigoBarras.js';
 import RegistroUsuario from './components/auth/registroUsuario.js';
 
+import './App.css'; 
 
 function App() {
   return (
@@ -31,7 +32,6 @@ function App() {
               <Route path="/notificaciones" element={<Notify />} />
               <Route path="/codigo-Barras" element={<CodigoBarras />} />
               <Route path="/Usuario" element={<RegistroUsuario />} />
-              {/* Agrega más rutas aquí según sea necesario */}
             </Routes>
           </div>
           <Footer />
