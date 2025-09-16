@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import styles from './style_rec_contr.module.css';
 
 function RecoverPassword() {
   const [email, setEmail] = useState("");
@@ -14,10 +15,10 @@ function RecoverPassword() {
     }
 
     try {
-      const res = await fetch("http://localhost:4000/api/auth/recover", {
+      const res = await fetch("http://localhost:3000/api/auth/recover", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ correo_electronico })
+        body: JSON.stringify({ email })
       });
 
       const data = await res.json();
@@ -26,15 +27,15 @@ function RecoverPassword() {
         setPopup(true);
         setError(null);
       } else {
-        setError(data.message || "❌ Error al enviar correo de recuperación");
+        setError(data.message || "Error al enviar correo de recuperación");
       }
     } catch (err) {
-      setError("❌ Error de conexión con el servidor");
+      setError("Error de conexión con el servidor");
     }
   };
 
   return (
-    <div className="recovery-form">
+    <div className={styles.recoveryform}>
       <h2>Ingrese su correo electrónico</h2>
 
       <form onSubmit={handleSubmit}>
@@ -52,7 +53,7 @@ function RecoverPassword() {
           </p>
         )}
 
-        <div className="boton">
+        <div className={styles.boton}>
           <button type="submit">Enviar</button>
         </div>
       </form>
@@ -62,7 +63,7 @@ function RecoverPassword() {
 
       {/* Popup */}
       {popup && (
-        <div className="popup-container" style={{ marginTop: "20px" }}>
+        <div className={styles.popupcontainer} style={{ marginTop: "20px" }}>
           <p>✅ Se envió un correo de recuperación a {email}</p>
         </div>
       )}

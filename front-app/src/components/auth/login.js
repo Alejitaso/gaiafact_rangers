@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
+import styles from './style_loguin.module.css';
 
 function Login() {
-  const [correo_electronico, setEmail] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
@@ -39,7 +40,7 @@ function Login() {
       const res = await fetch("http://localhost:3000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ correo_electronico, password })
+        body: JSON.stringify({ email, password })
       });
 
       const data = await res.json();
@@ -63,23 +64,24 @@ function Login() {
   };
 
   return (
-    <div className="login-box">
+    <div className={styles.loginbox}>
       <h2>Ingresa a tu cuenta</h2>
       <p>
         ¿No estás registrado?{" "}
-        <a className="link" href="/registro">
+        <a className={styles.link} href="/registro">
           Registrarse
         </a>
       </p>
-      <div className="logog">
+      <div className={styles.logog}>
         <i
           className="fa-solid fa-circle-user fa-7x"
           style={{ color: "#f0f4f8" }}
         ></i>
       </div>
 
-      <form className="login-form" onSubmit={handleSubmit}>
+      <form className={styles.loginform} onSubmit={handleSubmit}>
         <label htmlFor="email">CORREO ELECTRÓNICO</label>
+        <i class="fa-regular fa-user fa-2x"></i>
         <input
           type="email"
           id="email"
@@ -91,6 +93,7 @@ function Login() {
         />
 
         <label htmlFor="password">CLAVE</label>
+        <i class="fa-solid fa-lock fa-2x"></i>
         <input
           type="password"
           id="password"
@@ -100,6 +103,9 @@ function Login() {
           required
           disabled={isLocked}
         />
+        <a className={styles.link} href="/recuperar">
+          ¿Olvidaste tu contraseña?
+        </a>
 
         {/* Mensajes */}
         {error && !isLocked && (

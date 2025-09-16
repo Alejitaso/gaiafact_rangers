@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import styles from './style_new_contr.module.css';
 
 function NewPassword() {
   const [newPassword, setNewPassword] = useState("");
@@ -15,11 +16,11 @@ function NewPassword() {
     }
 
     try {
-      // 🟢 Corregir la URL y los campos de la solicitud
-      const res = await fetch("http://localhost:4000/api/auth/reset-password", {
+      // Aquí deberías pasar también un token o ID de usuario
+      const res = await fetch("http://localhost:3000/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: "un_token_de_prueba", nuevaPassword: newPassword })
+        body: JSON.stringify({ password: newPassword })
       });
 
       const data = await res.json();
@@ -38,7 +39,7 @@ function NewPassword() {
   };
 
   return (
-    <div className="form-container">
+    <div className={styles.formcontainer}>
       <h2>Recuperación de contraseña</h2>
 
       <form onSubmit={handleSubmit}>
