@@ -1,13 +1,13 @@
-import React, { Fragment, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { Fragment, useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import clienteAxios from "../../config/axios";
 import styles from './registroProduct.module.css';
 
 function RegistroProducto() {
     const navigate = useNavigate();
-    
-    // ===== ESTADOS DEL COMPONENTE =====
+    const location = useLocation();
+
     const [producto, setProducto] = useState({
         nombre: '',
         cantidad: '',
@@ -17,32 +17,53 @@ function RegistroProducto() {
     });
 
     const [cargando, setCargando] = useState(false);
-    const [showPopup, setShowPopup] = useState(false);
 
-    // ===== FUNCIONES DE VALIDACIÓN =====
+    // ✅ Limpieza TOTAL de cualquier popup en montaje o cambio de ruta
+    useEffect(() => {
+        cerrarForzadoSweetAlert();
+    }, [location.pathname]);
+
+    const cerrarForzadoSweetAlert = () => {
+        try {
+            Swal.close();
+            // Eliminar manualmente cualquier contenedor residual
+            const containers = document.querySelectorAll('.swal2-container');
+            containers.forEach(c => c.remove());
+            const popups = document.querySelectorAll('.swal2-popup');
+            popups.forEach(p => p.remove());
+        } catch (e) {
+            console.warn("No había popups para cerrar");
+        }
+    };
+
     const validarCamposCompletos = () => {
         const { nombre, cantidad, precio, tipo_prenda, descripcion } = producto;
         return nombre && cantidad && precio && tipo_prenda && descripcion;
     };
 
-    const validarCantidad = () => {
-        return !isNaN(producto.cantidad) && producto.cantidad >= 0;
-    };
-
-    const validarPrecio = () => {
-        return !isNaN(producto.precio) && producto.precio >= 0;
-    };
+    const validarCantidad = () => !isNaN(producto.cantidad) && producto.cantidad >= 0;
+    const validarPrecio = () => !isNaN(producto.precio) && producto.precio >= 0;
 
     const mostrarErrorValidacion = (titulo, mensaje) => {
+        cerrarForzadoSweetAlert();
         Swal.fire({
-            icon: 'error',
             title: titulo,
             text: mensaje,
-            confirmButtonColor: '#d33'
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+            backdrop: true,
+            allowOutsideClick: true,
+            allowEscapeKey: true,
+            allowEnterKey: true,
+            customClass: {
+                popup: 'custom-swal-popup',
+                title: 'custom-swal-title',
+                htmlContainer: 'custom-swal-html'
+            },
+            willClose: cerrarForzadoSweetAlert
         });
     };
 
-    // ===== FUNCIONES DE MANEJO DE DATOS =====
     const leerInformacionProducto = (e) => {
         setProducto({
             ...producto,
@@ -67,31 +88,25 @@ function RegistroProducto() {
         });
     };
 
-    const prepararDatosEnvio = () => {
-        return {
-            nombre: producto.nombre.trim(),
-            cantidad: parseInt(producto.cantidad),
-            precio: parseFloat(producto.precio),
-            tipo_prenda: producto.tipo_prenda,
-            descripcion: producto.descripcion.trim()
-        };
-    };
+    const prepararDatosEnvio = () => ({
+        nombre: producto.nombre.trim(),
+        cantidad: parseInt(producto.cantidad),
+        precio: parseFloat(producto.precio),
+        tipo_prenda: producto.tipo_prenda,
+        descripcion: producto.descripcion.trim()
+    });
 
-    // ===== FUNCIÓN PRINCIPAL DE REGISTRO =====
     const registrarProducto = async (e) => {
         e.preventDefault();
 
-        // Validaciones
         if (!validarCamposCompletos()) {
             mostrarErrorValidacion('Campos incompletos', 'Por favor llena todos los campos');
             return;
         }
-
         if (!validarCantidad()) {
             mostrarErrorValidacion('Cantidad inválida', 'La cantidad debe ser un número mayor o igual a 0');
             return;
         }
-
         if (!validarPrecio()) {
             mostrarErrorValidacion('Precio inválido', 'El precio debe ser un número mayor o igual a 0');
             return;
@@ -101,78 +116,78 @@ function RegistroProducto() {
 
         try {
             const datosEnvio = prepararDatosEnvio();
-            
             const res = await clienteAxios.post('/api/productos', datosEnvio, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers: { 'Content-Type': 'application/json' }
             });
 
             setCargando(false);
 
-            if (res.status === 201) {
+            if (res.status === 201 || res.status === 200) {
                 limpiarFormulario();
-                mostrarPopupExito(res.data.producto);
+                mostrarPopupExito(datosEnvio);
+            } else {
+                mostrarErrorValidacion("Aviso", "El servidor respondió pero con un estado inesperado.");
             }
 
         } catch (error) {
-            console.log(error);
             setCargando(false);
-            
-            let mensajeError = 'Intente nuevamente';
-            
-            if (error.response?.data?.mensaje) {
-                mensajeError = error.response.data.mensaje;
-            }
-
-            mostrarErrorValidacion('Hubo un error', mensajeError);
+            mostrarErrorValidacion('Hubo un error', error.response?.data?.mensaje || 'Intente nuevamente');
         }
     };
 
-    // ===== FUNCIÓN PARA MOSTRAR POPUP DE ÉXITO =====
     const mostrarPopupExito = async (productoRegistrado) => {
-        // Primero mostrar el popup personalizado
-        setShowPopup(true);
-        
-        // También mostrar el mensaje de éxito con SweetAlert
+        cerrarForzadoSweetAlert(); // ✅ Garantiza que no haya otro abierto
         Swal.fire({
             title: '¡Producto registrado correctamente!',
             html: `
-                <div style="text-align: left; margin: 20px 0;">
+                <div style="text-align: left; margin: 15px 0;">
                     <h4><i class="fas fa-box"></i> ${productoRegistrado.nombre}</h4>
                     <p><strong>Cantidad:</strong> ${productoRegistrado.cantidad} unidades</p>
                     <p><strong>Precio:</strong> $${formatearPrecio(productoRegistrado.precio)}</p>
                     <p><strong>Tipo:</strong> ${productoRegistrado.tipo_prenda}</p>
                     <p><strong>Descripción:</strong> ${productoRegistrado.descripcion}</p>
                 </div>
+                <div>
+                    <button id="btnInventario" class="swal2-custom-btn">
+                        <i class="fas fa-boxes"></i> Inventario
+                    </button>
+                    <button id="btnRegistrar" class="swal2-custom-btn">
+                        <i class="fas fa-plus"></i> Registrar
+                    </button>
+                    <button id="btnEditar" class="swal2-custom-btn">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                </div>
             `,
-            icon: 'success',
-            confirmButtonText: 'Entendido',
-            confirmButtonColor: '#28a745',
-            timer: 5000,
-            timerProgressBar: true
+            showConfirmButton: false,
+            backdrop: true,
+            allowOutsideClick: true,
+            allowEscapeKey: true,
+            allowEnterKey: true,
+            customClass: {
+                popup: 'custom-swal-popup',
+                title: 'custom-swal-title',
+                htmlContainer: 'custom-swal-html'
+            },
+            willClose: cerrarForzadoSweetAlert,
+            didOpen: () => {
+                const cerrarYNavegar = (ruta) => {
+                    cerrarForzadoSweetAlert();
+                    setTimeout(() => navigate(ruta), 100);
+                };
+
+                document.getElementById('btnInventario').addEventListener('click', () => cerrarYNavegar('/inventario'));
+                document.getElementById('btnRegistrar').addEventListener('click', () => cerrarForzadoSweetAlert());
+                document.getElementById('btnEditar').addEventListener('click', () => cerrarYNavegar('/productos/editar'));
+            }
         });
     };
 
-    // ===== FUNCIONES DEL POPUP =====
-    const cerrarPopup = () => {
-        setShowPopup(false);
-    };
-
-    const handleNavigation = (ruta) => {
-        navigate(ruta);
-        cerrarPopup();
-    };
-
-    // ===== RENDER DEL COMPONENTE =====
     return (
         <Fragment>
             <div className="background-container"></div>
-            
             <div className="main-content">
                 <form className={`register-form ${styles['register-form'] || ''}`} onSubmit={registrarProducto}>
-                    
-                    {/* Campo Nombre */}
                     <div className={`text ${styles.text || ''}`}>
                         <input 
                             type="text" 
@@ -184,7 +199,6 @@ function RegistroProducto() {
                         />
                     </div>
 
-                    {/* Campo Cantidad */}
                     <div className={`text ${styles.text || ''}`}>
                         <input 
                             type="number" 
@@ -197,7 +211,6 @@ function RegistroProducto() {
                         />
                     </div>
 
-                    {/* Campo Precio */}
                     <div className={`text ${styles.text || ''}`}>
                         <input 
                             type="number" 
@@ -211,7 +224,6 @@ function RegistroProducto() {
                         />
                     </div>
 
-                    {/* Select Tipo de Prenda */}
                     <div className={`text ${styles.text || ''}`}>
                         <select 
                             name="tipo_prenda"
@@ -229,7 +241,6 @@ function RegistroProducto() {
                         </select>
                     </div>
 
-                    {/* Campo Descripción */}
                     <div>
                         <textarea 
                             className={`textarea1 ${styles.textarea1 || ''}`}
@@ -241,7 +252,6 @@ function RegistroProducto() {
                         />
                     </div>
 
-                    {/* Botón de Envío */}
                     <div className={`boton ${styles.boton || ''}`}>
                         <button 
                             id="enviar" 
@@ -259,49 +269,6 @@ function RegistroProducto() {
                         </button>
                     </div>
                 </form>
-
-                {/* Popup de navegación - Solo aparece después de registrar */}
-                {showPopup && (
-                    <div className={styles.popupOverlay} onClick={cerrarPopup}>
-                        <div className={styles.popupContainer} onClick={(e) => e.stopPropagation()}>
-                            <div className={styles.popupHeader}>
-                                <h3>¿Qué deseas hacer ahora?</h3>
-                                <button className={styles.popupClose} onClick={cerrarPopup}>
-                                    <i className="fas fa-times"></i>
-                                </button>
-                            </div>
-                            
-                            <div className={styles.popupContent}>
-                                <button 
-                                    className={`${styles.popupButton} ${styles.registrar}`}
-                                    onClick={() => {
-                                        cerrarPopup();
-                                        // Permanecer en la misma página para registrar otro
-                                    }}
-                                >
-                                    <i className="fas fa-plus"></i>
-                                    <span>Registrar otro producto</span>
-                                </button>
-
-                                <button 
-                                    className={`${styles.popupButton} ${styles.inventario}`}
-                                    onClick={() => handleNavigation('/inventario')}
-                                >
-                                    <i className="fas fa-boxes"></i>
-                                    <span>Ver Inventario</span>
-                                </button>
-
-                                <button 
-                                    className={`${styles.popupButton} ${styles.editar}`}
-                                    onClick={() => handleNavigation('/productos/editar')}
-                                >
-                                    <i className="fas fa-edit"></i>
-                                    <span>Editar Productos</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
         </Fragment>
     );

@@ -18,6 +18,7 @@ import Recuperar from './components/auth/recuperar.js';
 import Nueva_contra from './components/auth/nueva_contra.js';
 import Inventario from './components/products/inventory.js';
 
+import './App.css'; 
 
 function App() {
   return (
@@ -42,7 +43,7 @@ function App() {
               <Route path="/productos/editar/:idProducto" element={<EditProduct />} />
               <Route path="/login" element={<Login />} />
               <Route path="/recuperar" element={<Recuperar />} />
-              <Route path="/nueva_contra" element={<Nueva_contra/>}/>
+              <Route path="/nueva_contra" element={<Nueva_contra />} />
               {/* Agrega más rutas aquí según sea necesario */}
             </Routes>
           </div>
