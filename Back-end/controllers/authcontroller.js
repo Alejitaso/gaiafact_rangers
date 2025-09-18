@@ -8,6 +8,35 @@ const jwt = require("jsonwebtoken");
 // Usa variable de entorno para seguridad
 const JWT_SECRET = process.env.JWT_SECRET || "mi_clave_secreta";
 
+exports.verifyEmail = async (req, res) => {
+    const { token } = req.query;
+
+    try {
+        // 1. Verifica el token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.userId;
+
+        // 2. Encuentra y actualiza al usuario
+        const usuario = await Usuario.findById(userId);
+
+        if (!usuario) {
+            return res.status(404).send('Usuario no encontrado.');
+        }
+
+        if (usuario.isVerified) {
+            return res.status(200).send('Tu cuenta ya ha sido verificada.');
+        }
+
+        usuario.isVerified = true;
+        await usuario.save();
+
+        res.status(200).send('¡Correo verificado con éxito! Puedes cerrar esta ventana.');
+        
+    } catch (error) {
+        res.status(400).send('El enlace de verificación es inválido o ha expirado.');
+    }
+};
+
 // 🟢 Login
 exports.login = async (req, res) => {
   const { correo_electronico, password } = req.body;

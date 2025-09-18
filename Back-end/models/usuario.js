@@ -36,6 +36,10 @@ const usuarioSchema = new Schema({
         required: true,
         trim:true,
     },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
     telefono:{
         type: String,
         required: true,
