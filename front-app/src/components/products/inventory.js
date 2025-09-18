@@ -1,9 +1,13 @@
 import React, { Fragment, useState, useEffect } from "react";
-import { withRouter } from "react-router-dom/cjs/react-router-dom.min";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import clienteAxios from "../../config/axios";
+import styles from "./inventory.module.css";
 
-function Inventario(props) {
+function Inventario() {
+    // Hooks para la navegación
+    const navigate = useNavigate();
+
     // Estados del componente
     const [productos, setProductos] = useState([]);
     const [productosFiltrados, setProductosFiltrados] = useState([]);
@@ -68,12 +72,12 @@ function Inventario(props) {
     const seleccionarProducto = (producto) => {
         setProductoSeleccionado(producto);
         // Cambiar el estilo visual del producto seleccionado
-        const filas = document.querySelectorAll('.inventory-table tbody tr');
-        filas.forEach(fila => fila.classList.remove('selected'));
+        const filas = document.querySelectorAll(`.${styles.inventory_table} tbody tr`);
+        filas.forEach(fila => fila.classList.remove(styles.selected));
         
         const filaSeleccionada = document.querySelector(`tr[data-id="${producto._id}"]`);
         if (filaSeleccionada) {
-            filaSeleccionada.classList.add('selected');
+            filaSeleccionada.classList.add(styles.selected);
         }
     }
 
@@ -89,12 +93,12 @@ function Inventario(props) {
         }
         
         // Redirigir a la página de modificación con el ID del producto
-        props.history.push(`/productos/modificar/${productoSeleccionado._id}`);
+        navigate(`/productos/modificar/${productoSeleccionado._id}`);
     }
 
     // Función para agregar nuevo producto
     const agregarProducto = () => {
-        props.history.push('/productos/registro');
+        navigate('/productos/registro');
     }
 
     // Función para eliminar producto
@@ -150,10 +154,10 @@ function Inventario(props) {
 
     return (
         <Fragment>
-            <div className="content">
-                <div className="form">
+            <div className={styles.content}>
+                <div className={styles.table_box}>
                     {/* Barra de búsqueda */}
-                    <div className="search-bar">
+                    <div className={styles.search_bar}>
                         <input 
                             type="text" 
                             placeholder="Buscar por nombre, descripción, tipo o ID..."
@@ -176,12 +180,12 @@ function Inventario(props) {
 
                     {/* Tabla de inventario */}
                     {cargando ? (
-                        <div className="loading">
+                        <div className={styles.loading}>
                             <i className="fa fa-spinner fa-spin"></i>
                             <p>Cargando inventario...</p>
                         </div>
                     ) : (
-                        <table className="inventory-table">
+                        <table className={styles.inventory_table}>
                             <thead>
                                 <tr>
                                     <th>ID</th>
@@ -196,7 +200,7 @@ function Inventario(props) {
                             <tbody>
                                 {productosFiltrados.length === 0 ? (
                                     <tr>
-                                        <td colSpan="7" className="no-productos">
+                                        <td colSpan="7" className={styles.no_productos}>
                                             {busqueda ? 
                                                 'No se encontraron productos que coincidan con la búsqueda.' : 
                                                 'No hay productos registrados.'
@@ -209,13 +213,13 @@ function Inventario(props) {
                                             key={producto._id}
                                             data-id={producto._id}
                                             onClick={() => seleccionarProducto(producto)}
-                                            className={productoSeleccionado && productoSeleccionado._id === producto._id ? 'selected' : ''}
+                                            className={productoSeleccionado && productoSeleccionado._id === producto._id ? styles.selected : ''}
                                         >
                                             <td>{producto._id.substring(producto._id.length - 6).toUpperCase()}</td>
                                             <td>{producto.nombre}</td>
                                             <td>{formatearPrecio(producto.precio)}</td>
                                             <td>
-                                                <span className={producto.cantidad <= 10 ? 'stock-bajo' : 'stock-normal'}>
+                                                <span className={producto.cantidad <= 10 ? styles.stock_bajo : styles.stock_normal}>
                                                     {producto.cantidad}
                                                 </span>
                                             </td>
@@ -223,9 +227,9 @@ function Inventario(props) {
                                             <td title={producto.descripcion}>
                                                 {truncarTexto(producto.descripcion)}
                                             </td>
-                                            <td className="acciones">
+                                            <td className={styles.acciones}>
                                                 <button 
-                                                    className="btn-accion btn-editar"
+                                                    className={`${styles.btn_accion} ${styles.btn_editar}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         setProductoSeleccionado(producto);
@@ -236,7 +240,7 @@ function Inventario(props) {
                                                     <i className="fa fa-edit"></i>
                                                 </button>
                                                 <button 
-                                                    className="btn-accion btn-eliminar"
+                                                    className={`${styles.btn_accion} ${styles.btn_eliminar}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         eliminarProducto(producto._id, producto.nombre);
@@ -254,10 +258,10 @@ function Inventario(props) {
                     )}
 
                     {/* Botones de acción */}
-                    <div className="botones">
-                        <div className="boton">
+                    <div className={styles.botones}>
+                        <div className={styles.boton}>
                             <button 
-                                className="enviar btn-modificar" 
+                                className={`${styles.enviar} ${styles.btn_modificar}`} 
                                 onClick={modificarProducto}
                                 disabled={!productoSeleccionado}
                             >
@@ -265,18 +269,18 @@ function Inventario(props) {
                                 {' '}Modificar Seleccionado
                             </button>
                         </div>
-                        <div className="boton">
+                        <div className={styles.boton}>
                             <button 
-                                className="enviar btn-agregar" 
+                                className={`${styles.enviar} ${styles.btn_agregar}`} 
                                 onClick={agregarProducto}
                             >
                                 <i className="fa fa-plus"></i>
                                 {' '}Agregar Nuevo
                             </button>
                         </div>
-                        <div className="boton">
+                        <div className={styles.boton}>
                             <button 
-                                className="enviar btn-actualizar" 
+                                className={`${styles.enviar} ${styles.btn_actualizar}`} 
                                 onClick={obtenerProductos}
                             >
                                 <i className="fa fa-refresh"></i>
@@ -286,25 +290,15 @@ function Inventario(props) {
                     </div>
 
                     {/* Estadísticas rápidas */}
-                    <div className="estadisticas">
-                        <div className="stat-card">
+                    <div className={styles.estadisticas}>
+                        <div className={styles.stat_card}>
                             <h4>Total Productos</h4>
                             <p>{productos.length}</p>
                         </div>
-                        <div className="stat-card">
+                        <div className={styles.stat_card}>
                             <h4>Stock Bajo</h4>
-                            <p className="stock-bajo">
+                            <p className={styles.stock_bajo}>
                                 {productos.filter(p => p.cantidad <= 10).length}
-                            </p>
-                        </div>
-                        <div className="stat-card">
-                            <h4>Valor Total</h4>
-                            <p>
-                                {formatearPrecio(
-                                    productos.reduce((total, producto) => 
-                                        total + (producto.precio * producto.cantidad), 0
-                                    )
-                                )}
                             </p>
                         </div>
                     </div>
@@ -314,4 +308,4 @@ function Inventario(props) {
     );
 }
 
-export default withRouter(Inventario);
+export default Inventario;

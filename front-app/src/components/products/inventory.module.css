@@ -1,0 +1,292 @@
+.content {
+    margin-top: 5%;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+
+}
+
+/* Formulario con efecto 'frosted glass' */
+.table_box {
+    background-color: rgba(255, 255, 255, 0.15); 
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px); 
+    border-radius: 15px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); 
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 40px;
+    width: 90%; 
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    box-sizing: border-box;
+    
+}
+
+/* Modifica la barra de busqueda */
+.search_bar {
+    position: absolute; 
+    top: 20px; 
+    right: 20px; 
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Modifica el input de búsqueda */
+.search_bar input {
+    padding: 8px 12px;
+    border: 1px solid var(--color-cuatro);
+    border-radius: 5px;
+    background-color: var(--color-dos);
+    color: var(--color-uno);
+    font-size: 14px;
+}
+
+/* Modifica el botón de búsqueda */
+.search_bar i {
+    color: var(--color-uno);
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* Modifica el texto de la tabla */
+.table_container {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 15px;
+}
+
+/* Modifica el texto de la tabla */
+.inventory_table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px; /* Space from search bar */
+    
+}
+
+/* Modifica el texto de la tabla */
+.inventory_table th,
+.inventory_table td {
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle white border for lines */
+    padding: 10px;
+    text-align: left;
+    color: var(--color-uno);
+}
+
+/* Modifica el texto de la tabla */
+.inventory_table th {
+    background-color: rgba(37, 68, 84, 0.1);
+    font-weight: bold;
+}
+
+/* Modifica el texto de la tabla */
+.inventory_table tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Nuevas clases añadidas */
+.no_productos {
+    text-align: center;
+    font-style: italic;
+    color: #ccc;
+    padding: 20px;
+}
+
+.selected {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-left: 5px solid #00aaff;
+}
+
+.stock_bajo {
+    color: #ff4500;
+    font-weight: bold;
+}
+
+.stock_normal {
+    color: #32cd32;
+    font-weight: normal;
+}
+
+.loading {
+    text-align: center;
+    font-style: italic;
+    color: #ccc;
+    padding: 20px;
+}
+
+.fa-spinner {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.acciones {
+    display: flex;
+    gap: 10px;
+}
+
+.btn_accion {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #fff;
+    transition: transform 0.2s ease;
+}
+
+.btn_accion:hover {
+    transform: scale(1.1);
+}
+
+.btn_editar {
+    color: #00aaff;
+}
+
+.btn_eliminar {
+    color: #d33;
+}
+
+/* Modifica los botones principales */
+.botones {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px; /* Espacio entre los botones */
+    margin-top: 20px; /* Space from the table */
+    text-align: center;
+}
+
+/* Para que los botones ocupen el espacio disponible */
+.boton {
+    flex-grow: 1; 
+}
+
+.enviar {
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.btn_modificar {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    border: 2px solid var(--color-tres);
+}
+
+.btn_modificar:hover {
+    background-color: var(--color-dos);
+    color: var(--color-uno);
+    border-color: var(--color-uno);
+}
+
+.btn_agregar {
+    background-color: var(--color-dos);
+    color: var(--color-uno);
+    border: 2px solid var(--color-tres);
+}
+
+.btn_agregar:hover {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    border-color: var(--color-uno);
+}
+
+.btn_actualizar {
+    background-color: var(--color-cuatro);
+    color: var(--color-uno);
+    border: 2px solid var(--color-cuatro);
+}
+
+.btn_actualizar:hover {
+    background-color: var(--color-uno);
+    color: var(--color-cuatro);
+    border-color: var(--color-cuatro);
+}
+
+/* estilos de los botones*/
+.modifi_agr {
+    background-color: var(--color-dos);
+    color: var(--color-uno);
+    padding: 12px 25px;
+    border: 2px solid var(--color-tres);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+/* hover de los botones*/
+.modifi_agr:hover {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    border-color: var(--color-uno);
+    transform: translateY(-2px); 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.estadisticas {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.stat_card {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    color: var(--color-uno);
+    flex: 1;
+    min-width: 150px;
+}
+
+.stat_card h4 {
+    margin-bottom: 5px;
+    font-size: 1rem;
+}
+
+.stat_card p {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+
+/* Modificador para pantallas pequeñas*/
+@media (max-width: 768px) {
+
+    .search_bar input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        margin-left: 40px;
+    }
+
+    .botones {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .boton {
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .inventory_table td{
+        font-size: 12px;
+    }
+
+    .modifi_agr{
+        font-size: 12px;
+        max-width: 300px;
+    }
+
+}

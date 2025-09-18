@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import styles from './style_rec_contr.module.css';
+import Swal from 'sweetalert2'; // 👈 Importa SweetAlert2
 
 function RecoverPassword() {
   const [correo_electronico, setCorreoElectronico] = useState("");
   const [error, setError] = useState(null);
-  const [popup, setPopup] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,19 +18,38 @@ function RecoverPassword() {
       const res = await fetch("http://localhost:4000/api/auth/recover", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ correo_electronico }) // 👈 coincide con backend
+        body: JSON.stringify({ correo_electronico })
       });
 
       const data = await res.json();
 
       if (data.success) {
-        setPopup(true);
+        // 🚨 Reemplaza el popup de React con SweetAlert2
+        Swal.fire({
+          icon: 'success', // Muestra un ícono de éxito ✅
+          title: 'Correo Enviado',
+          text: `Se envió un correo de recuperación a ${correo_electronico}.`,
+          customClass: { popup: 'swal-contorno-interior-avanzado' }
+        });
         setError(null);
       } else {
-        setError(data.message || "Error al enviar correo de recuperación");
+        // 🚨 También puedes usar SweetAlert2 para el error
+        Swal.fire({
+          icon: 'error', // Muestra un ícono de error ❌
+          title: 'Error',
+          text: data.message || "Error al enviar correo de recuperación",
+          customClass: { popup: 'swal-contorno-interior' }
+        });
+        setError(null);
       }
     } catch (err) {
-      setError("Error de conexión con el servidor");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de Conexión',
+        text: 'No se pudo conectar con el servidor. Inténtalo de nuevo más tarde.',
+        customClass: { popup: 'swal-contorno-interior' }
+      });
+      setError(null);
     }
   };
 
@@ -60,13 +79,6 @@ function RecoverPassword() {
 
       <br />
       <a href="/login">Volver al inicio de sesión</a>
-
-      {/* Popup */}
-      {popup && (
-        <div className={styles.popupcontainer} style={{ marginTop: "20px" }}>
-          <p>✅ Se envió un correo de recuperación a {correo_electronico}</p>
-        </div>
-      )}
     </div>
   );
 }
