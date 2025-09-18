@@ -86,7 +86,7 @@ exports.recoverPassword = async (req, res) => {
     const resetLink = "http://localhost:3000/reset-password/${token}";
 
     const mailOptions = {
-      from: "soporte@tuapp.com",
+      from: "gaiafactrangers@gmail.com",
       to: correo_electronico,
       subject: "Recuperación de contraseña",
       html: `
@@ -94,6 +94,7 @@ exports.recoverPassword = async (req, res) => {
         <p>Has solicitado restablecer tu contraseña.</p>
         <p>Haz clic en este enlace (válido 1 hora):</p>
         <a href="${resetLink}">${resetLink}</a>
+        <p>Si no solicitaste este cambio, ignora este mesnsaje</p>
       `,
     };
 
