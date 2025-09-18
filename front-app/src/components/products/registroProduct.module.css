@@ -1,0 +1,194 @@
+/* ========================= */
+/* ===== FORMULARIO ======== */
+/* ========================= */
+
+.register-form {
+    background-color: var(--color-uno);
+    margin: 3% 20%;
+    padding: 60px 70px;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+/* ===== CAMPOS DE ENTRADA ===== */
+.register-form input[type="text"],
+.register-form input[type="number"],
+.textarea1 {
+    width: 100%;
+    padding: 14px 15px;
+    border: 1px solid rgba(142, 155, 232, 0.6);
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.9);
+    margin: 12px 0;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    color: var(--color-uno);
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.register-form input[type="text"]::placeholder,
+.register-form input[type="number"]::placeholder,
+.textarea1::placeholder {
+    color: rgba(37, 68, 84, 0.5);
+}
+
+.register-form input[type="text"]:focus,
+.register-form input[type="number"]:focus,
+.textarea1:focus {
+    border-color: var(--color-tres);
+    box-shadow: 0 0 12px rgba(142, 155, 232, 0.8);
+    background-color: var(--color-dos);
+    outline: none;
+}
+
+/* ===== SELECT ===== */
+.register-form select {
+    width: 100%;
+    padding: 14px 15px;
+    border: 1px solid rgba(142, 155, 232, 0.6);
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.9);
+    margin: 12px 0;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    color: var(--color-uno);
+    transition: all 0.3s ease;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23254454" d="M6 9L1.5 4.5h9z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 12px auto;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.register-form select:focus {
+    border-color: var(--color-tres);
+    box-shadow: 0 0 12px rgba(142, 155, 232, 0.8);
+    background-color: var(--color-dos);
+    outline: none;
+}
+
+/* ===== BOTÓN PRINCIPAL ===== */
+.boton {
+    text-align: center;
+    margin-top: 5%;
+}
+
+.boton button {
+    background-color: var(--color-dos);
+    color: var(--color-uno);
+    padding: 12px 25px;
+    border: 2px solid var(--color-tres);
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    min-width: 120px;
+}
+
+.boton button:hover {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    border-color: var(--color-uno);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.boton button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ============================= */
+/* ===== SWEETALERT GLOBAL ===== */
+/* ============================= */
+
+:global(.custom-swal-popup) {
+    background-color: var(--color-dos) !important;
+    border: 2px solid var(--color-uno) !important; /* marco sutil */
+    border-radius: 12px !important; /* esquinas redondeadas */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2) !important; /* sombra */
+    padding: 20px !important; /* aire interno moderado */
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+:global(.custom-swal-title) {
+    color: var(--color-uno) !important;
+    font-weight: 700 !important;
+    font-size: 1.3rem !important;
+    margin-bottom: 10px !important;
+}
+
+:global(.custom-swal-html) {
+    color: var(--color-uno) !important;
+    font-size: 1rem !important;
+    margin-bottom: 15px !important;
+}
+
+/* ===== BOTONES SWEETALERT EN FILA ===== */
+:global(.swal2-html-container) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 15px;
+}
+
+:global(.swal2-html-container > div:last-child) {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+    width: 100%;
+    margin-top: 15px;
+}
+
+:global(.swal2-custom-btn) {
+    flex: 1;
+    min-width: 120px;
+    max-width: 150px;
+    text-align: center;
+    padding: 10px !important;
+    border: 2px solid var(--color-uno) !important;
+    border-radius: 8px !important;
+    font-weight: bold !important;
+    font-size: 1rem !important;
+    background-color: var(--color-uno) !important;
+    color: var(--color-dos) !important;
+    cursor: pointer;
+    transition: all 0.3s ease !important;
+}
+
+:global(.swal2-custom-btn:hover) {
+    background-color: var(--color-dos) !important;
+    color: var(--color-uno) !important;
+    transform: translateY(-2px);
+}
+
+:global(.swal2-custom-btn i) {
+    margin-right: 6px;
+    font-size: 1rem;
+}
+
+/* Responsive: en móviles se apilan */
+@media (max-width: 768px) {
+    :global(.swal2-html-container > div:last-child) {
+        flex-direction: column !important;
+    }
+    :global(.swal2-custom-btn) {
+        width: 100%;
+        max-width: none;
+    }
+}

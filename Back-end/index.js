@@ -15,6 +15,7 @@ mongoose
     console.log("✅ Se conectó correctamente a la BD Mongo");
   })
   .catch((err) => {
+    
     console.log("❌ No se conectó correctamente a la BD Mongo", err);
   });
 

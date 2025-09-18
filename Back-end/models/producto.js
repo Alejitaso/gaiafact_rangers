@@ -2,20 +2,20 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const productoSchema = new Schema({
-  cliente: {
-    type: Schema.ObjectId,
-    ref: 'Clientes'
-  },
   id_producto: {
     type: Schema.ObjectId,
     ref: 'Productos'
+  },
+  nombre: {
+    type: String,
+    required: true,
   },
   descripcion: {
     type: String
   },
   tipo_prenda: {
-    type: [String],
-    enum: ['camisa', 'pantalón', 'chaqueta', 'falda', 'camiseta','buzo'],
+    type: String,
+    enum: ['Camisetas', 'Camisas', 'Pantalones', 'Vestidos', 'Faldas', 'Sacos'],
     required: true
   },
   cantidad: {
@@ -24,10 +24,11 @@ const productoSchema = new Schema({
   precio: {
     type: Number
   },
-  descuento: {
-    type: mongoose.Schema.Types.Decimal128,
+  codigoProducto: {
+    type: Number,
+    trim: true,
   }
 });
 
-module.exports = mongoose.model('facturacion', productoSchema);
+module.exports = mongoose.model('Productos', productoSchema, 'productos');
 

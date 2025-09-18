@@ -208,7 +208,7 @@ const Sidebar = () => {
         </div>
         <div className={styles.salir}>
           <a 
-            onClick={() => (window.location.href = "../auth/login.html")} 
+            onClick={(e) => { e.preventDefault(); window.location.href = "/login"; }} 
             className={styles.sidebarLink}
           >
             <i className="fa-solid fa-sign-out-alt"></i> 

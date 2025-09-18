@@ -78,5 +78,9 @@ module.exports=function(){
     // router.get('/imagenes/carousel-images', imagenesController.obtenerImagenesCarousel);
 
     //auth(login,recuperar contraseña, nueva contraseña)
+    router.post("/auth/login", authController.login);
+    router.post("/auth/recover", authController.recoverPassword);
+    router.post("/auth/reset-password", authController.resetPassword);
+    
     return router;
 }

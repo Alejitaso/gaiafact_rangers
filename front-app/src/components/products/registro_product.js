@@ -1,181 +1,194 @@
-import React, { Fragment, useState } from "react";
-import { withRouter } from "react-router-dom/cjs/react-router-dom.min";
+import React, { Fragment, useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import clienteAxios from "../../config/axios";
+import styles from './registroProduct.module.css';
 
-function RegistroProducto(props) {
-    // Estado del producto
-    const [producto, datosProducto] = useState({
+function RegistroProducto() {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const [producto, setProducto] = useState({
         nombre: '',
         cantidad: '',
         precio: '',
-        tipoPrenda: '',
+        tipo_prenda: '',
         descripcion: ''
     });
 
-    // Estado para manejar loading
     const [cargando, setCargando] = useState(false);
 
-    // Función para registrar el producto
-    const registrarProducto = async e => {
+    // ✅ Limpieza TOTAL de cualquier popup en montaje o cambio de ruta
+    useEffect(() => {
+        cerrarForzadoSweetAlert();
+    }, [location.pathname]);
+
+    const cerrarForzadoSweetAlert = () => {
+        try {
+            Swal.close();
+            // Eliminar manualmente cualquier contenedor residual
+            const containers = document.querySelectorAll('.swal2-container');
+            containers.forEach(c => c.remove());
+            const popups = document.querySelectorAll('.swal2-popup');
+            popups.forEach(p => p.remove());
+        } catch (e) {
+            console.warn("No había popups para cerrar");
+        }
+    };
+
+    const validarCamposCompletos = () => {
+        const { nombre, cantidad, precio, tipo_prenda, descripcion } = producto;
+        return nombre && cantidad && precio && tipo_prenda && descripcion;
+    };
+
+    const validarCantidad = () => !isNaN(producto.cantidad) && producto.cantidad >= 0;
+    const validarPrecio = () => !isNaN(producto.precio) && producto.precio >= 0;
+
+    const mostrarErrorValidacion = (titulo, mensaje) => {
+        cerrarForzadoSweetAlert();
+        Swal.fire({
+            title: titulo,
+            text: mensaje,
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+            backdrop: true,
+            allowOutsideClick: true,
+            allowEscapeKey: true,
+            allowEnterKey: true,
+            customClass: {
+                popup: 'custom-swal-popup',
+                title: 'custom-swal-title',
+                htmlContainer: 'custom-swal-html'
+            },
+            willClose: cerrarForzadoSweetAlert
+        });
+    };
+
+    const leerInformacionProducto = (e) => {
+        setProducto({
+            ...producto,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const limpiarFormulario = () => {
+        setProducto({
+            nombre: '',
+            cantidad: '',
+            precio: '',
+            tipo_prenda: '',
+            descripcion: ''
+        });
+    };
+
+    const formatearPrecio = (precio) => {
+        return precio.toLocaleString('es-CO', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        });
+    };
+
+    const prepararDatosEnvio = () => ({
+        nombre: producto.nombre.trim(),
+        cantidad: parseInt(producto.cantidad),
+        precio: parseFloat(producto.precio),
+        tipo_prenda: producto.tipo_prenda,
+        descripcion: producto.descripcion.trim()
+    });
+
+    const registrarProducto = async (e) => {
         e.preventDefault();
 
-        // Validar que todos los campos estén llenos
-        if (!producto.nombre || !producto.cantidad || !producto.precio || 
-            !producto.tipoPrenda || !producto.descripcion) {
-            Swal.fire({
-                type: 'error',
-                title: 'Campos incompletos',
-                text: 'Por favor llena todos los campos'
-            });
+        if (!validarCamposCompletos()) {
+            mostrarErrorValidacion('Campos incompletos', 'Por favor llena todos los campos');
             return;
         }
-
-        // Validar que cantidad y precio sean números válidos
-        if (isNaN(producto.cantidad) || producto.cantidad < 0) {
-            Swal.fire({
-                type: 'error',
-                title: 'Cantidad inválida',
-                text: 'La cantidad debe ser un número mayor o igual a 0'
-            });
+        if (!validarCantidad()) {
+            mostrarErrorValidacion('Cantidad inválida', 'La cantidad debe ser un número mayor o igual a 0');
             return;
         }
-
-        if (isNaN(producto.precio) || producto.precio < 0) {
-            Swal.fire({
-                type: 'error',
-                title: 'Precio inválido',
-                text: 'El precio debe ser un número mayor o igual a 0'
-            });
+        if (!validarPrecio()) {
+            mostrarErrorValidacion('Precio inválido', 'El precio debe ser un número mayor o igual a 0');
             return;
         }
 
         setCargando(true);
 
         try {
-            // Preparar datos para enviar
-            const datosEnvio = {
-                nombre: producto.nombre.trim(),
-                cantidad: parseInt(producto.cantidad),
-                precio: parseFloat(producto.precio),
-                tipoPrenda: producto.tipoPrenda,
-                descripcion: producto.descripcion.trim()
-            };
-
+            const datosEnvio = prepararDatosEnvio();
             const res = await clienteAxios.post('/api/productos', datosEnvio, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers: { 'Content-Type': 'application/json' }
             });
 
             setCargando(false);
 
-            if (res.status === 201) {
-                // Mostrar modal de éxito con opciones
-                const result = await Swal.fire({
-                    title: 'Producto registrado correctamente',
-                    html: `
-                        <div style="text-align: left; margin: 20px 0;">
-                            <h4><i class="fas fa-box"></i> ${res.data.producto.nombre}</h4>
-                            <p><strong>Cantidad:</strong> ${res.data.producto.cantidad} unidades</p>
-                            <p><strong>Precio:</strong> $${formatearPrecio(res.data.producto.precio)}</p>
-                            <p><strong>Tipo:</strong> ${res.data.producto.tipoPrenda}</p>
-                            <p><strong>Descripción:</strong> ${res.data.producto.descripcion}</p>
-                        </div>
-                    `,
-                    icon: 'success',
-                    showCancelButton: true,
-                    showDenyButton: true,
-                    confirmButtonText: 'Ver Inventario',
-                    cancelButtonText: 'Registrar otro',
-                    denyButtonText: 'Editar producto',
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#28a745',
-                    denyButtonColor: '#ffc107'
-                });
-
-                // Limpiar formulario
+            if (res.status === 201 || res.status === 200) {
                 limpiarFormulario();
-
-                // Manejar respuesta del modal
-                if (result.isConfirmed) {
-                    props.history.push('/inventario');
-                } else if (result.isDenied) {
-                    props.history.push(`/productos/editar/${res.data.producto._id}`);
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    // Quedarse en la misma página para registrar otro producto
-                }
+                mostrarPopupExito(datosEnvio);
+            } else {
+                mostrarErrorValidacion("Aviso", "El servidor respondió pero con un estado inesperado.");
             }
 
         } catch (error) {
-            console.log(error);
             setCargando(false);
-            
-            let mensajeError = 'Intente nuevamente';
-            
-            if (error.response && error.response.data && error.response.data.mensaje) {
-                mensajeError = error.response.data.mensaje;
-            }
-
-            Swal.fire({
-                type: 'error',
-                title: 'Hubo un error',
-                text: mensajeError
-            });
+            mostrarErrorValidacion('Hubo un error', error.response?.data?.mensaje || 'Intente nuevamente');
         }
-    }
+    };
 
-    // Leer datos del formulario
-    const leerInformacionProducto = e => {
-        datosProducto({
-            ...producto,
-            [e.target.name]: e.target.value
-        });
-    }
+    const mostrarPopupExito = async (productoRegistrado) => {
+        cerrarForzadoSweetAlert(); // ✅ Garantiza que no haya otro abierto
+        Swal.fire({
+            title: '¡Producto registrado correctamente!',
+            html: `
+                <div style="text-align: left; margin: 15px 0;">
+                    <h4><i class="fas fa-box"></i> ${productoRegistrado.nombre}</h4>
+                    <p><strong>Cantidad:</strong> ${productoRegistrado.cantidad} unidades</p>
+                    <p><strong>Precio:</strong> $${formatearPrecio(productoRegistrado.precio)}</p>
+                    <p><strong>Tipo:</strong> ${productoRegistrado.tipo_prenda}</p>
+                    <p><strong>Descripción:</strong> ${productoRegistrado.descripcion}</p>
+                </div>
+                <div>
+                    <button id="btnInventario" class="swal2-custom-btn">
+                        <i class="fas fa-boxes"></i> Inventario
+                    </button>
+                    <button id="btnRegistrar" class="swal2-custom-btn">
+                        <i class="fas fa-plus"></i> Registrar
+                    </button>
+                    <button id="btnEditar" class="swal2-custom-btn">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                </div>
+            `,
+            showConfirmButton: false,
+            backdrop: true,
+            allowOutsideClick: true,
+            allowEscapeKey: true,
+            allowEnterKey: true,
+            customClass: {
+                popup: 'custom-swal-popup',
+                title: 'custom-swal-title',
+                htmlContainer: 'custom-swal-html'
+            },
+            willClose: cerrarForzadoSweetAlert,
+            didOpen: () => {
+                const cerrarYNavegar = (ruta) => {
+                    cerrarForzadoSweetAlert();
+                    setTimeout(() => navigate(ruta), 100);
+                };
 
-    // Limpiar formulario
-    const limpiarFormulario = () => {
-        datosProducto({
-            nombre: '',
-            cantidad: '',
-            precio: '',
-            tipoPrenda: '',
-            descripcion: ''
+                document.getElementById('btnInventario').addEventListener('click', () => cerrarYNavegar('/inventario'));
+                document.getElementById('btnRegistrar').addEventListener('click', () => cerrarForzadoSweetAlert());
+                document.getElementById('btnEditar').addEventListener('click', () => cerrarYNavegar('/productos/editar'));
+            }
         });
-    }
-
-    // Formatear precio
-    const formatearPrecio = (precio) => {
-        return precio.toLocaleString('es-CO', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2
-        });
-    }
+    };
 
     return (
         <Fragment>
             <div className="background-container"></div>
-            
             <div className="main-content">
-                <header>
-                    <div className="logos">
-                        <div className="logo-izquierdo">
-                            <img src="../img/logo_final (1).png" alt="Logo Izquierdo" />
-                        </div>
-                        <div className="nombre-tienda">
-                            Athena'S
-                        </div>
-                        <div className="logo-derecho">
-                            <img src="../img/logo_athena_S.png" alt="Logo Derecho" />
-                        </div>
-                    </div>
-                    <div className="nombre">
-                        <h1>Registro de producto</h1>
-                    </div>
-                </header>
-
-                <form className="register-form" onSubmit={registrarProducto}>
-                    <div className="text">
+                <form className={`register-form ${styles['register-form'] || ''}`} onSubmit={registrarProducto}>
+                    <div className={`text ${styles.text || ''}`}>
                         <input 
                             type="text" 
                             placeholder="NOMBRE DEL PRODUCTO" 
@@ -186,7 +199,7 @@ function RegistroProducto(props) {
                         />
                     </div>
 
-                    <div className="text">
+                    <div className={`text ${styles.text || ''}`}>
                         <input 
                             type="number" 
                             placeholder="CANTIDAD" 
@@ -198,7 +211,7 @@ function RegistroProducto(props) {
                         />
                     </div>
 
-                    <div className="text">
+                    <div className={`text ${styles.text || ''}`}>
                         <input 
                             type="number" 
                             placeholder="PRECIO UNITARIO" 
@@ -211,10 +224,10 @@ function RegistroProducto(props) {
                         />
                     </div>
 
-                    <div className="text">
+                    <div className={`text ${styles.text || ''}`}>
                         <select 
-                            name="tipoPrenda"
-                            value={producto.tipoPrenda}
+                            name="tipo_prenda"
+                            value={producto.tipo_prenda}
                             onChange={leerInformacionProducto}
                             required
                         >
@@ -230,7 +243,7 @@ function RegistroProducto(props) {
 
                     <div>
                         <textarea 
-                            className="textarea1" 
+                            className={`textarea1 ${styles.textarea1 || ''}`}
                             placeholder="DESCRIPCIÓN DEL PRODUCTO" 
                             name="descripcion"
                             value={producto.descripcion}
@@ -239,7 +252,7 @@ function RegistroProducto(props) {
                         />
                     </div>
 
-                    <div className="boton">
+                    <div className={`boton ${styles.boton || ''}`}>
                         <button 
                             id="enviar" 
                             type="submit" 
@@ -256,16 +269,9 @@ function RegistroProducto(props) {
                         </button>
                     </div>
                 </form>
-
-                <footer className="footer">
-                    <div className="linea"></div>
-                    <div className="copyright">
-                        <h2>© 2025 Gaiafact</h2>
-                    </div>
-                </footer>
             </div>
         </Fragment>
     );
 }
 
-export default withRouter(RegistroProducto);
+export default RegistroProducto;
