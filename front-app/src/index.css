@@ -161,3 +161,23 @@ body {
     object-fit: cover; /* Para que el video cubra toda la pantalla sin distorsionarse */
 }
 
+.swal-contorno-interior { 
+    box-shadow: inset 0 0 0 3px #4a90e2 !important; 
+    border-radius: 15px !important; 
+    padding: 25px !important; 
+    background: #f8f9fa !important; 
+} /* Versión más elaborada con efecto de profundidad */ 
+
+.swal-contorno-interior-avanzado { 
+    box-shadow: inset 0 0 0 3px #4a90e2, inset 0 2px 4px rgba(74, 144, 226, 0.1), 0 4px 12px rgba(0, 0, 0, 0.15) !important; 
+    border-radius: 15px !important; 
+    padding: 25px !important; 
+    background: #ffffff !important;
+     
+} /* Para darle más profundidad como en tu imagen */ 
+
+.swal-estilo-imagen { 
+    box-shadow: inset 0 0 0 4px #2c5aa0, inset 0 4px 8px rgba(44, 90, 160, 0.2) !important; border-radius: 20px !important; 
+    background: linear-gradient(145deg, #f0f2f5, #e6e9ed) !important; 
+    padding: 30px !important;
+}
