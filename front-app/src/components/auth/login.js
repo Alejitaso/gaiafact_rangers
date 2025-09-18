@@ -11,6 +11,12 @@ function Login() {
   const [isLocked, setIsLocked] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
 
+  // Usuario por defecto
+  const defaultUser = {
+    email: "lisisotomonsalve@gmail.com",
+    password: "1234"
+  };
+
   // Temporizador de bloqueo
   useEffect(() => {
     let timer;
@@ -36,8 +42,17 @@ function Login() {
 
     if (isLocked) return;
 
+    // 🔹 Validar usuario por defecto sin ir al backend
+    if (email === defaultUser.email && password === defaultUser.password) {
+      alert("✅ Login exitoso con usuario por defecto");
+      setError(null);
+      setAttempts(0);
+      return;
+    }
+
+    // 🔹 Si no coincide con el usuario por defecto, consulta al backend
     try {
-      const res = await fetch("http://localhost:3000/api/auth/login", {
+      const res = await fetch("http://localhost:4000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
@@ -81,7 +96,7 @@ function Login() {
 
       <form className={styles.loginform} onSubmit={handleSubmit}>
         <label htmlFor="email">CORREO ELECTRÓNICO</label>
-        <i class="fa-regular fa-user fa-2x"></i>
+        <i className="fa-regular fa-user fa-2x"></i>
         <input
           type="email"
           id="email"
@@ -93,7 +108,7 @@ function Login() {
         />
 
         <label htmlFor="password">CLAVE</label>
-        <i class="fa-solid fa-lock fa-2x"></i>
+        <i className="fa-solid fa-lock fa-2x"></i>
         <input
           type="password"
           id="password"

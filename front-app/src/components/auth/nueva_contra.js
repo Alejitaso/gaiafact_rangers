@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useParams } from "react-router-dom"; // 👈 importante
 import styles from './style_new_contr.module.css';
 
 function NewPassword() {
+  const { token } = useParams(); // 👈 capturamos el token desde la URL
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
@@ -16,17 +18,15 @@ function NewPassword() {
     }
 
     try {
-      // Aquí deberías pasar también un token o ID de usuario
-      const res = await fetch("http://localhost:3000/api/auth/reset-password", {
+      const res = await fetch(`http://localhost:4000/api/auth/recuperar/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: newPassword })
+        body: JSON.stringify({ nuevaPassword: newPassword }) // 👈 coincide con backend
       });
 
       const data = await res.json();
 
       if (data.success) {
-        setSuccess("✅ Contraseña actualizada correctamente");
         setError(null);
         setNewPassword("");
         setConfirmPassword("");
