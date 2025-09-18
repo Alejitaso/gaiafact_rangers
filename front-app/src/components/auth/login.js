@@ -6,27 +6,46 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
-  // Estado para manejar intentos fallidos
-  const [attempts, setAttempts] = useState(0);
-  const [isLocked, setIsLocked] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(0);
+  const [attempts, setAttempts] = useState(() => {
+    return parseInt(localStorage.getItem("attempts")) || 0;
+  });
+  const [isLocked, setIsLocked] = useState(() => {
+    return localStorage.getItem("isLocked") === "true";
+  });
+  const [timeLeft, setTimeLeft] = useState(() => {
+    return parseInt(localStorage.getItem("timeLeft")) || 0;
+  });
 
-  // Usuario por defecto
   const defaultUser = {
-    email: "lisisotomonsalve@gmail.com",
+    correo_electronico: "lisisotomonsalve@gmail.com",
     password: "1234"
   };
+
+  // Guardar cambios en localStorage
+  useEffect(() => {
+    localStorage.setItem("attempts", attempts);
+    localStorage.setItem("isLocked", isLocked);
+    localStorage.setItem("timeLeft", timeLeft);
+  }, [attempts, isLocked, timeLeft]);
 
   // Temporizador de bloqueo
   useEffect(() => {
     let timer;
     if (isLocked && timeLeft > 0) {
       timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
+        setTimeLeft((prev) => {
+          const newTime = prev - 1;
+          localStorage.setItem("timeLeft", newTime);
+          if (newTime <= 0) {
+            setIsLocked(false);
+            setAttempts(0);
+            localStorage.removeItem("isLocked");
+            localStorage.removeItem("timeLeft");
+            localStorage.removeItem("attempts");
+          }
+          return newTime;
+        });
       }, 1000);
-    } else if (isLocked && timeLeft === 0) {
-      setIsLocked(false);
-      setAttempts(0);
     }
     return () => clearInterval(timer);
   }, [isLocked, timeLeft]);
@@ -39,23 +58,22 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (isLocked) return;
 
-    // 🔹 Validar usuario por defecto sin ir al backend
-    if (email === defaultUser.email && password === defaultUser.password) {
+    // Usuario por defecto
+    if (email === defaultUser.correo_electronico && password === defaultUser.password) {
       alert("✅ Login exitoso con usuario por defecto");
       setError(null);
       setAttempts(0);
+      localStorage.removeItem("attempts");
       return;
     }
 
-    // 🔹 Si no coincide con el usuario por defecto, consulta al backend
     try {
       const res = await fetch("http://localhost:4000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ correo_electronico: email, password })
       });
 
       const data = await res.json();
@@ -63,14 +81,18 @@ function Login() {
       if (data.success) {
         alert("✅ Login exitoso");
         setError(null);
-        setAttempts(0); // Reiniciar intentos
+        setAttempts(0);
+        localStorage.removeItem("attempts");
       } else {
         setError(data.message || "Correo o contraseña incorrectos");
-        setAttempts((prev) => prev + 1);
+        const newAttempts = attempts + 1;
+        setAttempts(newAttempts);
 
-        if (attempts + 1 >= 3) {
+        if (newAttempts >= 3) {
           setIsLocked(true);
-          setTimeLeft(60 * 5); // 5 minutos de bloqueo
+          setTimeLeft(60 * 5); // 5 minutos
+          localStorage.setItem("isLocked", "true");
+          localStorage.setItem("timeLeft", 60 * 5);
         }
       }
     } catch (err) {
@@ -88,10 +110,7 @@ function Login() {
         </a>
       </p>
       <div className={styles.logog}>
-        <i
-          className="fa-solid fa-circle-user fa-7x"
-          style={{ color: "#f0f4f8" }}
-        ></i>
+        <i className="fa-solid fa-circle-user fa-7x" style={{ color: "#f0f4f8" }}></i>
       </div>
 
       <form className={styles.loginform} onSubmit={handleSubmit}>
@@ -122,7 +141,6 @@ function Login() {
           ¿Olvidaste tu contraseña?
         </a>
 
-        {/* Mensajes */}
         {error && !isLocked && (
           <div style={{ color: "red", textAlign: "center", fontWeight: "bold" }}>
             {error}

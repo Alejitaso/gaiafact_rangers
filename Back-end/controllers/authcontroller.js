@@ -1,5 +1,12 @@
-// controllers/authController.js
+// controllers/authcontroller.js
 const Usuario = require("../models/usuario");
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
+// Usa variable de entorno para seguridad
+const JWT_SECRET = process.env.JWT_SECRET || "mi_clave_secreta";
 
 // 🟢 Login
 exports.login = async (req, res) => {
@@ -14,7 +21,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Usamos el método del modelo para comparar contraseñas
     const isMatch = await user.compararPassword(password);
     if (!isMatch) {
       return res.status(401).json({
@@ -23,30 +29,39 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Aquí normalmente generarías un JWT con info del usuario
+    // Crear JWT real
+    const token = jwt.sign(
+      { id: user._id, correo_electronico: user.correo_electronico, tipo: user.tipo_usuario },
+      JWT_SECRET,
+      { expiresIn: "1h" } // el token expira en 1 hora
+    );
+
     return res.json({
       success: true,
       message: "✅ Login exitoso",
       usuario: {
         id: user._id,
         nombre: user.nombre,
-        correo: user.correo_electronico,
+        correo_electronico: user.correo_electronico,
         tipo: user.tipo_usuario,
       },
-      token: "FAKE_JWT_TOKEN", // reemplazar por jwt real después
+      token, // ahora es un JWT válido
     });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Error en login:", err);
     res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };
 
-// 🟢 Recuperar contraseña (placeholder)
+// 🟢 Recuperar contraseña
 exports.recoverPassword = async (req, res) => {
   const { correo_electronico } = req.body;
+  console.log("📩 Correo recibido:", correo_electronico);
 
   try {
     const user = await Usuario.findOne({ correo_electronico });
+    console.log("👤 Usuario encontrado:", user);
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -54,88 +69,55 @@ exports.recoverPassword = async (req, res) => {
       });
     }
 
-    const crypto = require("crypto");
-    const nodemailer = require("nodemailer");
-    const Usuario = require("../models/usuario"); // ajusta la ruta de tu modelo
+    const token = crypto.randomBytes(20).toString("hex");
 
-    exports.recoverPassword = async (req, res) => {
-      const { correo_electronico } = req.body;
+    user.resetToken = token;
+    user.tokenExpiration = Date.now() + 3600000;
+    await user.save();
 
-      try {
-        const user = await Usuario.findOne({ correo_electronico });
-        if (!user) {
-          return res.status(404).json({
-            success: false,
-            message: "Usuario no encontrado",
-          });
-        }
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "gaiafactrangers@gmail.com",
+        pass: "feba ukea kheb fsmn", // ⚠ pon esto en .env
+      },
+    });
 
-        // 🔹 Generar token seguro
-        const token = crypto.randomBytes(20).toString("hex");
+    const resetLink = "http://localhost:3000/reset-password/${token}";
 
-        // Guardar en DB con 1 hora de validez
-        user.resetToken = token;
-        user.tokenExpiration = Date.now() + 3600000;
-        await user.save();
-
-        // 🔹 Configurar transporte de correo
-        const transporter = nodemailer.createTransport({
-          service: "gmail",
-          auth: {
-            user: "tuCorreo@gmail.com",       // ⬅️ pon tu correo
-            pass: "tuClaveDeAplicacion",      // ⬅️ clave de aplicación de Gmail
-          },
-        });
-
-        // 🔹 Crear enlace de recuperación
-        const resetLink = `http://localhost:4000/reset-password/${token}`;
-
-        // 🔹 Configurar contenido del correo
-        const mailOptions = {
-          from: "soporte@tuapp.com",
-          to: correo_electronico,
-          subject: "Recuperación de contraseña",
-          html: `
-            <p>Hola,</p>
-            <p>Has solicitado restablecer tu contraseña.</p>
-            <p>Haz clic en el siguiente enlace (válido 1 hora):</p>
-            <a href="${resetLink}">${resetLink}</a>
-          `,
-        };
-
-        // 🔹 Enviar el correo
-        await transporter.sendMail(mailOptions);
-
-        return res.json({
-          success: true,
-          message: "Se ha enviado un enlace de recuperación a tu correo",
-        });
-      } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: "Error en el servidor" });
-      }
+    const mailOptions = {
+      from: "soporte@tuapp.com",
+      to: correo_electronico,
+      subject: "Recuperación de contraseña",
+      html: `
+        <p>Hola,</p>
+        <p>Has solicitado restablecer tu contraseña.</p>
+        <p>Haz clic en este enlace (válido 1 hora):</p>
+        <a href="${resetLink}">${resetLink}</a>
+      `,
     };
 
-    // Por ahora solo devolvemos un mensaje
+    await transporter.sendMail(mailOptions);
+
     return res.json({
       success: true,
       message: "Se ha enviado un enlace de recuperación a tu correo",
     });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Error en recoverPassword:", err);
     res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };
 
+// 🟢 Reset contraseña
 exports.resetPassword = async (req, res) => {
-  const { token } = req.params;         // token viene en la URL
-  const { nuevaPassword } = req.body;   // contraseña nueva viene en el body
+  const { token } = req.params;
+  const { nuevaPassword } = req.body;
 
   try {
-    // Buscar usuario con el token válido
     const user = await Usuario.findOne({
       resetToken: token,
-      tokenExpiration: { $gt: Date.now() }, // válido mientras no haya expirado
+      tokenExpiration: { $gt: Date.now() },
     });
 
     if (!user) {
@@ -145,15 +127,12 @@ exports.resetPassword = async (req, res) => {
       });
     }
 
-    // Encriptar nueva contraseña
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(nuevaPassword, salt);
 
-    // Borrar token y expiración (ya no sirven)
     user.resetToken = undefined;
     user.tokenExpiration = undefined;
 
-    // Guardar cambios en DB
     await user.save();
 
     res.json({
@@ -161,7 +140,26 @@ exports.resetPassword = async (req, res) => {
       message: "Contraseña actualizada correctamente",
     });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Error en resetPassword:", err);
     res.status(500).json({ success: false, message: "Error en el servidor" });
   }
+};
+
+// 🛡 Middleware para proteger rutas con JWT
+exports.verifyToken = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1]; // formato: Bearer <token>
+
+  if (!token) {
+    return res.status(403).json({ success: false, message: "Token requerido" });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ success: false, message: "Token inválido o expirado" });
+    }
+
+    req.user = user; // guardamos los datos del token en req.user
+    next();
+  });
 };

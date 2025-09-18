@@ -27,6 +27,7 @@ function NewPassword() {
       const data = await res.json();
 
       if (data.success) {
+        setSuccess("✅ Contraseña actualizada correctamente");
         setError(null);
         setNewPassword("");
         setConfirmPassword("");
