@@ -16,6 +16,7 @@ import EditProduct from './components/products/editarProducto.js';
 import Login from "./components/auth/login.js";
 import Recuperar from './components/auth/recuperar.js';
 import Nueva_contra from './components/auth/nueva_contra.js';
+import Inventario from './components/products/inventory.js';
 
 
 function App() {
@@ -27,10 +28,11 @@ function App() {
           <Header title="GaiaFact" />
           <div className="content">
             <Routes>
-              <Route path="/" element={<Inicio />} />
+              <Route path="/" element={<Login />} />
               <Route path="/inicio" element={<Inicio />} />
               <Route path="/vis-factura" element={<VisFactura />} />
               <Route path="/facturacion" element={<Facturacion />} />
+              <Route path="/inventario" element={<Inventario />} />
               <Route path="/Img" element={<Img />} />
               <Route path="/perfil" element={<Perfil />} />
               <Route path="/notificaciones" element={<Notify />} />
