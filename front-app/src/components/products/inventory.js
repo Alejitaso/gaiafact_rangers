@@ -301,16 +301,6 @@ function Inventario() {
                                 {productos.filter(p => p.cantidad <= 10).length}
                             </p>
                         </div>
-                        <div className={styles.stat_card}>
-                            <h4>Valor Total</h4>
-                            <p>
-                                {formatearPrecio(
-                                    productos.reduce((total, producto) => 
-                                        total + (producto.precio * producto.cantidad), 0
-                                    )
-                                )}
-                            </p>
-                        </div>
                     </div>
                 </div>
             </div>

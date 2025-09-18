@@ -49,6 +49,32 @@ body {
     filter: blur(1px);
 }
 
+/* Agregar estos estilos a tu App.css */
+
+/* Cuando no hay sidebar, el main ocupa toda la pantalla */
+#main.full-width {
+  margin-left: 0 !important;
+  width: 96.5% !important;
+}
+
+/* Opcional: Centrar el contenido de login */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+/* Si quieres que el contenido de auth tenga un estilo especial */
+.content.auth-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
 #main {
     margin-left: 80px; 
     padding: 25px;

@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Sidebar from './components/layout/sidebar.js';
 import Header from './components/layout/Header.js';
 import Footer from './components/layout/footer.js';
@@ -20,36 +20,56 @@ import Inventario from './components/products/inventory.js';
 
 import './App.css'; 
 
+// Componente interno que usa useLocation
+function AppContent() {
+  const location = useLocation();
+  
+  // Rutas donde NO se debe mostrar el sidebar
+  const rutasSinSidebar = ['/', '/login', '/recuperar', '/nueva_contra'];
+  
+  // Verificar si la ruta actual está en la lista de rutas sin sidebar
+  const ocultarSidebar = rutasSinSidebar.includes(location.pathname);
+
+  return (
+    <Fragment>
+      {/* Mostrar sidebar solo si no está en rutas de autenticación */}
+      {!ocultarSidebar && <Sidebar />}
+      
+      <div id="main" className={ocultarSidebar ? 'full-width' : ''}>
+        <Header title="GaiaFact" />
+        
+        <div className="content">
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/inicio" element={<Inicio />} />
+            <Route path="/vis-factura" element={<VisFactura />} />
+            <Route path="/facturacion" element={<Facturacion />} />
+            <Route path="/inventario" element={<Inventario />} />
+            <Route path="/Img" element={<Img />} />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/notificaciones" element={<Notify />} />
+            <Route path="/codigo-Barras" element={<CodigoBarras />} />
+            <Route path="/Usuario" element={<RegistroUsuario />} />
+            <Route path="/Productos" element={<Registro_product />} />
+            <Route path="/productos/editar/:idProducto" element={<EditProduct />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/recuperar" element={<Recuperar />} />
+            <Route path="/nueva_contra" element={<Nueva_contra />} />
+            {/* Agrega más rutas aquí según sea necesario */}
+          </Routes>
+        </div>
+        
+        <Footer />
+      </div>
+    </Fragment>
+  );
+}
+
+// Componente principal App
 function App() {
   return (
     <Router>
-      <Fragment>
-        <Sidebar />
-        <div id="main">
-          <Header title="GaiaFact" />
-          <div className="content">
-            <Routes>
-              <Route path="/" element={<Login />} />
-              <Route path="/inicio" element={<Inicio />} />
-              <Route path="/vis-factura" element={<VisFactura />} />
-              <Route path="/facturacion" element={<Facturacion />} />
-              <Route path="/inventario" element={<Inventario />} />
-              <Route path="/Img" element={<Img />} />
-              <Route path="/perfil" element={<Perfil />} />
-              <Route path="/notificaciones" element={<Notify />} />
-              <Route path="/codigo-Barras" element={<CodigoBarras />} />
-              <Route path="/Usuario" element={<RegistroUsuario />} />
-              <Route path="/Productos" element={<Registro_product />} />
-              <Route path="/productos/editar/:idProducto" element={<EditProduct />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/recuperar" element={<Recuperar />} />
-              <Route path="/nueva_contra" element={<Nueva_contra />} />
-              {/* Agrega más rutas aquí según sea necesario */}
-            </Routes>
-          </div>
-          <Footer />
-        </div>
-      </Fragment>
+      <AppContent />
     </Router>
   );
 }
