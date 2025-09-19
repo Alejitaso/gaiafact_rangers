@@ -2,23 +2,23 @@ import React, { useState } from "react";
 import styles from './style_rec_contr.module.css';
 
 function RecoverPassword() {
-  const [email, setEmail] = useState("");
+  const [correo_electronico, setCorreoElectronico] = useState("");
   const [error, setError] = useState(null);
   const [popup, setPopup] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!email) {
+    if (!correo_electronico) {
       setError("❌ Por favor ingresa un correo válido");
       return;
     }
 
     try {
-      const res = await fetch("http://localhost:4000/api/auth/recuperar", {
+      const res = await fetch("http://localhost:4000/api/auth/recover", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ correo_electronico }) // 👈 coincide con backend
       });
 
       const data = await res.json();
@@ -42,8 +42,8 @@ function RecoverPassword() {
         <input
           type="email"
           placeholder="Tu correo"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={correo_electronico}
+          onChange={(e) => setCorreoElectronico(e.target.value)}
           required
         />
 
@@ -64,7 +64,7 @@ function RecoverPassword() {
       {/* Popup */}
       {popup && (
         <div className={styles.popupcontainer} style={{ marginTop: "20px" }}>
-          <p>✅ Se envió un correo de recuperación a {email}</p>
+          <p>✅ Se envió un correo de recuperación a {correo_electronico}</p>
         </div>
       )}
     </div>

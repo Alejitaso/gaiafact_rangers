@@ -9,7 +9,7 @@ function NewPassword() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {                     
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
@@ -27,6 +27,7 @@ function NewPassword() {
       const data = await res.json();
 
       if (data.success) {
+        setSuccess("✅ Contraseña actualizada correctamente");
         setError(null);
         setNewPassword("");
         setConfirmPassword("");

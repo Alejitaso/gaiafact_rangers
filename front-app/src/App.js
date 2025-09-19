@@ -38,6 +38,9 @@ function App() {
               <Route path="/Usuario" element={<RegistroUsuario />} />
               <Route path="/Productos" element={<Registro_product />} />
               <Route path="/productos/editar/:idProducto" element={<EditProduct />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/recuperar" element={<Recuperar />} />
+              <Route path="/nueva_contra" element={<Nueva_contra/>}/>
               {/* Agrega más rutas aquí según sea necesario */}
             </Routes>
           </div>
