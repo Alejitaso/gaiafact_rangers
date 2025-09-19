@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require("express")
 
 const router=express.Router()
@@ -81,6 +83,7 @@ module.exports=function(){
     router.post("/auth/login", authController.login);
     router.post("/auth/recover", authController.recoverPassword);
     router.post("/auth/reset-password", authController.resetPassword);
+    router.get('/auth/verify-email', authController.verifyEmail);
     
     return router;
 }

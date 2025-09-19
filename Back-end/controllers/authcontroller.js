@@ -8,6 +8,35 @@ const jwt = require("jsonwebtoken");
 // Usa variable de entorno para seguridad
 const JWT_SECRET = process.env.JWT_SECRET || "mi_clave_secreta";
 
+exports.verifyEmail = async (req, res) => {
+    const { token } = req.query;
+
+    try {
+        // 1. Verifica el token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.userId;
+
+        // 2. Encuentra y actualiza al usuario
+        const usuario = await Usuario.findById(userId);
+
+        if (!usuario) {
+            return res.status(404).send('Usuario no encontrado.');
+        }
+
+        if (usuario.isVerified) {
+            return res.status(200).send('Tu cuenta ya ha sido verificada.');
+        }
+
+        usuario.isVerified = true;
+        await usuario.save();
+
+        res.status(200).send('¡Correo verificado con éxito! Puedes cerrar esta ventana.');
+        
+    } catch (error) {
+        res.status(400).send('El enlace de verificación es inválido o ha expirado.');
+    }
+};
+
 // 🟢 Login
 exports.login = async (req, res) => {
   const { correo_electronico, password } = req.body;
@@ -79,14 +108,14 @@ exports.recoverPassword = async (req, res) => {
       service: "gmail",
       auth: {
         user: "gaiafactrangers@gmail.com",
-        pass: "feba ukea kheb fsmn", // ⚠️ pon esto en .env
+        pass: "feba ukea kheb fsmn", // ⚠ pon esto en .env
       },
     });
 
-    const resetLink = `http://localhost:3000/reset-password/${token}`;
+    const resetLink = "http://localhost:3000/reset-password/${token}";
 
     const mailOptions = {
-      from: "soporte@tuapp.com",
+      from: "gaiafactrangers@gmail.com",
       to: correo_electronico,
       subject: "Recuperación de contraseña",
       html: `
@@ -94,6 +123,7 @@ exports.recoverPassword = async (req, res) => {
         <p>Has solicitado restablecer tu contraseña.</p>
         <p>Haz clic en este enlace (válido 1 hora):</p>
         <a href="${resetLink}">${resetLink}</a>
+        <p>Si no solicitaste este cambio, ignora este mesnsaje</p>
       `,
     };
 
@@ -145,7 +175,7 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-// 🛡️ Middleware para proteger rutas con JWT
+// 🛡 Middleware para proteger rutas con JWT
 exports.verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1]; // formato: Bearer <token>

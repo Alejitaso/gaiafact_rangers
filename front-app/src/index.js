@@ -1,17 +1,46 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+// 🚩 Elimina esta línea de importación
+// import loadingVideo from './videos/loading.mp4'; 
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+function Main() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Esta función se llamará cuando el video termine
+  const handleVideoEnd = () => {
+    setIsLoading(false);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="loading-screen">
+        <video 
+          className="loading-video" 
+          autoPlay 
+          muted 
+          onEnded={handleVideoEnd} // Llama a la función al finalizar el video
+        >
+          {/* 🚩🚩 Usa esta ruta absoluta 🚩🚩 */}
+          <source src="/videos/loading.mp4" type="video/mp4" />
+          Tu navegador no soporta el video.
+        </video>
+      </div>
+    );
+  }
+
+  return (
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+}
+
+root.render(<Main />);
+
 reportWebVitals();
