@@ -29,7 +29,7 @@ function RecoverPassword() {
           icon: 'success', // Muestra un ícono de éxito ✅
           title: 'Correo Enviado',
           text: `Se envió un correo de recuperación a ${correo_electronico}.`,
-          customClass: { popup: 'swal-contorno-interior-avanzado' }
+          customClass: { popup: 'swal-contorno-interior' }
         });
         setError(null);
       } else {

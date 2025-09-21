@@ -112,7 +112,7 @@ exports.recoverPassword = async (req, res) => {
       },
     });
 
-    const resetLink = "http://localhost:3000/reset-password/${token}";
+    const resetLink = `http://localhost:3000/nueva_contra/${token}`;
 
     const mailOptions = {
       from: "gaiafactrangers@gmail.com",
@@ -134,7 +134,7 @@ exports.recoverPassword = async (req, res) => {
       message: "Se ha enviado un enlace de recuperación a tu correo",
     });
   } catch (err) {
-    console.error("❌ Error en recoverPassword:", err);
+    console.error("❌ Error en recuperar contraseña:", err);
     res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };

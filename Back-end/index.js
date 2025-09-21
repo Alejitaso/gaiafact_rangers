@@ -7,7 +7,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 
-const authController = require("./controllers/authController");
+const authcontroller = require("./controllers/authcontroller");
 
 mongoose.set("strictQuery", true);
 
@@ -31,9 +31,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 //Rutas de autenticación 
-app.post("/api/auth/login", authController.login);
-app.post("/api/auth/recover", authController.recoverPassword);
-app.post("/api/auth/reset-password", authController.resetPassword);
+app.post("/api/auth/login", authcontroller.login);
+app.post("/api/auth/recover", authcontroller.recoverPassword);
+app.post("/api/auth/reset-password", authcontroller.resetPassword);
 
 //Rutas principales (clientes, productos, facturas, etc.)
 app.use("/api", routes());

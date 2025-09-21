@@ -18,7 +18,7 @@ function NewPassword() {
     }
 
     try {
-      const res = await fetch(`http://localhost:4000/api/auth/recuperar/${token}`, {
+      const res = await fetch(`http://localhost:4000/api/auth/reset/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nuevaPassword: newPassword }) // 👈 coincide con backend

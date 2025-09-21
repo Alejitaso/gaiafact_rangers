@@ -54,7 +54,8 @@ function AppContent() {
             <Route path="/productos/editar/:idProducto" element={<EditProduct />} />
             <Route path="/login" element={<Login />} />
             <Route path="/recuperar" element={<Recuperar />} />
-            <Route path="/nueva_contra" element={<Nueva_contra />} />
+            <Route path="/nueva_contra/:token" element={<Nueva_contra />} />
+
             {/* Agrega más rutas aquí según sea necesario */}
           </Routes>
         </div>

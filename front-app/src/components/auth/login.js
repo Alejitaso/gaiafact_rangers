@@ -5,6 +5,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false); // 👈 nuevo estado
 
   const [attempts, setAttempts] = useState(() => {
     return parseInt(localStorage.getItem("attempts")) || 0;
@@ -15,11 +16,6 @@ function Login() {
   const [timeLeft, setTimeLeft] = useState(() => {
     return parseInt(localStorage.getItem("timeLeft")) || 0;
   });
-
-  const defaultUser = {
-    correo_electronico: "lisisotomonsalve@gmail.com",
-    password: "1234"
-  };
 
   // Guardar cambios en localStorage
   useEffect(() => {
@@ -60,15 +56,6 @@ function Login() {
     e.preventDefault();
     if (isLocked) return;
 
-    // Usuario por defecto
-    if (email === defaultUser.correo_electronico && password === defaultUser.password) {
-      alert("✅ Login exitoso con usuario por defecto");
-      setError(null);
-      setAttempts(0);
-      localStorage.removeItem("attempts");
-      return;
-    }
-
     try {
       const res = await fetch("http://localhost:4000/api/auth/login", {
         method: "POST",
@@ -79,10 +66,12 @@ function Login() {
       const data = await res.json();
 
       if (data.success) {
-        alert("✅ Login exitoso");
         setError(null);
         setAttempts(0);
         localStorage.removeItem("attempts");
+
+        // ✅ Redirigir solo si fue exitoso
+        window.location.href = "/inicio";
       } else {
         setError(data.message || "Correo o contraseña incorrectos");
         const newAttempts = attempts + 1;
@@ -128,27 +117,37 @@ function Login() {
 
         <label htmlFor="password">CLAVE</label>
         <i className="fa-solid fa-lock fa-2x"></i>
-        <input
-          type="password"
-          id="password"
-          placeholder="Ingresa tu clave"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          disabled={isLocked}
-        />
+        <div className={styles.passwordWrapper}>
+      <input
+        type={showPassword ? "text" : "password"}
+        id="password"
+        placeholder="Ingresa tu clave"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+        disabled={isLocked}
+      />
+      <i
+        className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"} ${styles.passwordIcon}`}
+        onClick={() => setShowPassword(!showPassword)}
+        title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+      ></i>
+    </div>
+
+
+
         <a className={styles.link} href="/recuperar">
           ¿Olvidaste tu contraseña?
         </a>
 
         {error && !isLocked && (
-          <div style={{ color: "red", textAlign: "center", fontWeight: "bold" }}>
+          <div style={{ color: "red", textAlign: "center", fontWeight: "bold", fontSize: "20px" }}>
             {error}
           </div>
         )}
 
         {isLocked && (
-          <div style={{ color: "red", textAlign: "center", fontWeight: "bold" }}>
+          <div style={{ color: "red", textAlign: "center", fontWeight: "bold", fontSize: "20px" }}>
             Demasiados intentos. Intenta de nuevo en {formatTime(timeLeft)}
           </div>
         )}

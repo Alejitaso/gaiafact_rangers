@@ -162,14 +162,18 @@ body {
 }
 
 .swal-contorno-interior { 
-    box-shadow: inset 0 0 0 3px #4a90e2 !important; 
-    border-radius: 15px !important; 
-    padding: 25px !important; 
-    background: #f8f9fa !important; 
-} /* Versión más elaborada con efecto de profundidad */ 
+    border: 2px solid #0a85be;  /* color del borde (oscuro como en la imagen) */
+    border-radius: 12px;        /* redondeo de las esquinas */
+    background: #f5f9fc;        /* fondo gris claro */
+    padding: 20px;              /* espacio interno */
+    text-align: center;         /* centra el texto */
+    font-size: 16px;            /* tamaño del texto */
+    color: #1e4d63;             /* color del texto */
+}
+ 
 
 .swal-contorno-interior-avanzado { 
-    box-shadow: inset 0 0 0 3px #4a90e2, inset 0 2px 4px rgba(74, 144, 226, 0.1), 0 4px 12px rgba(0, 0, 0, 0.15) !important; 
+    box-shadow: inset 0 0 0 3px #020d0e, inset 0 2px 4px rgba(74, 144, 226, 0.1), 0 4px 12px rgba(0, 0, 0, 0.15) !important; 
     border-radius: 15px !important; 
     padding: 25px !important; 
     background: #ffffff !important;

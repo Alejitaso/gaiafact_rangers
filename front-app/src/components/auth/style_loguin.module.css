@@ -1,15 +1,3 @@
-/* colores predeterminados */
-:root {
-    --color-uno: #254454;
-    --color-dos: #F0F4F8;
-    --color-tres: #276177;
-    --color-cuatro: #D1DCE6;
-    --color-cinco: #8E9BE8;
-    --color-seis: #C7BEDB;
-    --color-siete: #F61507;
-    --color-ocho: #406f81; 
-}
-
 /* Caja de inicio de sesión */
 .loginbox {
     background-color: #254454; 
@@ -75,15 +63,6 @@
     margin-bottom: 20px;
 }
 
-/* Entradas del formulario */
-.loginform input {
-    padding: 12px; 
-    border-radius: 8px; 
-    border: none; 
-    background-color: var(--color-dos); 
-    color: var(--color-tres);
-    font-size: 16px; 
-}
 
 /* Placeholders */
 .loginform input::placeholder {
@@ -96,7 +75,7 @@
     border-color: var(--color-tres); 
     box-shadow: 0 0 12px var(--color-cinco); 
     background-color: var(--color-dos); 
-    outline: none; 
+    outline: none;
 }
 
 /* estilo de inputs*/
@@ -113,6 +92,7 @@
     width: 280px;
     margin-left: 70px;
     margin-top: -56px;
+    font-size: 16px;
 }
 
 /* Enlace para recuperación de contraseña */

@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+
 const express = require("express")
 
 const router=express.Router()
@@ -7,8 +8,7 @@ const router=express.Router()
 const usuarioController= require("../controllers/usuarioController.js");
 const productoController=require('../controllers/productoController.js');
 const facturaController=require('../controllers/facturaController.js');
-// FIX: Cambiar el nombre del archivo para que coincida
-const authController = require("../controllers/authController.js"); // Note: authController con C mayúscula
+const authController = require("../controllers/authcontroller.js"); 
 const imagenesController = require('../controllers/imagenesController.js');
 
 module.exports=function(){
@@ -84,6 +84,7 @@ module.exports=function(){
     router.post("/auth/recover", authController.recoverPassword);
     router.post("/auth/reset-password", authController.resetPassword);
     router.get('/auth/verify-email', authController.verifyEmail);
+    router.post('/auth/reset/:token', authController.resetPassword); // FIX: cambiar a /reset/:token para que coincida con el front-end
     
     return router;
 }
