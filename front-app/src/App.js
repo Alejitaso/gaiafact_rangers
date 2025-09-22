@@ -49,8 +49,8 @@ function AppContent() {
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/notificaciones" element={<Notify />} />
             <Route path="/codigo-Barras" element={<CodigoBarras />} />
-            <Route path="/Usuario" element={<RegistroUsuario />} />
-            <Route path="/Productos" element={<Registro_product />} />
+            <Route path="/registro" element={<RegistroUsuario />} />
+            <Route path="/Registroproduct" element={<Registro_product />} />
             <Route path="/productos/editar/:idProducto" element={<EditProduct />} />
             <Route path="/login" element={<Login />} />
             <Route path="/recuperar" element={<Recuperar />} />

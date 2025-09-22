@@ -95,7 +95,8 @@
 /* hover para los enlaces del sidebar */
 .sidebarLink:hover,
 .codeInfo:hover,
-.contactToggle:hover {
+.contactToggle:hover,
+.activeLink {
     background-color: var(--color-tres); 
     color: var(--color-dos); 
     padding-left: 30px; 

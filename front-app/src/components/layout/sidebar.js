@@ -1,7 +1,11 @@
 import React, { Fragment } from 'react';
+import { useLocation } from 'react-router-dom';
 import styles from './sidebar.module.css';
 
 const Sidebar = () => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   const toggleNav = () => {
     const screenWidth = window.innerWidth;
     const sidebar = document.getElementById("mySidebar");
@@ -108,61 +112,61 @@ const Sidebar = () => {
         </button>
         <a 
           onClick={(e) => { e.preventDefault(); window.location.href = "/inicio"; }} 
-          className={styles.sidebarLink}
+          className={`${styles.sidebarLink} ${currentPath === '/inicio' ? styles.activeLink : ''}`}
         >
           <i className="fa-solid fa-home"></i> 
           <span className={styles.linkText}>Inicio</span>
         </a>
         <a 
           onClick={(e) => { e.preventDefault(); window.location.href = "/facturacion"; }} 
-          className={styles.sidebarLink}
+          className={`${styles.sidebarLink} ${currentPath === '/facturacion' ? styles.activeLink : ''}`}
         >
           <i className="fa-solid fa-money-bills"></i> 
           <span className={styles.linkText}>Facturación</span>
         </a>
         <a 
           onClick={(e) => { e.preventDefault(); window.location.href = "/vis-factura"; }} 
-          className={styles.sidebarLink}
+          className={`${styles.sidebarLink} ${currentPath === '/vis-factura' ? styles.activeLink : ''}`}
         >
           <i className="fa-solid fa-list-ul"></i> 
           <span className={styles.linkText}>Ver factura</span>
         </a>
-        <a className={styles.codeInfo} onClick={toggleCodeInfo}>
+        <a className={`${styles.codeInfo} ${currentPath === '/codigoqr' || currentPath === '/codigoBarras' ? styles.activeLink : ''}`} onClick={toggleCodeInfo}>
           <i className="fa-solid fa-qrcode"></i> 
           <span className={styles.linkText}>Codigos</span>
         </a>
         <div id="codeInfo" className={`${styles.contactInfo} ${styles.expan}`}>
           <a 
-            onClick={() => (window.location.href = "../utils/codigo_qr.html")} 
-            className={styles.sidebarLink}
+            onClick={(e) => { e.preventDefault(); window.location.href = "/codigoqr"; }} 
+            className={`${styles.sidebarLink} ${currentPath === '/codigoqr' ? styles.activeLink : ''}`}
           >
             <i className="fa-solid fa-qrcode"></i> 
             <span className={styles.linkText}>QR</span>
           </a>
           <a 
           onClick={(e) => { e.preventDefault(); window.location.href = "/codigoBarras"; }} 
-          className={styles.sidebarLink}
+          className={`${styles.sidebarLink} ${currentPath === '/codigoBarras' ? styles.activeLink : ''}`}
         >
           <i className="fa-solid fa-barcode"></i> 
           <span className={styles.linkText}>Barras</span>
         </a>
         </div>
-        <a onClick={toggleRegInfo} className={styles.sidebarLink}>
+        <a onClick={toggleRegInfo} className={`${styles.sidebarLink} ${currentPath === '/registro' || currentPath === '/registroproduct' || currentPath === '/Img' ? styles.activeLink : ''}`}>
           <i className="fa-solid fa-folder-plus"></i> 
           <span className={styles.linkText}>Registro</span>
         </a>
         <div id="regInfo" className={`${styles.contactInfo} ${styles.expan}`}>
           <a 
             href="#" 
-            onClick={() => (window.location.href = "/registro")} 
-            className={styles.sidebarLink}
+            onClick={(e) => { e.preventDefault(); window.location.href = "/registro"; }} 
+            className={`${styles.sidebarLink} ${currentPath === '/registro' ? styles.activeLink : ''}`}
           >
             <i className="fa-solid fa-user"></i> 
             <span className={styles.linkText}>Usuario</span>
           </a>
           <a 
-            onClick={() => (window.location.href = "../products/registro_p.html")} 
-            className={styles.sidebarLink}
+            onClick={(e) => { e.preventDefault(); window.location.href = "/registroproduct"; }}
+            className={`${styles.sidebarLink} ${currentPath === '/registroproduct' ? styles.activeLink : ''}`}
           >
             <i className="fa-solid fa-box"></i> 
             <span className={styles.linkText}>Producto</span>
@@ -170,29 +174,29 @@ const Sidebar = () => {
           <a 
             href="#" 
             onClick={() => (window.location.href = "/Img")} 
-            className={styles.sidebarLink}
+            className={`${styles.sidebarLink} ${currentPath === '/Img' ? styles.activeLink : ''}`}
           >
             <i className="fa-solid fa-upload"></i> 
             <span className={styles.linkText}>Agregar IMG</span>
           </a>
         </div>
         <a 
-          onClick={() => (window.location.href = "../utils/notify.html")} 
-          className={styles.sidebarLink}
+          onClick={(e) => { e.preventDefault(); window.location.href = "/notify"; }} 
+          className={`${styles.sidebarLink} ${currentPath === '/notify' ? styles.activeLink : ''}`}
         >
           <i className="fa-solid fa-bell"></i> 
           <span className={styles.linkText}>Notificaciones</span>
         </a>
         <a 
           onClick={(e) => { e.preventDefault(); window.location.href = "/inventario"; }} 
-          className={styles.sidebarLink}
+          className={`${styles.sidebarLink} ${currentPath === '/inventario' ? styles.activeLink : ''}`}
         >
           <i className="fa-solid fa-clipboard-list"></i> 
           <span className={styles.linkText}>Inventario</span>
         </a>
         <a 
-          onClick={() => (window.location.href = "../user/perfil.html")} 
-          className={styles.sidebarLink}
+          onClick={(e) => { e.preventDefault(); window.location.href = "/perfil"; }} 
+          className={`${styles.sidebarLink} ${currentPath === '/perfil' ? styles.activeLink : ''}`}
         >
           <i className="fa-solid fa-user-secret"></i> 
           <span className={styles.linkText}>Perfil</span>
@@ -209,7 +213,7 @@ const Sidebar = () => {
         <div className={styles.salir}>
           <a 
             onClick={(e) => { e.preventDefault(); window.location.href = "/login"; }} 
-            className={styles.sidebarLink}
+            className={`${styles.sidebarLink} ${currentPath === '/login' ? styles.activeLink : ''}`}
           >
             <i className="fa-solid fa-sign-out-alt"></i> 
             <span className={styles.linkText}>Salir</span>

@@ -5,7 +5,20 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const [showPassword, setShowPassword] = useState(false); // 👈 nuevo estado
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Nuevo estado para la pantalla de carga inicial del componente
+  const [isLoaded, setIsLoaded] = useState(false);
+  // Nuevo estado para la pantalla de carga al navegar
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  // Muestra la pantalla de carga inicial solo cuando el componente se monta
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 2000); // 2 segundos para la pantalla de carga inicial
+    return () => clearTimeout(timer);
+  }, []);
 
   const [attempts, setAttempts] = useState(() => {
     return parseInt(localStorage.getItem("attempts")) || 0;
@@ -56,6 +69,8 @@ function Login() {
     e.preventDefault();
     if (isLocked) return;
 
+    setIsNavigating(true); // Activa la pantalla de carga al iniciar el login
+
     try {
       const res = await fetch("http://localhost:4000/api/auth/login", {
         method: "POST",
@@ -69,9 +84,12 @@ function Login() {
         setError(null);
         setAttempts(0);
         localStorage.removeItem("attempts");
-
-        // ✅ Redirigir solo si fue exitoso
-        window.location.href = "/inicio";
+        
+        // La redirección ocurrirá después del temporizador
+        setTimeout(() => {
+            window.location.href = "/inicio";
+        }, 2000); 
+        
       } else {
         setError(data.message || "Correo o contraseña incorrectos");
         const newAttempts = attempts + 1;
@@ -83,12 +101,35 @@ function Login() {
           localStorage.setItem("isLocked", "true");
           localStorage.setItem("timeLeft", 60 * 5);
         }
+        setIsNavigating(false); // Desactiva la pantalla de carga si hay un error
       }
     } catch (err) {
       setError("Error de conexión con el servidor");
+      setIsNavigating(false); // Desactiva la pantalla de carga si hay un error
     }
   };
 
+  // Renderizado condicional: muestra la pantalla de carga inicial o la de navegación si están activas
+  if (!isLoaded || isNavigating) {
+    return (
+      <div className="loading-screen">
+        <video 
+          className="loading-video" 
+          autoPlay 
+          muted
+          // El video se repetirá mientras isLoading o isNavigating sea true
+          onEnded={(e) => {
+            e.target.play(); 
+          }}
+        >
+          <source src="/videos/loading.mp4" type="video/mp4" />
+          Tu navegador no soporta el video.
+        </video>
+      </div>
+    );
+  }
+
+  // De lo contrario, renderiza el formulario de login
   return (
     <div className={styles.loginbox}>
       <h2>Ingresa a tu cuenta</h2>
@@ -118,23 +159,21 @@ function Login() {
         <label htmlFor="password">CLAVE</label>
         <i className="fa-solid fa-lock fa-2x"></i>
         <div className={styles.passwordWrapper}>
-      <input
-        type={showPassword ? "text" : "password"}
-        id="password"
-        placeholder="Ingresa tu clave"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-        disabled={isLocked}
-      />
-      <i
-        className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"} ${styles.passwordIcon}`}
-        onClick={() => setShowPassword(!showPassword)}
-        title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-      ></i>
-    </div>
-
-
+          <input
+            type={showPassword ? "text" : "password"}
+            id="password"
+            placeholder="Ingresa tu clave"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={isLocked}
+          />
+          <i
+            className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"} ${styles.passwordIcon}`}
+            onClick={() => setShowPassword(!showPassword)}
+            title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+          ></i>
+        </div>
 
         <a className={styles.link} href="/recuperar">
           ¿Olvidaste tu contraseña?

@@ -27,26 +27,25 @@ function Inventario() {
 
     // Función para obtener todos los productos
     const obtenerProductos = async () => {
-        try {
-            setCargando(true);
-            const res = await clienteAxios.get('/api/productos');
-            
-            if (res.data.success) {
-                setProductos(res.data.productos);
-                setProductosFiltrados(res.data.productos);
-            }
-            
-            setCargando(false);
-        } catch (error) {
-            console.log(error);
-            setCargando(false);
-            Swal.fire({
-                type: 'error',
-                title: 'Error al cargar productos',
-                text: 'No se pudieron cargar los productos. Intente nuevamente.'
-            });
-        }
+    try {
+        setCargando(true);
+        const res = await clienteAxios.get('/api/productos');
+
+        // El servidor responde con un arreglo, así que res.data es el arreglo de productos.
+        setProductos(res.data);
+        setProductosFiltrados(res.data);
+
+        setCargando(false);
+    } catch (error) {
+        console.log(error);
+        setCargando(false);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al cargar productos',
+            text: 'No se pudieron cargar los productos. Intente nuevamente.'
+        });
     }
+};
 
     // Función para filtrar productos
     const filtrarProductos = () => {
@@ -98,7 +97,7 @@ function Inventario() {
 
     // Función para agregar nuevo producto
     const agregarProducto = () => {
-        navigate('/productos/registro');
+        navigate('/registroproduct');
     }
 
     // Función para eliminar producto
@@ -228,17 +227,6 @@ function Inventario() {
                                                 {truncarTexto(producto.descripcion)}
                                             </td>
                                             <td className={styles.acciones}>
-                                                <button 
-                                                    className={`${styles.btn_accion} ${styles.btn_editar}`}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setProductoSeleccionado(producto);
-                                                        modificarProducto();
-                                                    }}
-                                                    title="Editar producto"
-                                                >
-                                                    <i className="fa fa-edit"></i>
-                                                </button>
                                                 <button 
                                                     className={`${styles.btn_accion} ${styles.btn_eliminar}`}
                                                     onClick={(e) => {
