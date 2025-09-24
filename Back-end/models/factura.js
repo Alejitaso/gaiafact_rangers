@@ -1,126 +1,57 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+// models/factura.js
 
-const facturaSchema = new Schema({
-    id_cliente :{
-        type: Number,
-        ref: 'cliente',
-        required: true,
-    },
-    denominacion:{
+const mongoose = require('mongoose');
+
+const facturasSchema = new mongoose.Schema({
+    numero_factura: {
         type: String,
         required: true,
-        maxlength: 15,
-        trim: true,
+        unique: true
     },
-    URL_DIAN: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    codigo_CUFE: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    codigo_QR: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    codigo_barras: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    descripcion_producto: {
-        type: String,
-        required: true,
-    },
-    valor_unitario: {
-        type: Number,
-        required: true,
-    },
-    valor_total: {
-        type: Number,
-        required: true,
-    },
-    forma_de_pago: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    medio_pago: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    informacion_adicional: {
-        type: String,
-        trim: true,
-    },
-    // Campos extraídos de la tabla de parámetros
-    nombre_empresa: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    NIT_empresa: {
-        type: String,
-        required: true,
-        maxlength: 15,
-        trim: true,
-    },
-    IVA: {
-        type: Number,
-        required: true,
-    },
-    impuesto_bolsa: {
-        type: Number,
-        required: true,
-    },
-    rango_numeracion_actual: {
-        type: Number,
-        required: true,
-    },
-    rango_numeracion_final: {
-        type: Number,
-        required: true,
-    },
-    fecha_numeracion: {
-        type: Number,
-        required: true,
-    },
-    fechaHora_generacion: {
+    fecha_emision: {
         type: Date,
-        required: true,
+        default: Date.now
     },
-    fechaHora_validacion: {
-        type: Date,
-        required: true,
+    // Añade la información del usuario directamente al esquema
+    usuario: {
+        nombre: {
+            type: String,
+            required: true
+        },
+        apellido: {
+            type: String,
+            required: true
+        },
+        tipo_documento: {
+            type: String,
+            required: true
+        },
+        numero_documento: {
+            type: String,
+            required: true
+        },
+        telefono: {
+            type: String
+        }
     },
-    firma_facturador: {
-        type: String,
-        required: true,
-        trim: true,
+    productos_factura: {
+        type: Array,
+        required: true
     },
-    nombre_fabricante_software: {
-        type: String,
-        required: true,
-        trim: true,
+    total: {
+        type: Number,
+        required: true
     },
-    NIT_fabricante_software: {
-        type: String,
-        required: true,
-        trim: true,
+    // Guarda el PDF como datos binarios (Buffer)
+    pdf_factura: {
+        type: Buffer, 
+        required: false
     },
-    nombre_software: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-}, {
-    timestamps: true,
+    // Guarda el XML como texto
+    xml_factura: { 
+        type: String, 
+        required: false
+    }
 });
 
-module.exports = mongoose.model("factura", facturaSchema);
+module.exports = mongoose.model('Factura', facturasSchema);

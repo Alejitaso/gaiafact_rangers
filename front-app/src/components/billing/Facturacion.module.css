@@ -47,25 +47,34 @@
 .facturacionTabla {
     width: 100%;
     background-color: #f0f4f8;
-    border-collapse: collapse;
+    /* QUITAMOS border-collapse para poder usar border-radius */
+    border-radius: 10px; /* Bordes redondeados */
+    border-spacing: 0; /* Eliminar espacio entre celdas */
     margin-bottom: 30px;
+    overflow: hidden; /* Para que los bordes redondeados funcionen bien */
 }
 
 /* celdas de la tabla */
 .facturacionTabla th,
 .facturacionTabla td {
-    border: 1px solid #000;
+    border: 2px solid var(--color-tres); /* Borde similar al formulario */
+    border-bottom: none; /* Quitamos borde inferior para que se vea como un solo bloque */
     padding: 10px;
     text-align: center;
-    color: black;
+    color: black !important;
+}
+
+/* celdas del final para que tengan borde inferior */
+.facturacionTabla tr:last-child td {
+    border-bottom: 2px solid var(--color-tres);
 }
 
 /* encabezado de la tabla */
 .facturacionTabla th {
-    background-color: #D1DCE6;
+    background-color: var(--color-dos); /* Fondo claro similar al select */
 }
 
-/* botones dentro de la tabla de productos */
+/* celdas de la tabla */
 .facturacionTabla tbody tr td button {
     font-size: 32px;
     cursor: pointer;
@@ -172,6 +181,17 @@
     justify-content: center;
 }
 
+.errorContent{
+    width: 60px;
+    margin-top: 10px;
+    padding: 8px;
+    border: 2px solid var(--color-tres);
+    border-radius: 6px;
+    font-size: 14px;
+    width: 80%;
+    box-sizing: border-box;
+}
+
 /* borde decorativo dentro del popup */
 .popupContent::before {
     content: '';
@@ -200,6 +220,8 @@
     display: grid;
     justify-content: space-around;
 }
+
+
 
 /* boton del popup */
 .popupContent button {

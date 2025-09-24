@@ -27,37 +27,62 @@ function Inventario() {
 
     // Función para obtener todos los productos
     const obtenerProductos = async () => {
-    try {
-        setCargando(true);
-        const res = await clienteAxios.get('/api/productos');
-
-        // El servidor responde con un arreglo, así que res.data es el arreglo de productos.
-        setProductos(res.data);
-        setProductosFiltrados(res.data);
-
-        setCargando(false);
-    } catch (error) {
-        console.log(error);
-        setCargando(false);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error al cargar productos',
-            text: 'No se pudieron cargar los productos. Intente nuevamente.'
-        });
-    }
-};
+        try {
+            setCargando(true);
+            console.log('🔍 Obteniendo productos...');
+            const res = await clienteAxios.get('/api/productos');
+            
+            console.log('📦 Respuesta del servidor:', res.data);
+            console.log('📦 Tipo de datos:', typeof res.data);
+            console.log('📦 Es array?:', Array.isArray(res.data));
+            
+            // Manejar diferentes estructuras de respuesta
+            let productosData;
+            if (Array.isArray(res.data)) {
+                productosData = res.data;
+            } else if (res.data && Array.isArray(res.data.productos)) {
+                productosData = res.data.productos;
+            } else if (res.data && Array.isArray(res.data.data)) {
+                productosData = res.data.data;
+            } else {
+                console.warn('⚠️ Estructura de respuesta inesperada');
+                productosData = [];
+            }
+            
+            console.log('✅ Productos cargados:', productosData.length);
+            setProductos(productosData);
+            setProductosFiltrados(productosData);
+            setCargando(false);
+            
+        } catch (error) {
+            console.error('❌ Error al obtener productos:', error);
+            setCargando(false);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al cargar productos',
+                text: 'No se pudieron cargar los productos. Intente nuevamente.'
+            });
+        }
+    };
 
     // Función para filtrar productos
     const filtrarProductos = () => {
         if (!busqueda.trim()) {
             setProductosFiltrados(productos);
         } else {
-            const filtrados = productos.filter(producto =>
-                producto.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-                producto.descripcion.toLowerCase().includes(busqueda.toLowerCase()) ||
-                producto.tipoPrenda.toLowerCase().includes(busqueda.toLowerCase()) ||
-                producto._id.toLowerCase().includes(busqueda.toLowerCase())
-            );
+            const filtrados = productos.filter(producto => {
+                // Verificar que las propiedades existan antes de usar toLowerCase()
+                const nombre = producto.nombre || '';
+                const descripcion = producto.descripcion || '';
+                // CAMBIO IMPORTANTE: usar producto.tipo_prenda en lugar de producto.tipoPrenda
+                const tipoPrenda = producto.tipo_prenda || producto.tipoPrenda || '';
+                const id = producto._id || '';
+                
+                return nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+                       descripcion.toLowerCase().includes(busqueda.toLowerCase()) ||
+                       tipoPrenda.toLowerCase().includes(busqueda.toLowerCase()) ||
+                       id.toLowerCase().includes(busqueda.toLowerCase());
+            });
             setProductosFiltrados(filtrados);
         }
     }
@@ -84,7 +109,7 @@ function Inventario() {
     const modificarProducto = () => {
         if (!productoSeleccionado) {
             Swal.fire({
-                type: 'warning',
+                icon: 'warning', // CAMBIO: 'type' por 'icon'
                 title: 'No hay producto seleccionado',
                 text: 'Por favor selecciona un producto de la tabla para modificar.'
             });
@@ -117,7 +142,8 @@ function Inventario() {
             try {
                 const res = await clienteAxios.delete(`/api/productos/${id}`);
                 
-                if (res.data.success) {
+                // CAMBIO: Verificar tanto success como status 200
+                if (res.data.success || res.status === 200) {
                     Swal.fire(
                         'Eliminado',
                         'El producto ha sido eliminado correctamente.',
@@ -130,7 +156,7 @@ function Inventario() {
             } catch (error) {
                 console.log(error);
                 Swal.fire({
-                    type: 'error',
+                    icon: 'error', // CAMBIO: 'type' por 'icon'
                     title: 'Error al eliminar',
                     text: 'No se pudo eliminar el producto. Intente nuevamente.'
                 });
@@ -140,7 +166,9 @@ function Inventario() {
 
     // Formatear precio
     const formatearPrecio = (precio) => {
-        return `$${precio.toLocaleString('es-CO', {
+        // CAMBIO: Manejar casos donde precio sea null/undefined
+        const precioNum = Number(precio) || 0;
+        return `$${precioNum.toLocaleString('es-CO', {
             minimumFractionDigits: 0,
             maximumFractionDigits: 2
         })}`;
@@ -148,6 +176,8 @@ function Inventario() {
 
     // Truncar texto largo
     const truncarTexto = (texto, limite = 50) => {
+        // CAMBIO: Verificar que texto exista
+        if (!texto) return '';
         return texto.length > limite ? texto.substring(0, limite) + '...' : texto;
     }
 
@@ -214,16 +244,19 @@ function Inventario() {
                                             onClick={() => seleccionarProducto(producto)}
                                             className={productoSeleccionado && productoSeleccionado._id === producto._id ? styles.selected : ''}
                                         >
-                                            <td>{producto._id.substring(producto._id.length - 6).toUpperCase()}</td>
-                                            <td>{producto.nombre}</td>
+                                            <td>
+                                                {/* CAMBIO: Verificar que _id exista */}
+                                                {producto._id ? producto._id.substring(producto._id.length - 6).toUpperCase() : 'N/A'}
+                                            </td>
+                                            <td>{producto.nombre || 'N/A'}</td>
                                             <td>{formatearPrecio(producto.precio)}</td>
                                             <td>
-                                                <span className={producto.cantidad <= 10 ? styles.stock_bajo : styles.stock_normal}>
-                                                    {producto.cantidad}
+                                                <span className={(producto.cantidad || 0) <= 10 ? styles.stock_bajo : styles.stock_normal}>
+                                                    {producto.cantidad || 0}
                                                 </span>
                                             </td>
-                                            <td>{producto.tipoPrenda}</td>
-                                            <td title={producto.descripcion}>
+                                            <td>{producto.tipo_prenda || 'N/A'}</td>
+                                            <td title={producto.descripcion || ''}>
                                                 {truncarTexto(producto.descripcion)}
                                             </td>
                                             <td className={styles.acciones}>
@@ -286,7 +319,7 @@ function Inventario() {
                         <div className={styles.stat_card}>
                             <h4>Stock Bajo</h4>
                             <p className={styles.stock_bajo}>
-                                {productos.filter(p => p.cantidad <= 10).length}
+                                {productos.filter(p => (p.cantidad || 0) <= 10).length}
                             </p>
                         </div>
                     </div>

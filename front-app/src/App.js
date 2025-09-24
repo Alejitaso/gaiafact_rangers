@@ -46,11 +46,11 @@ function AppContent() {
             <Route path="/facturacion" element={<Facturacion />} />
             <Route path="/inventario" element={<Inventario />} />
             <Route path="/Img" element={<Img />} />
-            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/perfil" element={<Perfil />} /> 
             <Route path="/notificaciones" element={<Notify />} />
             <Route path="/codigo-Barras" element={<CodigoBarras />} />
             <Route path="/registro" element={<RegistroUsuario />} />
-            <Route path="/Registroproduct" element={<Registro_product />} />
+            <Route path="/registroproduct" element={<Registro_product />} />
             <Route path="/productos/editar/:idProducto" element={<EditProduct />} />
             <Route path="/login" element={<Login />} />
             <Route path="/recuperar" element={<Recuperar />} />

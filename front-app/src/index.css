@@ -141,47 +141,189 @@ body {
     
 }
 
-/* --- ESTILOS PARA LA PANTALLA DE CARGA --- */
+/* Pantalla de carga con transición suave */
 .loading-screen {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #000; /* O el color de fondo que prefieras */
+    background-image: url(), linear-gradient(to bottom, var(--color-cuatro) 0%, var(--color-cinco) 50%, var(--color-seis) 100%);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999; /* Asegura que esté por encima de todos los elementos */
+    z-index: 9999;
+    flex-direction: column;
+    opacity: 1;
+    visibility: visible;
+    /* Transición más suave y larga */
+    transition: opacity 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                transform 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translateY(0);
 }
 
+/* Estado de desvanecimiento */
+.loading-screen.fade-out {
+    opacity: 0;
+    transform: translateY(-20px); /* Ligero movimiento hacia arriba */
+    /* NO uses visibility: hidden aquí para permitir la transición completa */
+}
+
+/* Estado completamente oculto (se aplicará después de la transición) */
+.loading-screen.hidden {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Video con animación de entrada */
 .loading-video {
+    width: 300px; 
+    height: 300px;
+    border-radius: 50%; 
+    object-fit: cover; 
+    border: 5px solid var(--color-uno);
+    /* Animación de respiración suave */
+    animation: breathe 2s ease-in-out infinite;
+    transition: transform 0.3s ease;
+    object-position: 65% center;
+}
+
+/* Animación de respiración para el video */
+@keyframes breathe {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(37, 68, 84, 0.3);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 30px rgba(37, 68, 84, 0.5);
+    }
+}
+
+/* Texto de carga con animación */
+.loading-screen::after {
+    content: "Cargando... Por favor espera.";
+    position: absolute;
+    bottom: 80px;
+    font-size: 1.2rem;
+    color: var(--color-uno);
+    font-weight: 500;
+    /* Animación de puntos */
+    animation: loadingDots 1.5s infinite;
+}
+
+/* Animación de puntos suspensivos */
+@keyframes loadingDots {
+    0%, 20% {
+        content: "Cargando.";
+    }
+    40% {
+        content: "Cargando..";
+    }
+    60%, 100% {
+        content: "Cargando...";
+    }
+}
+
+/* Overlay que aparece detrás del contenido principal durante la transición */
+.content-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Para que el video cubra toda la pantalla sin distorsionarse */
+    background: rgba(255, 255, 255, 0.9);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s ease-in-out;
+    z-index: 1;
 }
 
-.swal-contorno-interior { 
-    border: 2px solid #0a85be;  /* color del borde (oscuro como en la imagen) */
-    border-radius: 12px;        /* redondeo de las esquinas */
-    background: #f5f9fc;        /* fondo gris claro */
-    padding: 20px;              /* espacio interno */
-    text-align: center;         /* centra el texto */
-    font-size: 16px;            /* tamaño del texto */
-    color: #1e4d63;             /* color del texto */
+.content-overlay.show {
+    opacity: 1;
+    visibility: visible;
 }
- 
 
-.swal-contorno-interior-avanzado { 
-    box-shadow: inset 0 0 0 3px #020d0e, inset 0 2px 4px rgba(74, 144, 226, 0.1), 0 4px 12px rgba(0, 0, 0, 0.15) !important; 
-    border-radius: 15px !important; 
-    padding: 25px !important; 
-    background: #ffffff !important;
-     
-} /* Para darle más profundidad como en tu imagen */ 
-
-.swal-estilo-imagen { 
-    box-shadow: inset 0 0 0 4px #2c5aa0, inset 0 4px 8px rgba(44, 90, 160, 0.2) !important; border-radius: 20px !important; 
-    background: linear-gradient(145deg, #f0f2f5, #e6e9ed) !important; 
-    padding: 30px !important;
+/* Contenido principal con transición de entrada */
+.main-content {
+    opacity: 1; /* Cambiar a 1 */
+    transform: translateY(0); /* Cambiar a 0 */
+    transition: opacity 1s ease-out 0.5s, 
+                transform 1s ease-out 0.5s;
 }
+
+.main-content.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Mejoras adicionales para el formulario de login */
+.login-form-container {
+    animation: slideInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Transición para cuando se está navegando (después del login exitoso) */
+.navigating-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #276177, #254454);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 2s ease-in-out;
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.navigating-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.navigating-overlay .success-message {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    animation: fadeInScale 0.8s ease-out;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Mejora para dispositivos móviles */
+@media (max-width: 767px) {
+    .loading-video {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .loading-screen::after {
+        font-size: 1rem;
+        bottom: 60px;
+    }
+}
+

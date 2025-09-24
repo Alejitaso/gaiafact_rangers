@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from './style_loguin.module.css';
 
 function Login() {
@@ -7,19 +7,43 @@ function Login() {
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Nuevo estado para la pantalla de carga inicial del componente
+  // Estados para las transiciones mejoradas
   const [isLoaded, setIsLoaded] = useState(false);
-  // Nuevo estado para la pantalla de carga al navegar
   const [isNavigating, setIsNavigating] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false);
+  const [showContent, setShowContent] = useState(false);
+  const [loadingComplete, setLoadingComplete] = useState(false);
+  
+  const videoRef = useRef(null);
 
-  // Muestra la pantalla de carga inicial solo cuando el componente se monta
+  // Carga inicial con transición suave
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 2000); // 2 segundos para la pantalla de carga inicial
-    return () => clearTimeout(timer);
+    const initialTimer = setTimeout(() => {
+      setFadeOut(true);
+      
+      // Después de que comience el fade-out, mostrar el contenido
+      setTimeout(() => {
+        setIsLoaded(true);
+        setShowContent(true);
+        
+        // Ocultar completamente la pantalla de carga
+        setTimeout(() => {
+          setLoadingComplete(true);
+        }, 500);
+      }, 750); // Esperar 3/4 de la transición
+    }, 2500); // Aumentado un poco el tiempo inicial
+
+    return () => clearTimeout(initialTimer);
   }, []);
 
+  // Configuración del video
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 1.5; // Velocidad un poco más lenta para mejor experiencia
+    }
+  }, []);
+
+  // Estados para el sistema de bloqueo
   const [attempts, setAttempts] = useState(() => {
     return parseInt(localStorage.getItem("attempts")) || 0;
   });
@@ -30,14 +54,12 @@ function Login() {
     return parseInt(localStorage.getItem("timeLeft")) || 0;
   });
 
-  // Guardar cambios en localStorage
   useEffect(() => {
     localStorage.setItem("attempts", attempts);
     localStorage.setItem("isLocked", isLocked);
     localStorage.setItem("timeLeft", timeLeft);
   }, [attempts, isLocked, timeLeft]);
 
-  // Temporizador de bloqueo
   useEffect(() => {
     let timer;
     if (isLocked && timeLeft > 0) {
@@ -69,7 +91,10 @@ function Login() {
     e.preventDefault();
     if (isLocked) return;
 
-    setIsNavigating(true); // Activa la pantalla de carga al iniciar el login
+    // Iniciar transición de navegación más suave
+    setIsNavigating(true);
+    setFadeOut(false); // Reset fade-out
+    setShowContent(false); // Ocultar contenido actual
 
     try {
       const res = await fetch("http://localhost:4000/api/auth/login", {
@@ -85,116 +110,153 @@ function Login() {
         setAttempts(0);
         localStorage.removeItem("attempts");
         
-        // La redirección ocurrirá después del temporizador
+        // Mostrar mensaje de éxito antes de la redirección
         setTimeout(() => {
+          setFadeOut(true);
+          
+          // Redirección después de la transición completa
+          setTimeout(() => {
             window.location.href = "/inicio";
-        }, 2000); 
+          }, 1500);
+        }, 1000);
         
       } else {
+        // Error en login - restaurar estado
         setError(data.message || "Correo o contraseña incorrectos");
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
 
         if (newAttempts >= 3) {
           setIsLocked(true);
-          setTimeLeft(60 * 5); // 5 minutos
+          setTimeLeft(60 * 5);
           localStorage.setItem("isLocked", "true");
           localStorage.setItem("timeLeft", 60 * 5);
         }
-        setIsNavigating(false); // Desactiva la pantalla de carga si hay un error
+        
+        // Restaurar visibilidad del contenido con transición
+        setTimeout(() => {
+          setIsNavigating(false);
+          setShowContent(true);
+        }, 500);
       }
     } catch (err) {
       setError("Error de conexión con el servidor");
-      setIsNavigating(false); // Desactiva la pantalla de carga si hay un error
+      
+      // Restaurar visibilidad del contenido
+      setTimeout(() => {
+        setIsNavigating(false);
+        setShowContent(true);
+      }, 500);
     }
   };
 
-  // Renderizado condicional: muestra la pantalla de carga inicial o la de navegación si están activas
+  // Pantalla de carga inicial
   if (!isLoaded || isNavigating) {
     return (
-      <div className="loading-screen">
-        <video 
-          className="loading-video" 
-          autoPlay 
-          muted
-          // El video se repetirá mientras isLoading o isNavigating sea true
-          onEnded={(e) => {
-            e.target.play(); 
-          }}
-        >
-          <source src="/videos/loading.mp4" type="video/mp4" />
-          Tu navegador no soporta el video.
-        </video>
-      </div>
+      <>
+        <div className={`loading-screen ${fadeOut ? 'fade-out' : ''} ${loadingComplete ? 'hidden' : ''}`}>
+          <video 
+            className="loading-video" 
+            ref={videoRef}
+            autoPlay 
+            muted
+            onEnded={(e) => {
+              e.target.play(); 
+            }}
+          >
+            <source src="/videos/loading.mp4" type="video/mp4" />
+            Tu navegador no soporta el video.
+          </video>
+        </div>
+        
+        {/* Overlay para transición de navegación exitosa */}
+        {isNavigating && (
+          <div className={`navigating-overlay ${fadeOut ? 'show' : ''}`}>
+            <div className="success-message">
+              ¡Bienvenido! Redirigiendo...
+            </div>
+            <video 
+              className="loading-video" 
+              autoPlay 
+              muted
+              loop
+            >
+              <source src="/videos/loading.mp4" type="video/mp4" />
+            </video>
+          </div>
+        )}
+      </>
     );
   }
 
-  // De lo contrario, renderiza el formulario de login
+  // Contenido principal del login
   return (
-    <div className={styles.loginbox}>
-      <h2>Ingresa a tu cuenta</h2>
-      <p>
-        ¿No estás registrado?{" "}
-        <a className={styles.link} href="/registro">
-          Registrarse
-        </a>
-      </p>
-      <div className={styles.logog}>
-        <i className="fa-solid fa-circle-user fa-7x" style={{ color: "#f0f4f8" }}></i>
-      </div>
+    <div className={`${styles.loginbox} ${showContent ? 'main-content show' : 'main-content'}`}>
+      <div className="login-form-container">
+        <h2>Ingresa a tu cuenta</h2>
+        <p>
+          ¿No estás registrado?{" "}
+          <a className={styles.link} href="/registro">
+            Registrarse
+          </a>
+        </p>
+        <div className={styles.logog}>
+          <i className="fa-solid fa-circle-user fa-7x" style={{ color: "#f0f4f8" }}></i>
+        </div>
 
-      <form className={styles.loginform} onSubmit={handleSubmit}>
-        <label htmlFor="email">CORREO ELECTRÓNICO</label>
-        <i className="fa-regular fa-user fa-2x"></i>
-        <input
-          type="email"
-          id="email"
-          placeholder="Ingresa tu correo"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          disabled={isLocked}
-        />
-
-        <label htmlFor="password">CLAVE</label>
-        <i className="fa-solid fa-lock fa-2x"></i>
-        <div className={styles.passwordWrapper}>
+        <form className={styles.loginform} onSubmit={handleSubmit}>
+          <label htmlFor="email">CORREO ELECTRÓNICO</label>
+          <i className="fa-regular fa-user fa-2x"></i>
           <input
-            type={showPassword ? "text" : "password"}
-            id="password"
-            placeholder="Ingresa tu clave"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            type="email"
+            id="email"
+            placeholder="Ingresa tu correo"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
             disabled={isLocked}
           />
-          <i
-            className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"} ${styles.passwordIcon}`}
-            onClick={() => setShowPassword(!showPassword)}
-            title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-          ></i>
-        </div>
 
-        <a className={styles.link} href="/recuperar">
-          ¿Olvidaste tu contraseña?
-        </a>
-
-        {error && !isLocked && (
-          <div style={{ color: "red", textAlign: "center", fontWeight: "bold", fontSize: "20px" }}>
-            {error}
+          <label htmlFor="password">CLAVE</label>
+          <i className="fa-solid fa-lock fa-2x"></i>
+          <div className={styles.passwordWrapper}>
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              placeholder="Ingresa tu clave"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={isLocked}
+            />
+            <i
+              className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"} ${styles.passwordIcon}`}
+              onClick={() => setShowPassword(!showPassword)}
+              title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            ></i>
           </div>
-        )}
 
-        {isLocked && (
-          <div style={{ color: "red", textAlign: "center", fontWeight: "bold", fontSize: "20px" }}>
-            Demasiados intentos. Intenta de nuevo en {formatTime(timeLeft)}
-          </div>
-        )}
+          <a className={styles.link} href="/recuperar">
+            ¿Olvidaste tu contraseña?
+          </a>
 
-        <button type="submit" disabled={isLocked}>
-          Ingresar
-        </button>
-      </form>
+          {error && !isLocked && (
+            <div style={{ color: "red", textAlign: "center", fontWeight: "bold", fontSize: "20px" }}>
+              {error}
+            </div>
+          )}
+
+          {isLocked && (
+            <div style={{ color: "red", textAlign: "center", fontWeight: "bold", fontSize: "20px" }}>
+              Demasiados intentos. Intenta de nuevo en {formatTime(timeLeft)}
+            </div>
+          )}
+
+          <button type="submit" disabled={isLocked}>
+            Ingresar
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
