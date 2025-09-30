@@ -1,5 +1,3 @@
-// models/factura.js
-
 const mongoose = require('mongoose');
 
 const facturasSchema = new mongoose.Schema({
@@ -8,31 +6,26 @@ const facturasSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    codigo_CUFE: {
+        type: String,
+        default: function() {
+            return `CUFE-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        }
+    },
+    rango_numeracion_actual: {
+        type: String,
+        default: 'TEMP-2025'
+    },
     fecha_emision: {
         type: Date,
         default: Date.now
     },
-    // Añade la información del usuario directamente al esquema
     usuario: {
-        nombre: {
-            type: String,
-            required: true
-        },
-        apellido: {
-            type: String,
-            required: true
-        },
-        tipo_documento: {
-            type: String,
-            required: true
-        },
-        numero_documento: {
-            type: String,
-            required: true
-        },
-        telefono: {
-            type: String
-        }
+        nombre: { type: String, required: true },
+        apellido: { type: String, required: true },
+        tipo_documento: { type: String, required: true },
+        numero_documento: { type: String, required: true },
+        telefono: { type: String }
     },
     productos_factura: {
         type: Array,
@@ -42,12 +35,10 @@ const facturasSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    // Guarda el PDF como datos binarios (Buffer)
     pdf_factura: {
         type: Buffer, 
         required: false
     },
-    // Guarda el XML como texto
     xml_factura: { 
         type: String, 
         required: false

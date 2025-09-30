@@ -249,26 +249,22 @@ const generarFactura = async () => {
     setGenerandoFactura(true);
 
     try {
-        // 1. Calcular el total a partir de los productos en la factura
         const total = productosFactura.reduce((sum, producto) => {
             return sum + (producto.precio * producto.cantidad);
         }, 0);
 
-        // 2. Construir el objeto de datos con todos los campos requeridos
         const datosFactura = {
             total: total,
-            numero_factura: 'F' + Math.floor(Math.random() * 100000), // Usa un número de factura real aquí
+            numero_factura: 'F' + Math.floor(Math.random() * 100000),
             usuario: {
                 nombre: nombres,
                 apellido: apellidos,
                 tipo_documento: tipoDocumento,
                 numero_documento: numeroDocumento,
-                // Si tu modelo requiere más campos, como correo o teléfono, añádelos aquí
-                correo: 'ejemplo@correo.com', // Reemplazar con el estado de correo del usuario
                 telefono: telefono
             },
-            productos: productosFactura.map(p => ({
-                producto: p.nombre, // Asegúrate de que coincida con tu esquema
+            productos_factura: productosFactura.map(p => ({  // ⬅️ Cambio aquí: productos → productos_factura
+                producto: p.nombre,
                 cantidad: p.cantidad,
                 precio: p.precio
             }))
@@ -276,19 +272,18 @@ const generarFactura = async () => {
         
         console.log('📄 Datos de la factura a enviar:', datosFactura);
 
-        // 3. Enviar los datos completos al backend
         const res = await clienteAxios.post('/api/facturas', datosFactura);
         
         Swal.fire('Correcto', 'Factura generada y guardada', 'success');
         console.log(res.data);
         
-        // Limpiar los estados después de generar la factura
         setProductosFactura([]);
         setNombres('');
         setApellidos('');
         setTipoDocumento('');
         setNumeroDocumento('');
         setTelefono('');
+        setCorreo('');
 
     } catch (error) {
         console.error('❌ Error al generar la factura:', error.response?.data?.mensaje || error.message);

@@ -36,6 +36,9 @@ module.exports = function() {
     router.delete('/productos/:idProducto', productoController.eliminarProducto);
 
     /* Facturas */
+
+    router.get('/facturas/:idFactura/pdf', facturaController.obtenerFacturaPDF);
+    router.get('/facturas/:idFactura/xml', facturaController.obtenerFacturaXML);
     // genera nueva factura
     router.post('/facturas', facturaController.generarFactura);
     // mostrar las facturas
