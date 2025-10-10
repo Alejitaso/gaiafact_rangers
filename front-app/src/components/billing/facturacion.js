@@ -1,0 +1,754 @@
+import React, { Fragment, useState, useEffect, useRef } from 'react';
+import Swal from 'sweetalert2';
+import clienteAxios from '../../config/axios';
+import styles from './Facturacion.module.css';
+
+const Facturacion = () => {
+    const [showPopup, setShowPopup] = useState(false);
+    const [showErrorPopup, setShowErrorPopup] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [errorTitle, setErrorTitle] = useState('');
+    const [activeTab, setActiveTab] = useState('barcode');
+    const [barcodeInput, setBarcodeInput] = useState('');
+    const [productId, setProductId] = useState('');
+    const [quantity, setQuantity] = useState(1);
+    const [isListening, setIsListening] = useState(false);
+    const [productos, setProductos] = useState([]);
+    const [productosFactura, setProductosFactura] = useState([]);
+    const [cargandoProductos, setCargandoProductos] = useState(false);
+    const [esperandoProducto, setEsperandoProducto] = useState(false);
+    const [generandoFactura, setGenerandoFactura] = useState(false);
+    
+    // Estados para el formulario del cliente
+    const [tipoDocumento, setTipoDocumento] = useState('');
+    const [numeroDocumento, setNumeroDocumento] = useState('');
+    const [nombres, setNombres] = useState('');
+    const [apellidos, setApellidos] = useState('');
+    const [telefono, setTelefono] = useState('');
+    const [correo, setCorreo] = useState('');
+    
+    const barcodeInputRef = useRef(null);
+    const timeoutRef = useRef(null);
+
+    // Función para mostrar popup de error personalizado
+    const mostrarError = (titulo, mensaje) => {
+        setErrorTitle(titulo);
+        setErrorMessage(mensaje);
+        setShowErrorPopup(true);
+    };
+
+    // Cerrar popup de error
+    const cerrarErrorPopup = () => {
+        setShowErrorPopup(false);
+        setErrorTitle('');
+        setErrorMessage('');
+    };
+
+    // Focus automático en el input cuando se abre el popup
+    useEffect(() => {
+        if (showPopup && activeTab === 'barcode' && barcodeInputRef.current) {
+            setTimeout(() => {
+                barcodeInputRef.current.focus();
+                setIsListening(true);
+            }, 300);
+        }
+    }, [showPopup, activeTab]);
+
+    // Limpiar campos cuando se cambia de pestaña
+    useEffect(() => {
+        setBarcodeInput('');
+        setProductId('');
+        setQuantity(1);
+        setIsListening(false);
+    }, [activeTab]);
+
+    // Función para obtener productos del inventario (mejorada)
+    const obtenerProductos = async () => {
+        try {
+            setCargandoProductos(true);
+            const res = await clienteAxios.get('/api/productos');
+            
+            // Si no hay productos, no mostrar error, solo establecer array vacío
+            if (res.data && Array.isArray(res.data)) {
+                setProductos(res.data);
+            } else {
+                setProductos([]);
+            }
+            setCargandoProductos(false);
+        } catch (error) {
+            console.error('Error al obtener productos:', error);
+            setCargandoProductos(false);
+            // Solo mostrar error si es un error real, no si simplemente no hay productos
+            if (error.response && error.response.status !== 404) {
+                mostrarError('Error de conexión', 'No se pudo conectar con el servidor');
+            } else {
+                setProductos([]);
+            }
+        }
+    };
+
+    // Cargar productos al montar el componente
+    useEffect(() => {
+        obtenerProductos();
+    }, []);
+
+    // Función para manejar entrada del lector de código de barras
+    const handleBarcodeInput = (value) => {
+        setBarcodeInput(value);
+        
+        // Auto-detectar entrada completa del lector
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(() => {
+            if (value.length >= 8) { // Asumiendo que los códigos tienen al menos 8 caracteres
+                handleProductSearch('barcode', value);
+            }
+        }, 500); // Esperar 500ms después del último carácter
+    };
+
+    // Función para buscar producto por código de barras o ID
+    const handleProductSearch = async (searchType, searchValue) => {
+        try {
+            setEsperandoProducto(true);
+            let producto = null;
+            
+            if (searchType === 'barcode') {
+                // Buscar por código de barras (12 dígitos del codigo_barras_datos)
+                producto = productos.find(p => 
+                    p.codigo_barras_datos === searchValue
+                );
+            } else {
+                // Búsqueda por ID o código de barras (igual que en inventario)
+                producto = productos.find(p => 
+                    p.codigo_barras_datos === searchValue ||
+                    p._id.substring(p._id.length - 6).toUpperCase() === searchValue.toUpperCase()
+                );
+            }
+
+            setEsperandoProducto(false);
+
+            if (producto) {
+                cerrarPopup();
+                mostrarConfirmacionProducto(producto);
+            } else {
+                cerrarPopup();
+                mostrarError(
+                    'Producto no encontrado',
+                    `No se encontró ningún producto con ${searchType === 'barcode' ? 'código de barras' : 'código o ID'}: ${searchValue}`
+                );
+            }
+        } catch (error) {
+            setEsperandoProducto(false);
+            console.error('Error al buscar producto:', error);
+            cerrarPopup();
+            mostrarError('Error', 'Error al buscar el producto');
+        }
+    };
+
+    // Mostrar confirmación del producto encontrado
+    const mostrarConfirmacionProducto = (producto) => {
+        Swal.fire({
+            title: '¿Agregar este producto?',
+            html: `
+                <div style="text-align: left; margin: 20px 0;">
+                    <h4><i class="fas fa-box"></i> ${producto.nombre}</h4>
+                    <p><strong>ID:</strong> ${producto._id.substring(producto._id.length - 6).toUpperCase()}</p>
+                    <p><strong>Precio:</strong> $${formatearPrecio(producto.precio)}</p>
+                    <p><strong>Stock disponible:</strong> ${producto.cantidad} unidades</p>
+                    <p><strong>Tipo:</strong> ${producto.tipo_prenda}</p>
+                    <div style="margin-top: 15px;">
+                        <label style="display: block; margin-bottom: 5px;"><strong>Cantidad a agregar:</strong></label>
+                        <input 
+                            type="number" 
+                            id="cantidadProducto" 
+                            value="${quantity}" 
+                            min="1" 
+                            max="${producto.cantidad}"
+                            style="width: 80px; padding: 5px; border: 2px solid #276177; border-radius: 4px;"
+                        />
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Agregar a factura',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#276177',
+            cancelButtonColor: '#d33',
+            didOpen: () => {
+                const input = document.getElementById('cantidadProducto');
+                input.focus();
+                input.select();
+            },
+            preConfirm: () => {
+                const cantidadInput = document.getElementById('cantidadProducto');
+                const cantidadSeleccionada = parseInt(cantidadInput.value);
+                
+                if (cantidadSeleccionada <= 0) {
+                    Swal.showValidationMessage('La cantidad debe ser mayor a 0');
+                    return false;
+                }
+                
+                if (cantidadSeleccionada > producto.cantidad) {
+                    Swal.showValidationMessage(`Solo hay ${producto.cantidad} unidades disponibles`);
+                    return false;
+                }
+                
+                return cantidadSeleccionada;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                agregarProductoAFactura(producto, result.value);
+            }
+        });
+    };
+
+    // Agregar producto a la factura
+    const agregarProductoAFactura = (producto, cantidad) => {
+        // Verificar si el producto ya está en la factura
+        const productoExistente = productosFactura.find(p => p.id === producto._id);
+        
+        if (productoExistente) {
+            // Actualizar cantidad del producto existente
+            setProductosFactura(prev => 
+                prev.map(p => 
+                    p.id === producto._id 
+                        ? { ...p, cantidad: p.cantidad + cantidad }
+                        : p
+                )
+            );
+        } else {
+            // Agregar nuevo producto
+            const nuevoProducto = {
+                id: producto._id,
+                nombre: producto.nombre,
+                precio: producto.precio,
+                cantidad: cantidad,
+                stock: producto.cantidad,
+                tipo_prenda: producto.tipo_prenda
+            };
+            
+            setProductosFactura(prev => [...prev, nuevoProducto]);
+        }
+
+        Swal.fire({
+            icon: 'success',
+            title: '¡Producto agregado!',
+            text: `${producto.nombre} (x${cantidad}) agregado a la factura`,
+            timer: 2000,
+            showConfirmButton: false
+        });
+    };
+
+    // Función para generar la factura
+   // ... tus estados useState y otras funciones
+const generarFactura = async () => {
+    setGenerandoFactura(true);
+
+    try {
+        const total = productosFactura.reduce((sum, producto) => {
+            return sum + (producto.precio * producto.cantidad);
+        }, 0);
+
+        const datosFactura = {
+            total: total,
+            numero_factura: 'F' + Math.floor(Math.random() * 100000),
+            usuario: {
+                nombre: nombres,
+                apellido: apellidos,
+                tipo_documento: tipoDocumento,
+                numero_documento: numeroDocumento,
+                telefono: telefono
+            },
+            productos_factura: productosFactura.map(p => ({  // ⬅️ Cambio aquí: productos → productos_factura
+                producto: p.nombre,
+                cantidad: p.cantidad,
+                precio: p.precio
+            }))
+        };
+        
+        console.log('📄 Datos de la factura a enviar:', datosFactura);
+
+        const res = await clienteAxios.post('/api/facturas', datosFactura);
+        
+        Swal.fire('Correcto', 'Factura generada y guardada', 'success');
+        console.log(res.data);
+        
+        setProductosFactura([]);
+        setNombres('');
+        setApellidos('');
+        setTipoDocumento('');
+        setNumeroDocumento('');
+        setTelefono('');
+        setCorreo('');
+
+    } catch (error) {
+        console.error('❌ Error al generar la factura:', error.response?.data?.mensaje || error.message);
+        setErrorTitle('Error de Validación');
+        setErrorMessage('Faltan campos obligatorios para generar la factura. Por favor, completa toda la información del cliente y los productos.');
+        setShowErrorPopup(true);
+    } finally {
+        setGenerandoFactura(false);
+    }
+};
+
+    // Función para limpiar el formulario
+    const limpiarFormulario = () => {
+        setTipoDocumento('');
+        setNumeroDocumento('');
+        setNombres('');
+        setApellidos('');
+        setTelefono('');
+        setCorreo('');
+        setProductosFactura([]);
+    };
+
+    
+
+    // Función para cancelar factura
+    const cancelarFactura = () => {
+        Swal.fire({
+            title: '¿Cancelar factura?',
+            text: 'Se perderán todos los datos ingresados',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, cancelar',
+            cancelButtonText: 'No, continuar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                limpiarFormulario();
+                Swal.fire('Cancelado', 'La factura ha sido cancelada', 'success');
+            }
+        });
+    };
+
+    // Abrir popup
+    const abrirPopup = () => {
+        setShowPopup(true);
+        setActiveTab('barcode');
+        setBarcodeInput('');
+        setProductId('');
+        setQuantity(1);
+    };
+
+    // Cerrar popup
+    const cerrarPopup = () => {
+        setShowPopup(false);
+        setBarcodeInput('');
+        setProductId('');
+        setQuantity(1);
+        setIsListening(false);
+        clearTimeout(timeoutRef.current);
+    };
+
+    // Manejar búsqueda manual
+    const buscarProducto = () => {
+        const searchValue = activeTab === 'barcode' ? barcodeInput.trim() : productId.trim();
+        
+        if (!searchValue) {
+            mostrarError(
+                'Campo vacío',
+                `Por favor ingrese ${activeTab === 'barcode' ? 'el código de barras' : 'el ID del producto'}`
+            );
+            return;
+        }
+
+        handleProductSearch(activeTab, searchValue);
+    };
+
+    // Eliminar producto de la factura
+    const eliminarProducto = (productId) => {
+        setProductosFactura(prev => prev.filter(p => p.id !== productId));
+    };
+
+    // Formatear precio
+    const formatearPrecio = (precio) => {
+        return precio.toLocaleString('es-CO', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        });
+    };
+
+    // Calcular total
+    const calcularTotal = () => {
+        return productosFactura.reduce((total, producto) => 
+            total + (producto.precio * producto.cantidad), 0
+        );
+    };
+
+    return (
+        <Fragment>
+            <div className={styles.facturacionContainer}>
+                <div className={styles.facturacionForm}>
+                    <select 
+                        value={tipoDocumento}
+                        onChange={(e) => setTipoDocumento(e.target.value)}
+                    >
+                        <option value="">Seleccione tipo de documento</option>
+                        <option value="CC">Cédula de ciudadanía</option>
+                        <option value="CE">Cédula de extranjería</option>
+                        <option value="NIT">NIT</option>
+                        <option value="Pasaporte">Pasaporte</option>
+                    </select>
+                    <input 
+                        type="text" 
+                        placeholder="Número documento"
+                        value={numeroDocumento}
+                        onChange={(e) => setNumeroDocumento(e.target.value)}
+                    />
+                    <input 
+                        type="text" 
+                        placeholder="Nombres" 
+                        value={nombres}
+                        onChange={(e) => setNombres(e.target.value)}
+                    />
+                    <input 
+                        type="text" 
+                        placeholder="Apellidos"
+                        value={apellidos}
+                        onChange={(e) => setApellidos(e.target.value)}
+                    />
+                    <input 
+                        type="text" 
+                        placeholder="Teléfono"
+                        value={telefono}
+                        onChange={(e) => setTelefono(e.target.value)}
+                    />
+                    <input 
+                        type="email" 
+                        placeholder="Correo"
+                        value={correo}
+                        onChange={(e) => setCorreo(e.target.value)}
+                    />
+                </div>
+                
+                <div className={styles.botonAnadir}>
+                    <button onClick={abrirPopup} className="fa-solid fa-plus"></button>
+                </div>
+                
+                <table className={styles.facturacionTabla}>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unit.</th>
+                            <th>Subtotal</th>
+                            <th>Borrar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {cargandoProductos ? (
+                            <tr>
+                                <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-tres)' }}>
+                                    <i className="fa fa-spinner fa-spin"></i>
+                                    <p>Cargando productos...</p>
+                                </td>
+                            </tr>
+                        ) : esperandoProducto ? (
+                            <tr>
+                                <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-tres)' }}>
+                                    <i className="fa fa-search fa-spin"></i>
+                                    <p>Esperando producto...</p>
+                                </td>
+                            </tr>
+                        ) : generandoFactura ? (
+                            <tr>
+                                <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-tres)' }}>
+                                    <i className="fa fa-cog fa-spin"></i>
+                                    <p>Generando factura...</p>
+                                </td>
+                            </tr>
+                        ) : productosFactura.length === 0 ? (
+                            <tr>
+                                <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-tres)' }}>
+                                    <i className="fas fa-inbox"></i>
+                                    <p>No hay productos en la factura</p>
+                                    <small>Use el botón "+" para agregar productos</small>
+                                </td>
+                            </tr>
+                        ) : (
+                            <>
+                                {productosFactura.map((producto) => (
+                                    <tr key={producto.id}>
+                                        <td>{producto.id.substring(producto.id.length - 6).toUpperCase()}</td>
+                                        <td>
+                                            <div>
+                                                <strong>{producto.nombre}</strong>
+                                                {producto.tipo_prenda && (
+                                                    <small style={{ display: 'block', color: 'var(--color-tres)' }}>
+                                                        {producto.tipo_prenda}
+                                                    </small>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span style={{ 
+                                                color: producto.cantidad > producto.stock ? 'red' : 'inherit',
+                                                fontWeight: producto.cantidad > producto.stock ? 'bold' : 'normal'
+                                            }}>
+                                                {producto.cantidad}
+                                            </span>
+                                            {producto.stock && (
+                                                <small style={{ display: 'block', color: 'var(--color-tres)' }}>
+                                                    Stock: {producto.stock}
+                                                </small>
+                                            )}
+                                        </td>
+                                        <td>${formatearPrecio(producto.precio)}</td>
+                                        <td style={{ fontWeight: 'bold' }}>
+                                            ${formatearPrecio(producto.precio * producto.cantidad)}
+                                        </td>
+                                        <td>
+                                            <button 
+                                                className="fa-solid fa-trash-can"
+                                                onClick={() => eliminarProducto(producto.id)}
+                                                title={`Eliminar ${producto.nombre}`}
+                                            ></button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {productosFactura.length > 0 && (
+                                    <tr style={{ 
+                                        backgroundColor: 'var(--color-cuatro)', 
+                                        fontWeight: 'bold',
+                                        borderTop: '2px solid var(--color-tres)'
+                                    }}>
+                                        <td colSpan="4" style={{ textAlign: 'right', fontSize: '16px' }}>
+                                            TOTAL:
+                                        </td>
+                                        <td style={{ fontSize: '18px', color: 'var(--color-uno)' }}>
+                                            ${formatearPrecio(calcularTotal())}
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                )}
+                            </>
+                        )}
+                    </tbody>
+                </table>
+                
+                <div className={styles.botonesFinales}>
+                    <button onClick={cancelarFactura} disabled={generandoFactura}>
+                        Cancelar
+                    </button>
+                    <button 
+                        onClick={generarFactura} 
+                        disabled={generandoFactura || productosFactura.length === 0}
+                    >
+                        {generandoFactura ? 'Generando...' : 'Generar'}
+                    </button>
+                </div>
+            </div>
+
+            {/* Popup para agregar productos */}
+            {showPopup && (
+                <div className={styles.popup} style={{ display: 'flex' }} onClick={cerrarPopup}>
+                    <div className={styles.popupContent} onClick={(e) => e.stopPropagation()}>
+                        <button 
+                            style={{ 
+                                position: 'absolute', 
+                                right: '15px', 
+                                top: '15px', 
+                                background: 'none', 
+                                border: 'none', 
+                                fontSize: '20px', 
+                                cursor: 'pointer',
+                                color: 'var(--color-uno)'
+                            }}
+                            onClick={cerrarPopup}
+                        >
+                            ×
+                        </button>
+
+                        <h3 style={{ marginBottom: '20px', color: 'var(--color-uno)' }}>
+                            Agregar Producto
+                        </h3>
+
+                        {/* Pestañas */}
+                        <div style={{ marginBottom: '20px' }}>
+                            <button
+                                style={{
+                                    padding: '8px 16px',
+                                    marginRight: '10px',
+                                    border: '2px solid var(--color-tres)',
+                                    borderRadius: '5px',
+                                    backgroundColor: activeTab === 'barcode' ? 'var(--color-tres)' : 'var(--color-dos)',
+                                    color: activeTab === 'barcode' ? 'var(--color-dos)' : 'var(--color-tres)',
+                                    cursor: 'pointer'
+                                }}
+                                onClick={() => setActiveTab('barcode')}
+                            >
+                                <i className="fas fa-barcode"></i> Código Barras
+                            </button>
+                            <button
+                                style={{
+                                    padding: '8px 16px',
+                                    border: '2px solid var(--color-tres)',
+                                    borderRadius: '5px',
+                                    backgroundColor: activeTab === 'id' ? 'var(--color-tres)' : 'var(--color-dos)',
+                                    color: activeTab === 'id' ? 'var(--color-dos)' : 'var(--color-tres)',
+                                    cursor: 'pointer'
+                                }}
+                                onClick={() => setActiveTab('id')}
+                            >
+                                <i className="fas fa-hashtag"></i> Por ID
+                            </button>
+                        </div>
+
+                        {/* Contenido según pestaña activa */}
+                        {activeTab === 'barcode' ? (
+                            <div>
+                                <p style={{ color: 'var(--color-tres)', marginBottom: '15px' }}>
+                                    {isListening ? (
+                                        <><i className="fas fa-barcode fa-spin"></i> Esperando código de barras...</>
+                                    ) : (
+                                        'Escanee el código o ingrese manualmente'
+                                    )}
+                                </p>
+                                
+                                <input
+                                    ref={barcodeInputRef}
+                                    type="text"
+                                    placeholder="Código de barras"
+                                    value={barcodeInput}
+                                    onChange={(e) => handleBarcodeInput(e.target.value)}
+                                    onKeyPress={(e) => {
+                                        if (e.key === 'Enter') {
+                                            buscarProducto();
+                                        }
+                                    }}
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px',
+                                        border: '2px solid var(--color-tres)',
+                                        borderRadius: '5px',
+                                        marginBottom: '15px',
+                                        fontSize: '16px'
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            <div>
+                                <p style={{ color: 'var(--color-tres)', marginBottom: '15px' }}>
+                                    Ingrese el ID del producto (últimos 6 caracteres)
+                                </p>
+                                
+                                <input
+                                    type="text"
+                                    placeholder="ID del producto"
+                                    value={productId}
+                                    onChange={(e) => setProductId(e.target.value)}
+                                    onKeyPress={(e) => {
+                                        if (e.key === 'Enter') {
+                                            buscarProducto();
+                                        }
+                                    }}
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px',
+                                        border: '2px solid var(--color-tres)',
+                                        borderRadius: '5px',
+                                        marginBottom: '15px',
+                                        fontSize: '16px'
+                                    }}
+                                />
+                            </div>
+                        )}
+
+                        {/* Botones de acción */}
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                            <button
+                                onClick={buscarProducto}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: 'var(--color-tres)',
+                                    color: 'var(--color-dos)',
+                                    border: 'none',
+                                    borderRadius: '5px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                <i className="fas fa-search"></i> Buscar
+                            </button>
+                            <button
+                                onClick={cerrarPopup}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: 'var(--color-cuatro)',
+                                    color: 'var(--color-uno)',
+                                    border: '2px solid var(--color-tres)',
+                                    borderRadius: '5px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+
+                        <div style={{ marginTop: '15px', fontSize: '12px', color: 'var(--color-tres)' }}>
+                            💡 El lector de código de barras se detecta automáticamente
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Popup de error personalizado */}
+            {showErrorPopup && (
+                <div className={styles.popup} style={{ display: 'flex' }} onClick={cerrarErrorPopup}>
+                    <div className={styles.popupContent} onClick={(e) => e.stopPropagation()}>
+                        <button 
+                            style={{ 
+                                position: 'absolute', 
+                                right: '15px', 
+                                top: '15px', 
+                                background: 'none', 
+                                border: 'none', 
+                                fontSize: '20px', 
+                                cursor: 'pointer',
+                                color: 'var(--color-uno)'
+                            }}
+                            onClick={cerrarErrorPopup}
+                        >
+                            ×
+                        </button>
+
+                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                            <i className="fas fa-exclamation-triangle" style={{ 
+                                fontSize: '48px', 
+                                color: '#ff6b6b', 
+                                marginBottom: '15px' 
+                            }}></i>
+                            <h3 style={{ color: 'var(--color-uno)', marginBottom: '10px' }}>
+                                {errorTitle}
+                            </h3>
+                            <p style={{ color: 'var(--color-tres)', lineHeight: '1.4' }}>
+                                {errorMessage}
+                            </p>
+                        </div>
+
+                        <button
+                            onClick={cerrarErrorPopup}
+                            style={{
+                                padding: '10px 20px',
+                                backgroundColor: 'var(--color-tres)',
+                                color: 'var(--color-dos)',
+                                border: 'none',
+                                borderRadius: '5px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                                fontSize: '16px'
+                            }}
+                        >
+                            Entendido
+                        </button>
+                    </div>
+                </div>
+            )}
+        </Fragment>
+    );
+};
+
+export default Facturacion;

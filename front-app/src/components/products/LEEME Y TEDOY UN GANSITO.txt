@@ -1,0 +1,5 @@
+edit_product
+
+inventory
+
+registro_product (producto)

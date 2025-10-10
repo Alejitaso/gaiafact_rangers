@@ -1,0 +1,141 @@
+/* === Contenedor principal === */
+.listado-container { /* Renombrado de .perfil-container a .listado-container */
+    width: 100%;
+    max-width: 1100px; /* Aumentamos el ancho para la tabla */
+    margin: 40px auto;
+    background: linear-gradient(135deg, var(--color-uno) 0%, var(--color-tres) 100%);
+    padding: 40px;
+    border-radius: 20px;
+    color: var(--color-dos);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    min-height: 500px; 
+}
+
+/* === Título === */
+.listado-container h1 {
+    text-align: center;
+    color: var(--color-dos);
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* === Contenedor de la Tabla (Similar a .info-perfil) === */
+.tabla-wrapper { 
+    overflow-x: auto; 
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 20px;
+}
+
+/* === Estilos de Tabla === */
+.tabla-usuarios {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0; 
+    min-width: 700px; /* Asegura un ancho mínimo para la tabla */
+}
+
+.tabla-usuarios th, 
+.tabla-usuarios td {
+    padding: 12px 15px;
+    text-align: left;
+    color: var(--color-dos); 
+    font-size: 0.95rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Estilo para la cabecera (Thead) */
+.tabla-usuarios th {
+    background: rgba(0, 0, 0, 0.1); 
+    color: var(--color-cuatro);
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Estilo para filas impares (opcional, para mejor legibilidad) */
+.tabla-usuarios tbody tr:nth-child(odd) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Estilo al pasar el ratón por la fila */
+.tabla-usuarios tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transition: background-color 0.3s ease;
+}
+
+/* === Botones externos (Crear Usuario, Recargar, etc.) === */
+.botones-container {
+    display: flex;
+    justify-content: flex-start;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: 2px solid var(--color-tres);
+    border-radius: 10px;
+    background: white;
+    color: var(--color-tres);
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.btn:hover {
+    background: var(--color-tres);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* 💥 ACTUALIZACIÓN: Estilo para botones de acción en la tabla (Ver Perfil) */
+.action-btn-primary {
+    padding: 6px 12px; /* Más pequeño que el botón principal */
+    border: 2px solid var(--color-tres); /* Borde con color principal */
+    border-radius: 8px;
+    background-color: white; /* Fondo blanco */
+    color: var(--color-tres); /* Texto con color principal */
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.action-btn-primary:hover {
+    background-color: var(--color-tres);
+    color: white;
+    transform: translateY(-1px);
+}
+
+
+/* === Responsive === */
+@media (max-width: 1150px) {
+    .listado-container {
+        margin: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .listado-container {
+        padding: 25px 15px;
+    }
+
+    .listado-container h1 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 500px) {
+    .botones-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .btn {
+        width: 100%;
+    }
+}

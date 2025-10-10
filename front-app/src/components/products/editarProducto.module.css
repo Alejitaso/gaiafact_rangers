@@ -1,0 +1,193 @@
+/* Contenido del formulario */
+.register-form,
+.registerForm {
+    background-color: var(--color-uno);
+    margin: 3% 20%;
+    padding: 60px 70px;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+.register-form input[type="text"],
+.registerForm input[type="text"],
+.register-form input[type="number"],
+.registerForm input[type="number"],
+.textarea1 {
+    width: calc(100% - 30px);
+    padding: 14px 15px;
+    border: 1px solid rgba(142, 155, 232, 0.6);
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.9);
+    margin: 12px 0;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    color: var(--color-uno);
+    transition: all 0.3s ease;
+}
+
+.register-form input[type="text"]::placeholder,
+.registerForm input[type="text"]::placeholder,
+.textarea1::placeholder {
+    color: rgba(37, 68, 84, 0.5);
+}
+
+.register-form input[type="text"]:focus,
+.registerForm input[type="text"]:focus,
+.register-form input[type="number"]:focus,
+.registerForm input[type="number"]:focus,
+.textarea1:focus {
+    border-color: var(--color-tres);
+    box-shadow: 0 0 12px rgba(142, 155, 232, 0.8);
+    background-color: var(--color-dos);
+    outline: none;
+}
+
+.register-form select,
+.registerForm select {
+    width: 100%;
+    padding: 14px 15px;
+    border: 1px solid rgba(142, 155, 232, 0.6);
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.9);
+    margin: 12px 0;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    color: var(--color-uno);
+    transition: all 0.3s ease;
+    appearance: none;
+    background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 4 5%22%3E%3Cpath fill=%22%23254454%22 d=%22M2 0L0 2h4L2 0zM2 5L0 3h4L2 5z%22/%3E%3C/svg%3E');
+    background-repeat: no-repeat;
+    background-position: right 0.7em center;
+    background-size: 0.65em auto;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.register-form select:focus,
+.registerForm select:focus {
+    border-color: var(--color-tres);
+    box-shadow: 0 0 12px rgba(142, 155, 232, 0.8);
+    background-color: var(--color-dos);
+    outline: none;
+}
+
+/* Botones */
+.botons {
+    text-align: center;
+    margin-top: 5%;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.botons button {
+    background-color: var(--color-dos);
+    color: var(--color-uno);
+    padding: 12px 25px;
+    border: 2px solid var(--color-tres);
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.botons button:hover {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    border-color: var(--color-uno);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Popup */
+#popup,
+.popup {
+    display: flex;
+    position: fixed;
+    z-index: 2000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.popup-container,
+.popupContainer {
+    position: relative;
+    background-color: #f0f4f8;
+    border-radius: 25px;
+    padding: 30px;
+    margin-left: 4.2%;
+    max-width: 400px;
+    width: 20%;
+    height: 24%;
+    transform: scale(0.9);
+    animation: popup-bounce 0.3s ease-out forwards;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+    flex-direction: column;
+    justify-content: center;
+}
+
+.popup-container p,
+.popupContainer p {
+    text-align: center;
+    padding: 10%;
+    font-size: 160%;
+    font-weight: lighter;
+    color: var(--color-uno);
+    margin-top: -5%;
+}
+
+.popup-container button,
+.popupContainer button {
+    display: block;
+    padding: 12px 25px;
+    background-color: var(--color-uno);
+    color: var(--color-dos);
+    border: 2px solid var(--color-tres);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 18px;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+    margin: 0 auto;
+    margin-top: -14%;
+}
+
+.popup-container button:hover,
+.popupContainer button:hover {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    border-color: var(--color-uno);
+    transform: translateY(-1px);
+}
+
+/* Animación */
+@keyframes popup-bounce {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .popup-container,
+    .popupContainer {
+        width: 90%;
+        padding: 20px;
+    }
+}

@@ -1,0 +1,262 @@
+/* contenedor principal de facturacion */
+.facturacionContainer {
+    width: 90%;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: var(--color-uno);
+    border-radius: 12px;
+    color: white;
+}
+
+/* formulario de facturacion */
+.facturacionForm {
+    background-color: #f0f4f8;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+/* campos de entrada */
+.facturacionForm input {
+    padding: 10px;
+    border: 2px solid var(--color-tres);
+    border-radius: 6px;
+    font-size: 14px;
+    width: calc(50% - 15px);
+    box-sizing: border-box;
+}
+
+/* estilo para el select */
+.facturacionForm select {
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid var(--color-tres);
+    font-size: 16px;
+    width: calc(50% - 15px);
+    background-color: var(--color-dos);
+    color: var(--color-tres);
+    box-sizing: border-box;
+}
+
+/* tabla para productos */
+.facturacionTabla {
+    width: 100%;
+    background-color: #f0f4f8;
+    /* QUITAMOS border-collapse para poder usar border-radius */
+    border-radius: 10px; /* Bordes redondeados */
+    border-spacing: 0; /* Eliminar espacio entre celdas */
+    margin-bottom: 30px;
+    overflow: hidden; /* Para que los bordes redondeados funcionen bien */
+}
+
+/* celdas de la tabla */
+.facturacionTabla th,
+.facturacionTabla td {
+    border: 2px solid var(--color-tres); /* Borde similar al formulario */
+    border-bottom: none; /* Quitamos borde inferior para que se vea como un solo bloque */
+    padding: 10px;
+    text-align: center;
+    color: black !important;
+}
+
+/* celdas del final para que tengan borde inferior */
+.facturacionTabla tr:last-child td {
+    border-bottom: 2px solid var(--color-tres);
+}
+
+/* encabezado de la tabla */
+.facturacionTabla th {
+    background-color: var(--color-dos); /* Fondo claro similar al select */
+}
+
+/* celdas de la tabla */
+.facturacionTabla tbody tr td button {
+    font-size: 32px;
+    cursor: pointer;
+    background-color: transparent;
+    color: var(--color-uno);
+    padding: 15px 20px;
+    border: none;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+.facturacionTabla tbody tr td button:hover {
+    color: var(--color-tres);
+    transform: translateY(-2px);
+}
+
+/* botón de añadir */
+.botonAnadir {
+    margin-bottom: 30px;
+}
+
+.botonAnadir button {
+    background-color: var(--color-dos);
+    color: var(--color-uno);
+    padding: 12px 25px;
+    border: 2px solid var(--color-tres);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+/* efecto hover en boton de añadir */
+.botonAnadir button:hover {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    border-color: var(--color-uno);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* contenedor de los botones finales */
+.botonesFinales {
+    display: flex;
+    justify-content: space-between;
+    width: 300px;
+    margin: 0 auto;
+}
+
+/* estilo base del boton */
+.botonesFinales button {
+    background-color: var(--color-dos);
+    color: var(--color-uno);
+    padding: 12px 25px;
+    border: 2px solid var(--color-tres);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+/* efecto hover en boton */
+.botonesFinales button:hover {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    border-color: var(--color-uno);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos para popup */
+.popup {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+    justify-content: center;
+    align-items: center;
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+    border-radius: 0px;
+}
+
+/* contenido principal del popup */
+.popupContent {
+    position: relative;
+    background-color: var(--color-dos);
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 30px;
+    width: 320px;
+    text-align: center;
+    color: var(--color-uno);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.errorContent{
+    width: 60px;
+    margin-top: 10px;
+    padding: 8px;
+    border: 2px solid var(--color-tres);
+    border-radius: 6px;
+    font-size: 14px;
+    width: 80%;
+    box-sizing: border-box;
+}
+
+/* borde decorativo dentro del popup */
+.popupContent::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    border-radius: 25px;
+    border: 3px solid var(--color-tres);
+    pointer-events: none;
+}
+
+/* quitar margen al texto del popup */
+.popupContent p {
+    margin: 0;
+}
+
+/* popup de error */
+.errorContent {
+    background-color: var(--color-dos);
+    color: var(--color-siete);
+    font-size: 24px;
+    padding: 30px 40px;
+    line-height: 1.4;
+    display: grid;
+    justify-content: space-around;
+}
+
+
+
+/* boton del popup */
+.popupContent button {
+    background-color: var(--color-uno);
+    color: var(--color-dos);
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 20px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* efecto hover en boton del popup */
+.popupContent button:hover {
+    background-color: var(--color-ocho);
+    color: var(--color-dos);
+}
+
+/* animacion de entrada del popup */
+@keyframes popup-bounce {
+    0% {
+        transform: scale(0.7);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+    }
+}

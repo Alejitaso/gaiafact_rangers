@@ -1,0 +1,264 @@
+/*clase que avarca todo el contenido del formulario*/
+.recoveryform {
+    background-color: var(--color-uno); 
+    padding: 30px 40px; 
+    border-radius: 20px; 
+    width: 100%; 
+    max-width: 400px;   
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    margin: 0 auto;
+    display: block;
+    color: var(--color-dos);
+    margin-top: 60px;
+}
+
+.recoveryform h2{
+    text-align: center;
+}
+
+.linea-s{
+    /* Degradado sutil para la barra superior, de tus azules */
+    background-image: linear-gradient(to right, var(--color-uno), var(--color-tres));
+    height: 30px; /* Ajuste de altura para ser más visible */
+    display: flex; /* Usar flexbox para centrar contenido si lo hubiera */
+    align-items: center;
+    padding: 0 25px; /* Padding horizontal para el contenido */
+    box-shadow: 0 1px 5px rgba(0,0,0,0.2); /* Sombra sutil */
+}
+
+/* ingresar correo electronico*/
+.recoveryform input {
+    border: 1px solid var(--color-cinco); 
+    border-radius: 6px; 
+    background-color: var(--color-dos); 
+    margin: 0 auto; 
+    font-family: Arial, Helvetica, sans-serif; 
+    color: var(--color-uno); 
+    padding: 8px; 
+    width: 90%; 
+    height: 30px; 
+    display: block; 
+}
+
+/* Fondo negro transparente que cubre toda la pantalla */
+#popup {
+    display: flex; 
+    position: fixed; 
+    z-index: 2000; 
+    top: 0; left: 0; width: 100%; height: 100%; 
+    justify-content: center; 
+    align-items: center; 
+    background-color: rgba(0, 0, 0, 0.5); 
+}
+
+/* Contenedor central del popup */
+.popupcontainer {
+    background-color: var(--color-dos);
+    margin: 0 auto;
+    display: block;
+    border-radius: 25px; 
+    padding: 30px; 
+    margin-left: 4.2%; 
+    max-width: 400px; 
+    width: 80%; 
+    height: 50%; 
+    transform: scale(0.9); 
+    animation: popup-bounce 0.3s ease-out forwards; 
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3); 
+}
+
+/* texto del popup*/
+.popupcontainer p {
+    text-align: center; 
+    font-size: 160%; 
+    font-weight: lighter; 
+    color: var(--color-uno); 
+}
+
+/* Borde interior decorativo del popup */
+.popupcontainer::before {
+    content: ''; 
+    position: absolute; 
+    top: 30px; left: 30px; right: 30px; bottom: 30px; 
+    border-radius: 15px; 
+    border: 2px solid #154b5a; 
+    pointer-events: none; 
+}
+
+/* Animación de entrada para el popup */
+@keyframes popup-bounce {
+    0% {
+        transform: scale(0.8); 
+        opacity: 0; 
+    }
+    60% {
+        transform: scale(1.05); 
+        opacity: 1; 
+    }
+    100% {
+        transform: scale(1); 
+    }
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 480px) {
+    .popup-container {
+        width: 90%; 
+        padding: 20px; 
+    }
+}
+
+/* boton de enviar */
+.boton button {
+    padding: 12px 25px; 
+    background-color: var(--color-dos); 
+    color: var(--color-uno); 
+    border: 2px solid var(--color-tres); 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-weight: bold; 
+    font-size: 18px; 
+    margin: 0 auto; 
+    display: block;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease; 
+    margin-top: 25px;
+}
+
+/* Hover del botón: cambia fondo y texto */
+.recoveryform button:hover {
+    background-color: var(--color-tres); 
+    color: var(--color-dos); 
+}
+
+/* redirecionamiento a inicio de sesion */
+.recoveryform a {
+    color: var(--color-cuatro); 
+}
+
+/* redirecionamiento a inicio de sesion */
+.recoveryform a:hover {
+    color: var(--color-cinco); 
+}
+
+/* input del form */
+.recoveryform input[type="email"]:focus {
+    border-color: var(--color-tres); 
+    box-shadow: 0 0 12px var(--color-cinco); 
+    background-color: var(--color-dos); 
+    outline: none; 
+}
+
+
+
+/* Línea decorativa */
+.linea {
+    background-image: linear-gradient(to right, var(--color-tres), var(--color-cinco));
+    height: 3px;
+    width: 80%;
+    margin: 50px auto 10px auto;
+    border-radius: 2px;
+    opacity: 0.8;
+}
+
+
+/* Copyright section - integrado y elegante */
+.copyright {
+    text-align: center;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+}
+
+/*edita el texto del copyright*/
+.copyright h2 {
+    color: var(--color-uno);
+    margin: 0;
+    font-size: 16px;
+    opacity: 0.9;
+    text-shadow: 0.5px 0.5px 1px rgba(255,255,255,0.2);
+}
+
+/* pie de pagina */
+.footer {
+    height: 0;
+}
+
+/* informacion de contecto en slider */
+.contact-info {
+    padding: 15px 25px;
+    color: var(--color-dos);
+    font-size: 14px;
+    opacity: 0; 
+    max-height: 0; 
+    overflow: hidden;
+    transition: opacity 0.4s ease-in-out, max-height 0.4s ease-in-out;
+}
+
+/* informacion de contacto con slider extendido*/
+.contact-info.expanded {
+    opacity: 1;
+    max-height: 200px; 
+}
+
+/* texto de informacion de contacto */
+.contact-info p {
+    margin: 5px 0;
+}
+
+/* links para otras pantallas*/
+.contact-info a {
+    color: var(--color-cuatro);
+    text-decoration: none;
+}
+
+/* hover de vinculologo para toras pantallas */
+.contact-info a:hover {
+    text-decoration: underline;
+}
+
+/*responsive para pantallas pequeñas*/
+@media (max-width: 767px) {
+    .recoveryform input[type="email"] {
+        width: 90%;
+        margin-left: 0;
+        margin-top: 0;
+    }
+
+    .recoveryform {
+        gap: 10px;
+    }
+
+    .recoveryform button {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 15px;
+    }
+
+    .logitos {
+        margin-left: 0;
+        margin-top: 5px;
+    }
+
+    .recoveryform {
+        padding: 20px;
+    }
+
+    .content {
+        padding: 0;
+        width: 100%;
+        margin-top: 10%;
+    }
+
+    .linea {
+        width: 70%;
+        margin-left:25%;
+    }
+
+    .copyright{
+        margin-left:20%;
+    }
+}
+
+

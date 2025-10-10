@@ -1,0 +1,288 @@
+/* Caja de inicio de sesión */
+.loginbox {
+    background-color: #254454; 
+    
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);  
+    padding: 40px; 
+    border-radius: 20px; 
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    max-width: 400px; 
+    width: 100%; 
+    text-align: center; 
+    color: var(--color-dos); 
+    margin: 0 auto;
+    display: block;
+    margin-top: 70px;
+}
+
+/* Título del formulario de login */
+.loginbox h2 {
+    margin-bottom: 10px; 
+    color: var(--color-dos); 
+}
+
+/* Texto debajo del título (como "¿No estás registrado?") */
+.loginbox p {
+    margin-bottom: 30px; 
+    font-size: 14px; 
+    color: var(--color-dos); 
+}
+
+/* Enlaces dentro del login-box */
+.loginbox a {
+    color: var(--color-cinco);
+    text-decoration: none; 
+    font-weight: bold; 
+}
+
+/*hipervinculo recuperacion de contraseña*/
+.link {
+    transition: text-decorration 0.3s ease;
+    cursor: pointer;
+}
+
+/*hoverhipervinculo recuperacion de contraseña*/
+.link:hover {
+    text-decoration: underline;
+    color: var(--color-cinco);
+}
+
+/* Formulario de login */
+.loginform {
+    display: grid; 
+    gap: 15px; 
+    text-align: left;
+}
+
+/* Etiquetas de los campos de formulario */
+.loginform label {
+    font-weight: bold; 
+    color: var(--color-dos); 
+    font-size: 14px; 
+    margin-bottom: 20px;
+}
+
+
+/* Placeholders */
+.loginform input::placeholder {
+    color: var(--color-ocho); 
+}
+
+/* Campo enfocado brillo simulado*/
+.loginform input[type="email"]:focus,
+.loginform input[type="password"]:focus {
+    border-color: var(--color-tres); 
+    box-shadow: 0 0 12px var(--color-cinco); 
+    background-color: var(--color-dos); 
+    outline: none;
+}
+
+/* estilo de inputs*/
+
+.loginform input[type="password"], .loginform input[type="text"] {
+    padding: 14px 15px;
+    border: 1px solid var(--color-cinco);
+    border-radius: 6px;
+    background-color: var(--color-dos);
+    margin: 12px 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--color-uno);
+    transition: all 0.3s ease;
+    width: 280px;
+    margin-left: 70px;
+    font-size: 16px;
+}
+
+.contrasegnaContainer{
+    margin-top: -65px;
+    .IconoContrasegna{
+        margin-top: 5.4%;
+    }
+}
+
+.IconoContrasegna{
+    cursor: pointer;
+    color: var(--color-cinco);
+    font-size: 20px;
+    position: absolute;
+    margin-left: 69%;
+    transition: color 0.3s ease;
+}
+
+.loginform input[type="email"]{
+    padding: 14px 15px;
+    border: 1px solid var(--color-cinco);
+    border-radius: 6px;
+    background-color: var(--color-dos);
+    margin: 12px 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--color-uno);
+    transition: all 0.3s ease;
+    width: 280px;
+    margin-left: 70px;
+    margin-top: -56px;
+    font-size: 16px;
+}
+
+/* Enlace para recuperación de contraseña */
+.forgotpassword {
+    font-size: 13px; 
+    text-align: left; 
+    margin-top: -8px; 
+    margin-bottom: 8px;
+}
+
+/* Botón de login */
+.loginform button {
+    background-color: var(--color-dos); 
+    border: 2px solid var(--color-tres); 
+    color: var(--color-tres); 
+    padding: 12px 25px; 
+    font-size: 18px; 
+    font-weight: bold;
+    border-radius: 8px; 
+    cursor: pointer; 
+    margin-top: 10%;
+    width: 50%; 
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease; 
+    margin-left: 25%; 
+}
+
+/* Efecto hover en el botón */
+.loginform button:hover {
+    background-color: var(--color-ocho); 
+    color: var(--color-dos); 
+}
+
+/* Mensaje de error visible al fallar el login */
+#error-message {
+    margin-top: 20px; 
+    font-size: 19px; 
+    color: var(--color-seis); 
+}
+
+/* Contador de bloqueo */
+#countdown {
+    font-weight: bold; 
+    color: var(--color-seis); 
+}
+
+/* Espaciado para ícono de usuario */
+.logog {
+    padding-top:10px;
+    padding-bottom: 25px;
+}
+
+/* Espaciado de íconos pequeños */
+.logitos {
+    margin-left: 10px;
+    margin-top: 10px;     
+}
+
+/* Línea decorativa del footer */
+.linea {
+    background-image: linear-gradient(to right, var(--color-tres), var(--color-cinco));
+    height: 3px;
+    width: 80%;
+    margin: 50px auto 10px auto;
+    border-radius: 2px;
+    opacity: 0.8;
+}
+
+/* Sección de derechos de autor */
+.copyright {
+    text-align: center;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+}
+
+/* Estilo de texto del copyright */
+.copyright h2 {
+    color: var(--color-uno);
+    margin: 0;
+    font-size: 16px;
+    opacity: 0.9;
+    text-shadow: 0.5px 0.5px 1px rgba(255,255,255,0.2);
+}
+
+/* Altura inicial del footer */
+.footer {
+    height: 0;
+}
+
+/* Información de contacto del sidebar */
+.contact-info {
+    padding: 15px 25px; 
+    color: var(--color-dos); 
+    font-size: 14px; 
+    opacity: 0; 
+    max-height: 0; 
+    overflow: hidden; 
+    transition: opacity 0.4s ease-in-out, max-height 0.4s ease-in-out; 
+}
+
+/* Cuando el contacto está expandido */
+.contact-info.expanded {
+    opacity: 1; 
+    max-height: 200px; 
+}
+
+/* Espaciado entre líneas de texto de contacto */
+.contact-info p {
+    margin: 5px 0;
+}
+
+/* Enlaces dentro de contacto */
+.contact-info a {
+    color: var(--color-cuatro); 
+    text-decoration: none;
+}
+
+/* Hover en enlaces de contacto */
+.contact-info a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+    .loginform input[type="email"],
+    .loginform input[type="password"] {
+        width: 90%;
+        margin-left: 0;
+        margin-top: 0;
+    }
+
+    .loginform {
+        gap: 10px;
+    }
+
+    .loginform button {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 15px;
+    }
+
+    .logitos {
+        margin-left: 0;
+        margin-top: 5px;
+    }
+
+    .loginbox {
+        padding: 20px;
+    }
+
+    .content {
+        padding: 0;
+        width: 100%;
+        margin-top: 10%;
+    }
+}
+
+
+
+
+
+
