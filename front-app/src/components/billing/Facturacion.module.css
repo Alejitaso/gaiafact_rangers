@@ -47,18 +47,17 @@
 .facturacionTabla {
     width: 100%;
     background-color: #f0f4f8;
-    /* QUITAMOS border-collapse para poder usar border-radius */
-    border-radius: 10px; /* Bordes redondeados */
-    border-spacing: 0; /* Eliminar espacio entre celdas */
+    border-radius: 10px;
+    border-spacing: 0;
     margin-bottom: 30px;
-    overflow: hidden; /* Para que los bordes redondeados funcionen bien */
+    overflow: hidden;
 }
 
 /* celdas de la tabla */
 .facturacionTabla th,
 .facturacionTabla td {
-    border: 2px solid var(--color-tres); /* Borde similar al formulario */
-    border-bottom: none; /* Quitamos borde inferior para que se vea como un solo bloque */
+    border: 2px solid var(--color-tres);
+    border-bottom: none;
     padding: 10px;
     text-align: center;
     color: black !important;
@@ -71,7 +70,7 @@
 
 /* encabezado de la tabla */
 .facturacionTabla th {
-    background-color: var(--color-dos); /* Fondo claro similar al select */
+    background-color: var(--color-dos);
 }
 
 /* celdas de la tabla */
@@ -107,7 +106,6 @@
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
 }
 
-/* efecto hover en boton de añadir */
 .botonAnadir button:hover {
     background-color: var(--color-tres);
     color: var(--color-dos);
@@ -137,7 +135,6 @@
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
 }
 
-/* efecto hover en boton */
 .botonesFinales button:hover {
     background-color: var(--color-tres);
     color: var(--color-dos);
@@ -145,6 +142,10 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
+
+/* ========================================
+   ESTILOS PARA POPUP
+   ======================================== */
 
 /* Estilos para popup */
 .popup {
@@ -156,7 +157,7 @@
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0, 0, 0, 0.4);
     justify-content: center;
     align-items: center;
     -webkit-backdrop-filter: blur(5px);
@@ -170,26 +171,29 @@
     background-color: var(--color-dos);
     margin: 10% auto;
     padding: 30px;
-    border-radius: 30px;
-    width: 320px;
+    border-radius: 20px;
+    width: 380px;
     text-align: center;
     color: var(--color-uno);
-    box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    border: 2px solid var(--color-tres);
+    animation: popupSlideIn 0.3s ease-out;
 }
 
-.errorContent{
-    width: 60px;
-    margin-top: 10px;
-    padding: 8px;
-    border: 2px solid var(--color-tres);
-    border-radius: 6px;
-    font-size: 14px;
-    width: 80%;
-    box-sizing: border-box;
+/* Animación de entrada */
+@keyframes popupSlideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 /* borde decorativo dentro del popup */
@@ -200,63 +204,296 @@
     left: 15px;
     right: 15px;
     bottom: 15px;
-    border-radius: 25px;
-    border: 3px solid var(--color-tres);
+    border-radius: 15px;
+    border: 2px solid var(--color-tres);
     pointer-events: none;
 }
 
-/* quitar margen al texto del popup */
+/* Título del popup */
+.popupContent h3 {
+    color: var(--color-uno);
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: bold;
+    position: relative;
+    z-index: 1;
+}
+
+/* Párrafos dentro del popup */
 .popupContent p {
     margin: 0;
+    color: var(--color-tres);
+    font-size: 14px;
+    position: relative;
+    z-index: 1;
 }
 
-/* popup de error */
+/* ========================================
+   PESTAÑAS DEL POPUP
+   ======================================== */
+
+.popupTabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+    justify-content: center;
+}
+
+.popupTabButton {
+    padding: 8px 16px;
+    border: 2px solid var(--color-tres);
+    border-radius: 8px;
+    background-color: var(--color-dos);
+    color: var(--color-tres);
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.popupTabButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.popupTabButton.active {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+}
+
+/* ========================================
+   INPUTS Y CONTENIDO DEL POPUP
+   ======================================== */
+
+.popupInputContainer {
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 15px;
+}
+
+.popupInput {
+    width: 8    0%;
+    padding: 12px;
+    border: 2px solid var(--color-tres);
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    background-color: white;
+    color: var(--color-uno);
+    box-sizing: border-box;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.popupInput::placeholder {
+    color: #a0aec0;
+}
+
+.popupInput:focus {
+    outline: none;
+    border-color: var(--color-uno);
+    box-shadow: 0 0 0 3px rgba(39, 97, 119, 0.1);
+}
+
+.popupLabel {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--color-uno);
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.popupNumberInput {
+    width: 80px;
+    padding: 8px;
+    border: 2px solid var(--color-tres);
+    border-radius: 6px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* ========================================
+   BOTONES DEL POPUP
+   ======================================== */
+
+.popupButtonsContainer {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.popupButton {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.popupButtonPrimary {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+}
+
+.popupButtonPrimary:hover {
+    background-color: #1e4d5f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(39, 97, 119, 0.3);
+}
+
+.popupButtonSecondary {
+    background-color: var(--color-cuatro);
+    color: var(--color-uno);
+    border: 2px solid var(--color-tres);
+}
+
+.popupButtonSecondary:hover {
+    background-color: rgba(39, 97, 119, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(39, 97, 119, 0.2);
+}
+
+/* Botón cerrar X */
+.popupCloseButton {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--color-uno);
+    z-index: 10;
+    transition: color 0.3s ease;
+    padding: 5px;
+}
+
+.popupCloseButton:hover {
+    color: var(--color-tres);
+}
+
+/* ========================================
+   ESTILO PARA INFO EN POPUP
+   ======================================== */
+
+.popupInfo {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+}
+
+.popupInfoItem {
+    text-align: left;
+    margin: 8px 0;
+    color: #5a6c7d;
+    font-size: 14px;
+}
+
+.popupInfoItem strong {
+    color: var(--color-uno);
+    font-weight: 600;
+}
+
+.popupMessage {
+    color: var(--color-tres);
+    font-size: 12px;
+    margin-top: 15px;
+    position: relative;
+    z-index: 1;
+}
+
+/* ========================================
+   POPUP DE ERROR
+   ======================================== */
+
 .errorContent {
     background-color: var(--color-dos);
-    color: var(--color-siete);
-    font-size: 24px;
-    padding: 30px 40px;
+    color: #ff6b6b;
+    font-size: 48px;
+    padding: 20px;
     line-height: 1.4;
-    display: grid;
-    justify-content: space-around;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 20px;
 }
 
-
-
-/* boton del popup */
-.popupContent button {
-    background-color: var(--color-uno);
-    color: var(--color-dos);
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
+.errorTitle {
+    color: var(--color-uno);
+    margin: 10px 0;
+    font-size: 20px;
     font-weight: bold;
+    position: relative;
+    z-index: 1;
+}
+
+.errorMessage {
+    color: var(--color-tres);
+    line-height: 1.6;
+    font-size: 14px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Botón del popup (general) */
+.popupConfirmButton {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
     margin-top: 20px;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: all 0.3s ease;
     display: block;
     margin-left: auto;
     margin-right: auto;
+    position: relative;
+    z-index: 1;
 }
 
-/* efecto hover en boton del popup */
-.popupContent button:hover {
-    background-color: var(--color-ocho);
-    color: var(--color-dos);
+.popupConfirmButton:hover {
+    background-color: #1e4d5f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(39, 97, 119, 0.3);
 }
 
-/* animacion de entrada del popup */
-@keyframes popup-bounce {
-    0% {
-        transform: scale(0.7);
-        opacity: 0;
+/* Responsive */
+@media (max-width: 768px) {
+    .popupContent {
+        width: 90%;
+        margin: 20% auto;
+        padding: 20px;
     }
-    50% {
-        transform: scale(1.05);
-        opacity: 1;
+
+    .facturacionForm input,
+    .facturacionForm select {
+        width: calc(100% - 15px);
     }
-    100% {
-        transform: scale(1);
+
+    .botonesFinales {
+        width: 100%;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .botonesFinales button {
+        width: 100%;
+    }
+
+    .popupTabButton {
+        font-size: 12px;
+        padding: 6px 12px;
     }
 }
