@@ -1,4 +1,4 @@
-
+/* Estilos base del componente */
 .content {
     margin-top: 5%;
     display: flex;
@@ -20,7 +20,6 @@
     font-family: 'Segoe UI', 'Roboto', sans-serif;
     color: var(--color-uno);
     transition: all 0.3s ease;
-    
 }
 
 .form input[type="text"]::placeholder {
@@ -51,31 +50,26 @@
     position: relative;
 }
 
-
-
-/* Adaptado a los nuevos nombres */
 .campo label {
     color: var(--color-dos);
 }
 
 .campo {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
 .qr {
-  background-color: var(--color-dos);
-  height: 100%;
-  padding: 35px 40px;
-  margin: 15px 0;
-  border-radius: 20px;
-  width: 90%;
-  justify-content: center;
-  display: flex;
+    background-color: var(--color-dos);
+    height: 100%;
+    padding: 35px 40px;
+    margin: 15px 0;
+    border-radius: 20px;
+    width: 90%;
+    justify-content: center;
+    display: flex;
 }
-
-
 
 .botones {
     display: flex;
@@ -108,3 +102,432 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
+
+.botones button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.botones button:disabled:hover {
+    background-color: var(--color-dos);
+    color: var(--color-uno);
+    transform: none;
+    box-shadow: none;
+}
+
+/* Estilos para agrupación de productos */
+.grupoProducto {
+    background-color: white;
+    border: 2px solid var(--color-tres);
+    border-radius: 12px;
+    padding: 15px;
+    min-width: 250px;
+    max-width: 300px;
+}
+
+.headerGrupo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--color-cuatro);
+}
+
+.cantidadBadge {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.btnEliminarTodos {
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btnEliminarTodos:hover {
+    background-color: #cc0000;
+    transform: scale(1.05);
+}
+
+.listaItems {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-cuatro);
+}
+
+.itemTag {
+    background-color: var(--color-cuatro);
+    color: var(--color-uno);
+    border: 1px solid var(--color-tres);
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.itemTag:hover {
+    background-color: #ff4444;
+    color: white;
+    border-color: #ff4444;
+}
+
+.previsualizacion {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    width: 100%;
+}
+
+.codigoPreview {
+    text-align: center;
+    padding: 15px;
+    background-color: white;
+    border-radius: 8px;
+    min-width: 200px;
+    position: relative;
+}
+
+.nombreProducto {
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--color-uno);
+    margin-bottom: 10px;
+    word-wrap: break-word;
+}
+
+.codigoPreview img {
+    max-width: 100%;
+    height: auto;
+    margin: 10px 0;
+}
+
+.codigoNumero {
+    font-size: 11px;
+    margin-top: 8px;
+    font-family: monospace;
+    color: var(--color-uno);
+    font-weight: bold;
+}
+
+.mensajeVacio {
+    text-align: center;
+    color: var(--color-tres);
+    font-size: 16px;
+    padding: 40px 20px;
+}
+
+.mensajeVacio small {
+    display: block;
+    margin-top: 10px;
+    font-size: 13px;
+    color: rgba(37, 68, 84, 0.6);
+}
+
+
+/* Botón de búsqueda */
+.btnBuscar {
+    width: 100%;
+    padding: 14px 25px;
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    border: 2px solid var(--color-tres);
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.btnBuscar:hover:not(:disabled) {
+    background-color: var(--color-dos);
+    color: var(--color-tres);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.btnBuscar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btnBuscar i {
+    margin-right: 8px;
+}
+
+/* ========================================
+   ESTILOS GLOBALES PARA SWEETALERT2
+   ======================================== */
+
+/* Popup principal */
+:global(.swal2-popup) {
+    position: relative !important;
+    border-radius: 20px !important;
+    padding: 35px 40px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+    background-color: #f5f7fa !important;
+}
+
+/* Borde decorativo interno del popup */
+:global(.swal2-popup::before) {
+    content: '' !important;
+    position: absolute !important;
+    top: 10px !important;
+    left: 10px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    border-radius: 15px !important;
+    border: 2px solid var(--color-tres) !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+}
+
+/* Asegurar que el contenido esté por encima del borde decorativo */
+:global(.swal2-popup > *) {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Título del popup */
+:global(.swal2-title) {
+    color: var(--color-uno) !important;
+    font-size: 26px !important;
+    font-weight: bold !important;
+    margin-bottom: 25px !important;
+    font-family: 'Segoe UI', 'Roboto', sans-serif !important;
+}
+
+/* Contenido HTML del popup */
+:global(.swal2-html-container) {
+    color: #5a6c7d !important;
+    font-size: 15px !important;
+    line-height: 1.6 !important;
+    margin: 20px 0 !important;
+}
+
+/* Inputs dentro de los popups */
+:global(.swal2-input),
+:global(.swal2-popup input[type="number"]) {
+    width: 100% !important;
+    padding: 14px 18px !important;
+    border: 2px solid #d1d9e0 !important;
+    border-radius: 12px !important;
+    font-size: 16px !important;
+    box-sizing: border-box !important;
+    margin: 15px 0 !important;
+    font-family: 'Segoe UI', 'Roboto', sans-serif !important;
+    background-color: white !important;
+    color: var(--color-uno) !important;
+}
+
+:global(.swal2-input:focus),
+:global(.swal2-popup input[type="number"]:focus) {
+    border-color: var(--color-tres) !important;
+    box-shadow: 0 0 0 3px rgba(39, 97, 119, 0.1) !important;
+    outline: none !important;
+}
+
+:global(.swal2-input::placeholder),
+:global(.swal2-popup input[type="number"]::placeholder) {
+    color: #a0aec0 !important;
+}
+
+/* Botones del popup */
+:global(.swal2-actions) {
+    gap: 15px !important;
+    margin-top: 30px !important;
+    width: 100% !important;
+}
+
+/* Botón confirmar */
+:global(.swal2-confirm) {
+    background-color: var(--color-tres) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 14px 35px !important;
+    font-size: 17px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    font-family: 'Segoe UI', 'Roboto', sans-serif !important;
+    box-shadow: 0 4px 12px rgba(39, 97, 119, 0.25) !important;
+}
+
+:global(.swal2-confirm:hover) {
+    background-color: var(--color-dos) !important;
+    transform: translateY(-2px) !important;
+    color: var(--color-tres) !important;
+    border: 2px solid var(--color-tres) !important;
+    box-shadow: 0 6px 16px rgba(39, 97, 119, 0.35) !important;
+}
+
+/* Botón cancelar */
+:global(.swal2-cancel) {
+    background-color: white !important;
+    color: var(--color-tres) !important;
+    border: 2px solid var(--color-tres) !important;
+    border-radius: 10px !important;
+    padding: 14px 35px !important;
+    font-size: 17px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    font-family: 'Segoe UI', 'Roboto', sans-serif !important;
+}
+
+:global(.swal2-cancel:hover) {
+    background-color: var(--color-tres) !important;
+    color: var(--color-dos) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(39, 97, 119, 0.15) !important;
+    border: 2px solid var(--color-dos) !important;
+}
+
+/* Botón de cierre (X) */
+:global(.swal2-close) {
+    color: var(--color-uno) !important;
+    font-size: 28px !important;
+    font-weight: bold !important;
+    top: 15px !important;
+    right: 20px !important;
+}
+
+:global(.swal2-close:hover) {
+    color: var(--color-tres) !important;
+}
+
+/* Iconos de SweetAlert2 */
+:global(.swal2-icon) {
+    margin: 25px auto !important;
+    border-width: 3px !important;
+}
+
+:global(.swal2-icon.swal2-success) {
+    border-color: #28a745 !important;
+}
+
+:global(.swal2-icon.swal2-success [class^='swal2-success-line']) {
+    background-color: #28a745 !important;
+}
+
+:global(.swal2-icon.swal2-success .swal2-success-ring) {
+    border-color: rgba(40, 167, 69, 0.3) !important;
+}
+
+:global(.swal2-icon.swal2-error) {
+    border-color: #dc3545 !important;
+}
+
+:global(.swal2-icon.swal2-error [class^='swal2-x-mark-line']) {
+    background-color: #dc3545 !important;
+}
+
+:global(.swal2-icon.swal2-warning) {
+    border-color: #ffc107 !important;
+    color: #ffc107 !important;
+}
+
+:global(.swal2-icon.swal2-info) {
+    border-color: var(--color-tres) !important;
+    color: var(--color-tres) !important;
+}
+
+/* Mensaje de validación */
+:global(.swal2-validation-message) {
+    background-color: #ffe5e5 !important;
+    color: #d32f2f !important;
+    border: 2px solid #ff9999 !important;
+    border-radius: 8px !important;
+    padding: 12px 16px !important;
+    margin-top: 12px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+/* Estilos específicos para información del producto en popup */
+:global(.swal2-html-container h4) {
+    color: var(--color-uno) !important;
+    margin: 15px 0 10px 0 !important;
+    font-size: 17px !important;
+    font-weight: bold !important;
+}
+
+:global(.swal2-html-container p) {
+    margin: 8px 0 !important;
+    color: #5a6c7d !important;
+    font-size: 15px !important;
+}
+
+:global(.swal2-html-container strong) {
+    color: var(--color-uno) !important;
+    font-weight: 600 !important;
+}
+
+:global(.swal2-html-container small) {
+    color: #718096 !important;
+    font-size: 13px !important;
+}
+
+/* Contenedor con estilo de tarjeta para info del producto */
+:global(.swal2-html-container > div) {
+    text-align: left !important;
+}
+
+/* Labels dentro del popup */
+:global(.swal2-html-container label) {
+    display: block !important;
+    margin: 18px 0 10px 0 !important;
+    color: var(--color-uno) !important;
+    font-weight: bold !important;
+    font-size: 15px !important;
+}
+
+/* Íconos dentro del texto */
+:global(.swal2-html-container i) {
+    margin-right: 8px !important;
+    color: var(--color-tres) !important;
+}
+
+/* Backdrop oscuro del popup */
+:global(.swal2-container) {
+    backdrop-filter: blur(4px) !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Animación de entrada */
+:global(.swal2-show) {
+    animation: swal2-show 0.3s !important;
+}
+
+/* Timer progress bar */
+:global(.swal2-timer-progress-bar) {
+    background-color: var(--color-tres) !important;
+}
+
+/* Estilo para mensajes informativos al final del popup */
+:global(.swal2-html-container .info-footer) {
+    margin-top: 20px !important;
+    padding-top: 15px !important;
+    border-top: 1px solid #e2e8f0 !important;
+    color: var(--color-tres) !important;
+    font-size: 13px !important;
+    text-align: center !important;
+}   

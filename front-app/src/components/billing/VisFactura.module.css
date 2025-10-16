@@ -1,5 +1,4 @@
-/* NO incluir :root en CSS Modules - las variables deben estar en main.css global */
-
+/* Contenedor principal */
 .visFactura {
     width: 90%;
     max-width: 900px;
@@ -28,115 +27,460 @@
     position: relative;
 }
 
-/* Barra de búsqueda completa */
+/* ========================================
+   BARRA DE BÚSQUEDA Y FILTROS
+   ======================================== */
+
 .barraBusquedaCompleta {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    margin-top: -10px;
+    gap: 12px;
     margin-bottom: 20px;
-    position: relative;
+    flex-wrap: wrap;
     width: 100%;
 }
 
-/* Filtro de búsqueda */
 .filtroBusqueda {
-    flex-shrink: 0;
+    flex: 1;
+    min-width: 150px;
+}
+
+.grupoFechas {
+    display: flex;
+    gap: 8px;
+    flex: 1.5;
+    min-width: 280px;
+}
+
+.grupoFechas .filtroBusquedaSelect {
+    flex: 1;
+    min-width: 80px;
 }
 
 .filtroBusquedaSelect {
-    padding: 8px 10px;
+    width: 100%;
+    padding: 10px 12px;
     font-size: 14px;
-    border-radius: 5px;
-    border: 1px solid var(--color-cuatro);
+    border-radius: 8px;
+    border: 2px solid var(--color-tres);
     background-color: var(--color-dos);
-    color: var(--color-uno);
+    color: var(--color-tres);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23276177' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 20px;
+    padding-right: 35px;
+}
+
+.filtroBusquedaSelect:hover {
+    background-color: rgba(39, 97, 119, 0.1);
+    box-shadow: 0 2px 8px rgba(39, 97, 119, 0.15);
+}
+
+.filtroBusquedaSelect:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(39, 97, 119, 0.2);
+    background-color: var(--color-dos);
 }
 
 /* Barra de búsqueda */
 .barraBusqueda {
+    flex: 2;
+    min-width: 200px;
     display: flex;
     align-items: center;
     position: relative;
-    flex-grow: 1;
-    margin: 0 10px;
 }
 
 .barraBusquedaInput {
     width: 100%;
-    padding: 8px 12px;
-    border-radius: 5px;
-    border: 1px solid var(--color-cuatro);
+    padding: 10px 12px 10px 40px;
+    border-radius: 8px;
+    border: 2px solid var(--color-tres);
     background-color: var(--color-dos);
     color: var(--color-uno);
     font-size: 14px;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.barraBusquedaInput:hover {
+    box-shadow: 0 2px 8px rgba(39, 97, 119, 0.15);
+}
+
+.barraBusquedaInput:focus {
+    outline: none;
+    border-color: var(--color-uno);
+    box-shadow: 0 0 0 3px rgba(39, 97, 119, 0.2);
+}
+
+.barraBusquedaInput::placeholder {
+    color: rgba(37, 68, 84, 0.5);
 }
 
 .barraBusquedaIcon {
     position: absolute;
-    right: 10px;
+    left: 12px;
+    color: var(--color-tres);
+    font-size: 16px;
+    pointer-events: none;
+}
+
+/* ========================================
+   INFORMACIÓN Y ESTADO
+   ======================================== */
+
+.infoFacturas {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.infoFacturas p {
+    color: var(--color-uno);
+    font-size: 14px;
+    margin: 0;
+}
+
+.infoFacturas strong {
+    color: var(--color-tres);
+    font-weight: 600;
+}
+
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    gap: 15px;
+}
+
+.loadingContainer i {
+    font-size: 40px;
+    color: var(--color-tres);
+    animation: spin 1s linear infinite;
+}
+
+.loadingContainer p {
     color: var(--color-uno);
     font-size: 16px;
-    cursor: pointer;
+    margin: 0;
 }
 
-/* Calendario de búsqueda */
-.calendarioBusqueda {
-    flex-shrink: 0;
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
-.calendarioBusquedaInput {
-    padding: 8px 10px;
-    font-size: 14px;
-    border-radius: 5px;
-    border: 1px solid var(--color-cuatro);
-    background-color: var(--color-dos);
-    color: var(--color-uno);
-}
+/* ========================================
+   TABLA DE FACTURAS
+   ======================================== */
 
-/* Tabla de inventario */
 .inventoryTable {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    overflow: hidden;
+    border-radius: 10px;
 }
 
-.inventoryTableTh,
-.inventoryTableTd {
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-left: 0;
-    border-right: 0;
-    padding: 10px;
-    text-align: left;
-    color: var(--color-uno);
+.inventoryTable thead tr {
+    background-color: rgba(37, 68, 84, 0.15);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .inventoryTableTh {
-    background-color: rgba(37, 68, 84, 0.1);
-    font-weight: bold;
+    padding: 12px;
+    text-align: left;
+    color: var(--color-uno);
+    font-weight: 600;
+    font-size: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.inventoryTableTd {
+    padding: 12px;
+    color: var(--color-uno);
+    font-size: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .inventoryTableTrEven {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* Responsivo */
+.inventoryTable tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.inventoryTable tbody tr:hover {
+    background-color: rgba(39, 97, 119, 0.1);
+}
+
+/* ========================================
+   BOTONES DE ACCIÓN
+   ======================================== */
+
+.btnDescargar {
+    padding: 8px 14px;
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.btnDescargar:hover {
+    background-color: #1e4d5f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(39, 97, 119, 0.3);
+}
+
+.btnDescargar:active {
+    transform: translateY(0);
+}
+
+/* ========================================
+   CALENDARIO
+   ======================================== */
+
+.btnCalendario {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 2px solid var(--color-tres);
+    background-color: var(--color-dos);
+    color: var(--color-tres);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btnCalendario:hover {
+    background-color: rgba(39, 97, 119, 0.1);
+    box-shadow: 0 2px 8px rgba(39, 97, 119, 0.15);
+}
+
+.btnCalendario:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(39, 97, 119, 0.2);
+}
+
+.btnLimpiar {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--color-tres);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    transition: color 0.3s ease;
+    z-index: 5;
+}
+
+.btnLimpiar:hover {
+    color: #ff6b6b;
+}
+
+.calendario {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    background-color: var(--color-dos);
+    border: 2px solid var(--color-tres);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    width: 280px;
+}
+
+.calendarioEncabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    gap: 8px;
+}
+
+.calendarioEncabezado button {
+    background-color: var(--color-tres);
+    color: white;
+    border: none;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s ease;
+}
+
+.calendarioEncabezado button:hover {
+    background-color: #1e4d5f;
+}
+
+.selectMes,
+.selectAnio {
+    flex: 1;
+    padding: 6px 8px;
+    border: 1px solid var(--color-tres);
+    border-radius: 4px;
+    background-color: white;
+    color: var(--color-uno);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.tablaCalendario {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tablaCalendario thead th {
+    text-align: center;
+    color: var(--color-tres);
+    font-weight: 600;
+    font-size: 12px;
+    padding: 6px 2px;
+}
+
+.tablaCalendario tbody td {
+    text-align: center;
+    padding: 4px 2px;
+    height: 32px;
+}
+
+.btnDia {
+    width: 100%;
+    height: 100%;
+    border: 1px solid transparent;
+    background-color: transparent;
+    color: var(--color-uno);
+    cursor: pointer;
+    font-size: 13px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.btnDia:hover {
+    background-color: var(--color-tres);
+    color: white;
+    border-color: var(--color-tres);
+}
+
+.btnDia:active {
+    background-color: #1e4d5f;
+}
+
+@media (max-width: 1024px) {
+    .barraBusquedaCompleta {
+        gap: 8px;
+    }
+
+    .filtroBusqueda {
+        min-width: 120px;
+    }
+
+    .barraBusqueda {
+        min-width: 150px;
+    }
+}
+
 @media (max-width: 768px) {
+    .visFactura {
+        width: 95%;
+        margin: 20px auto;
+        padding: 15px;
+    }
+
+    .visForm {
+        width: 95%;
+        padding: 20px;
+        gap: 15px;
+    }
+
     .barraBusquedaCompleta {
         flex-direction: column;
-        gap: 15px;
-        align-items: stretch;
-    }
-    
-    .filtroBusqueda,
-    .barraBusqueda,
-    .calendarioBusqueda {
+        gap: 10px;
         width: 100%;
-        margin: 0;
     }
-    
+
+    .filtroBusqueda,
+    .barraBusqueda {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .inventoryTableTh,
+    .inventoryTableTd {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    .btnDescargar {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .infoFacturas {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .visFactura {
+        width: 100%;
+        padding: 10px;
+    }
+
     .visForm {
-        padding: 20px;
+        width: 100%;
+        padding: 15px;
+    }
+
+    .inventoryTable {
+        font-size: 12px;
+    }
+
+    .inventoryTableTh,
+    .inventoryTableTd {
+        padding: 6px;
+        font-size: 11px;
+    }
+
+    .btnDescargar {
+        padding: 5px 8px;
+        font-size: 11px;
     }
 }
