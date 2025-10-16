@@ -42,8 +42,12 @@ module.exports=function(){
     // eliminar producto
     router.delete('/productos/:idProducto', productoController.eliminarProducto);
 
-    /* Facturas */
+    /*imagenes*/
+    router.post('/imagenes/carousel', imagenesController.upload.single('imagen'), imagenesController.subirImagenCarousel);
+    router.get('/imagenes/carousel', imagenesController.obtenerImagenesCarousel);
 
+
+    /* Facturas */
     router.get('/facturas/:idFactura/pdf', facturaController.obtenerFacturaPDF);
     router.get('/facturas/:idFactura/xml', facturaController.obtenerFacturaXML);
     // genera nueva factura

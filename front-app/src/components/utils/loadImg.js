@@ -26,7 +26,7 @@ function SubirImagen(props) {
         // Validar que sea una imagen
         if (!archivoSeleccionado.type.startsWith('image/')) {
             Swal.fire({
-                type: 'error',
+                icon: 'error',
                 title: 'Archivo inválido',
                 text: 'Por favor selecciona solo archivos de imagen (JPG, PNG, GIF, etc.)'
             });
@@ -37,7 +37,7 @@ function SubirImagen(props) {
         const tamañoMaximo = 5 * 1024 * 1024; // 5MB
         if (archivoSeleccionado.size > tamañoMaximo) {
             Swal.fire({
-                type: 'error',
+                icon: 'error',
                 title: 'Archivo muy grande',
                 text: 'El archivo no puede ser mayor a 5MB. Por favor selecciona una imagen más pequeña.'
             });
@@ -66,7 +66,7 @@ function SubirImagen(props) {
     const agregarImagen = async () => {
         if (!archivo) {
             Swal.fire({
-                type: 'warning',
+                icon: 'warning',
                 title: 'No hay imagen seleccionada',
                 text: 'Por favor selecciona una imagen antes de continuar.'
             });
@@ -94,7 +94,8 @@ function SubirImagen(props) {
             formData.set('carpetaDestino', 'onset/img');
             formData.set('limite', '10'); // Límite de 10 imágenes
             
-            const res = await clienteAxios.post('/api/imagenes/upload-carousel', formData, {
+            const res = await clienteAxios.post('/api/imagenes/carousel', formData, {
+
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 },
@@ -145,7 +146,7 @@ function SubirImagen(props) {
             }
 
             Swal.fire({
-                type: 'error',
+                icon: 'error',
                 title: 'Error al subir imagen',
                 text: mensajeError
             });
@@ -399,6 +400,7 @@ function SubirImagen(props) {
                     </div>
                 </section>
             </main>
+            
         </Fragment>
     );
 }

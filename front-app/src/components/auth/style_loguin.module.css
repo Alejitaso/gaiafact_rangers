@@ -18,14 +18,7 @@
 
 /* Título del formulario de login */
 .loginbox h2 {
-    margin-bottom: 10px; 
-    color: var(--color-dos); 
-}
-
-/* Texto debajo del título (como "¿No estás registrado?") */
-.loginbox p {
     margin-bottom: 30px; 
-    font-size: 14px; 
     color: var(--color-dos); 
 }
 
