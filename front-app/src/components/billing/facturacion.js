@@ -19,7 +19,6 @@ const Facturacion = () => {
     const [esperandoProducto, setEsperandoProducto] = useState(false);
     const [generandoFactura, setGenerandoFactura] = useState(false);
     
-    // Estados para el formulario del cliente
     const [tipoDocumento, setTipoDocumento] = useState('');
     const [numeroDocumento, setNumeroDocumento] = useState('');
     const [nombres, setNombres] = useState('');
@@ -30,21 +29,18 @@ const Facturacion = () => {
     const barcodeInputRef = useRef(null);
     const timeoutRef = useRef(null);
 
-    // Función para mostrar popup de error personalizado
     const mostrarError = (titulo, mensaje) => {
         setErrorTitle(titulo);
         setErrorMessage(mensaje);
         setShowErrorPopup(true);
     };
 
-    // Cerrar popup de error
     const cerrarErrorPopup = () => {
         setShowErrorPopup(false);
         setErrorTitle('');
         setErrorMessage('');
     };
 
-    // Focus automático en el input cuando se abre el popup
     useEffect(() => {
         if (showPopup && activeTab === 'barcode' && barcodeInputRef.current) {
             setTimeout(() => {
@@ -54,7 +50,6 @@ const Facturacion = () => {
         }
     }, [showPopup, activeTab]);
 
-    // Limpiar campos cuando se cambia de pestaña
     useEffect(() => {
         setBarcodeInput('');
         setProductId('');
@@ -62,13 +57,11 @@ const Facturacion = () => {
         setIsListening(false);
     }, [activeTab]);
 
-    // Función para obtener productos del inventario (mejorada)
     const obtenerProductos = async () => {
         try {
             setCargandoProductos(true);
             const res = await clienteAxios.get('/api/productos');
             
-            // Si no hay productos, no mostrar error, solo establecer array vacío
             if (res.data && Array.isArray(res.data)) {
                 setProductos(res.data);
             } else {
@@ -78,7 +71,6 @@ const Facturacion = () => {
         } catch (error) {
             console.error('Error al obtener productos:', error);
             setCargandoProductos(false);
-            // Solo mostrar error si es un error real, no si simplemente no hay productos
             if (error.response && error.response.status !== 404) {
                 mostrarError('Error de conexión', 'No se pudo conectar con el servidor');
             } else {
@@ -87,37 +79,31 @@ const Facturacion = () => {
         }
     };
 
-    // Cargar productos al montar el componente
     useEffect(() => {
         obtenerProductos();
     }, []);
 
-    // Función para manejar entrada del lector de código de barras
     const handleBarcodeInput = (value) => {
         setBarcodeInput(value);
         
-        // Auto-detectar entrada completa del lector
         clearTimeout(timeoutRef.current);
         timeoutRef.current = setTimeout(() => {
-            if (value.length >= 8) { // Asumiendo que los códigos tienen al menos 8 caracteres
+            if (value.length >= 8) {
                 handleProductSearch('barcode', value);
             }
-        }, 500); // Esperar 500ms después del último carácter
+        }, 500);
     };
 
-    // Función para buscar producto por código de barras o ID
     const handleProductSearch = async (searchType, searchValue) => {
         try {
             setEsperandoProducto(true);
             let producto = null;
             
             if (searchType === 'barcode') {
-                // Buscar por código de barras (12 dígitos del codigo_barras_datos)
                 producto = productos.find(p => 
                     p.codigo_barras_datos === searchValue
                 );
             } else {
-                // Búsqueda por ID o código de barras (igual que en inventario)
                 producto = productos.find(p => 
                     p.codigo_barras_datos === searchValue ||
                     p._id.substring(p._id.length - 6).toUpperCase() === searchValue.toUpperCase()
@@ -144,7 +130,6 @@ const Facturacion = () => {
         }
     };
 
-    // Mostrar confirmación del producto encontrado
     const mostrarConfirmacionProducto = (producto) => {
         Swal.fire({
             title: '¿Agregar este producto?',
@@ -201,13 +186,10 @@ const Facturacion = () => {
         });
     };
 
-    // Agregar producto a la factura
     const agregarProductoAFactura = (producto, cantidad) => {
-        // Verificar si el producto ya está en la factura
         const productoExistente = productosFactura.find(p => p.id === producto._id);
         
         if (productoExistente) {
-            // Actualizar cantidad del producto existente
             setProductosFactura(prev => 
                 prev.map(p => 
                     p.id === producto._id 
@@ -216,7 +198,6 @@ const Facturacion = () => {
                 )
             );
         } else {
-            // Agregar nuevo producto
             const nuevoProducto = {
                 id: producto._id,
                 nombre: producto.nombre,
@@ -238,59 +219,50 @@ const Facturacion = () => {
         });
     };
 
-    // Función para generar la factura
-   // ... tus estados useState y otras funciones
-const generarFactura = async () => {
-    setGenerandoFactura(true);
+    const generarFactura = async () => {
+        setGenerandoFactura(true);
 
-    try {
-        const total = productosFactura.reduce((sum, producto) => {
-            return sum + (producto.precio * producto.cantidad);
-        }, 0);
+        try {
+            const total = productosFactura.reduce((sum, producto) => {
+                return sum + (producto.precio * producto.cantidad);
+            }, 0);
 
-        const datosFactura = {
-            total: total,
-            numero_factura: 'F' + Math.floor(Math.random() * 100000),
-            usuario: {
-                nombre: nombres,
-                apellido: apellidos,
-                tipo_documento: tipoDocumento,
-                numero_documento: numeroDocumento,
-                telefono: telefono
-            },
-            productos_factura: productosFactura.map(p => ({  // ⬅️ Cambio aquí: productos → productos_factura
-                producto: p.nombre,
-                cantidad: p.cantidad,
-                precio: p.precio
-            }))
-        };
-        
-        console.log('📄 Datos de la factura a enviar:', datosFactura);
+            const datosFactura = {
+                total: total,
+                numero_factura: 'F' + Math.floor(Math.random() * 100000),
+                usuario: {
+                    nombre: nombres,
+                    apellido: apellidos,
+                    tipo_documento: tipoDocumento,
+                    numero_documento: numeroDocumento,
+                    telefono: telefono
+                },
+                productos_factura: productosFactura.map(p => ({
+                    producto: p.nombre,
+                    cantidad: p.cantidad,
+                    precio: p.precio
+                }))
+            };
+            
+            console.log('📄 Datos de la factura a enviar:', datosFactura);
 
-        const res = await clienteAxios.post('/api/facturas', datosFactura);
-        
-        Swal.fire('Correcto', 'Factura generada y guardada', 'success');
-        console.log(res.data);
-        
-        setProductosFactura([]);
-        setNombres('');
-        setApellidos('');
-        setTipoDocumento('');
-        setNumeroDocumento('');
-        setTelefono('');
-        setCorreo('');
+            const res = await clienteAxios.post('/api/facturas', datosFactura);
+            
+            Swal.fire('Correcto', 'Factura generada y guardada', 'success');
+            console.log(res.data);
+            
+            limpiarFormulario();
 
-    } catch (error) {
-        console.error('❌ Error al generar la factura:', error.response?.data?.mensaje || error.message);
-        setErrorTitle('Error de Validación');
-        setErrorMessage('Faltan campos obligatorios para generar la factura. Por favor, completa toda la información del cliente y los productos.');
-        setShowErrorPopup(true);
-    } finally {
-        setGenerandoFactura(false);
-    }
-};
+        } catch (error) {
+            console.error('❌ Error al generar la factura:', error.response?.data?.mensaje || error.message);
+            setErrorTitle('Error de Validación');
+            setErrorMessage('Faltan campos obligatorios para generar la factura. Por favor, completa toda la información del cliente y los productos.');
+            setShowErrorPopup(true);
+        } finally {
+            setGenerandoFactura(false);
+        }
+    };
 
-    // Función para limpiar el formulario
     const limpiarFormulario = () => {
         setTipoDocumento('');
         setNumeroDocumento('');
@@ -301,9 +273,6 @@ const generarFactura = async () => {
         setProductosFactura([]);
     };
 
-    
-
-    // Función para cancelar factura
     const cancelarFactura = () => {
         Swal.fire({
             title: '¿Cancelar factura?',
@@ -322,7 +291,6 @@ const generarFactura = async () => {
         });
     };
 
-    // Abrir popup
     const abrirPopup = () => {
         setShowPopup(true);
         setActiveTab('barcode');
@@ -331,7 +299,6 @@ const generarFactura = async () => {
         setQuantity(1);
     };
 
-    // Cerrar popup
     const cerrarPopup = () => {
         setShowPopup(false);
         setBarcodeInput('');
@@ -341,7 +308,6 @@ const generarFactura = async () => {
         clearTimeout(timeoutRef.current);
     };
 
-    // Manejar búsqueda manual
     const buscarProducto = () => {
         const searchValue = activeTab === 'barcode' ? barcodeInput.trim() : productId.trim();
         
@@ -356,12 +322,10 @@ const generarFactura = async () => {
         handleProductSearch(activeTab, searchValue);
     };
 
-    // Eliminar producto de la factura
     const eliminarProducto = (productId) => {
         setProductosFactura(prev => prev.filter(p => p.id !== productId));
     };
 
-    // Formatear precio
     const formatearPrecio = (precio) => {
         return precio.toLocaleString('es-CO', {
             minimumFractionDigits: 0,
@@ -369,7 +333,6 @@ const generarFactura = async () => {
         });
     };
 
-    // Calcular total
     const calcularTotal = () => {
         return productosFactura.reduce((total, producto) => 
             total + (producto.precio * producto.cantidad), 0
@@ -546,50 +509,24 @@ const generarFactura = async () => {
                 <div className={styles.popup} style={{ display: 'flex' }} onClick={cerrarPopup}>
                     <div className={styles.popupContent} onClick={(e) => e.stopPropagation()}>
                         <button 
-                            style={{ 
-                                position: 'absolute', 
-                                right: '15px', 
-                                top: '15px', 
-                                background: 'none', 
-                                border: 'none', 
-                                fontSize: '20px', 
-                                cursor: 'pointer',
-                                color: 'var(--color-uno)'
-                            }}
+                            className={styles.popupCloseButton}
                             onClick={cerrarPopup}
                         >
                             ×
                         </button>
 
-                        <h3 style={{ marginBottom: '20px', color: 'var(--color-uno)' }}>
-                            Agregar Producto
-                        </h3>
+                        <h3>Agregar Producto</h3>
 
                         {/* Pestañas */}
-                        <div style={{ marginBottom: '20px' }}>
+                        <div className={styles.popupTabs}>
                             <button
-                                style={{
-                                    padding: '8px 16px',
-                                    marginRight: '10px',
-                                    border: '2px solid var(--color-tres)',
-                                    borderRadius: '5px',
-                                    backgroundColor: activeTab === 'barcode' ? 'var(--color-tres)' : 'var(--color-dos)',
-                                    color: activeTab === 'barcode' ? 'var(--color-dos)' : 'var(--color-tres)',
-                                    cursor: 'pointer'
-                                }}
+                                className={`${styles.popupTabButton} ${activeTab === 'barcode' ? styles.active : ''}`}
                                 onClick={() => setActiveTab('barcode')}
                             >
                                 <i className="fas fa-barcode"></i> Código Barras
                             </button>
                             <button
-                                style={{
-                                    padding: '8px 16px',
-                                    border: '2px solid var(--color-tres)',
-                                    borderRadius: '5px',
-                                    backgroundColor: activeTab === 'id' ? 'var(--color-tres)' : 'var(--color-dos)',
-                                    color: activeTab === 'id' ? 'var(--color-dos)' : 'var(--color-tres)',
-                                    cursor: 'pointer'
-                                }}
+                                className={`${styles.popupTabButton} ${activeTab === 'id' ? styles.active : ''}`}
                                 onClick={() => setActiveTab('id')}
                             >
                                 <i className="fas fa-hashtag"></i> Por ID
@@ -598,8 +535,8 @@ const generarFactura = async () => {
 
                         {/* Contenido según pestaña activa */}
                         {activeTab === 'barcode' ? (
-                            <div>
-                                <p style={{ color: 'var(--color-tres)', marginBottom: '15px' }}>
+                            <div className={styles.popupInputContainer}>
+                                <p>
                                     {isListening ? (
                                         <><i className="fas fa-barcode fa-spin"></i> Esperando código de barras...</>
                                     ) : (
@@ -618,21 +555,12 @@ const generarFactura = async () => {
                                             buscarProducto();
                                         }
                                     }}
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px',
-                                        border: '2px solid var(--color-tres)',
-                                        borderRadius: '5px',
-                                        marginBottom: '15px',
-                                        fontSize: '16px'
-                                    }}
+                                    className={styles.popupInput}
                                 />
                             </div>
                         ) : (
-                            <div>
-                                <p style={{ color: 'var(--color-tres)', marginBottom: '15px' }}>
-                                    Ingrese el ID del producto (últimos 6 caracteres)
-                                </p>
+                            <div className={styles.popupInputContainer}>
+                                <p>Ingrese el ID del producto (últimos 6 caracteres)</p>
                                 
                                 <input
                                     type="text"
@@ -644,53 +572,30 @@ const generarFactura = async () => {
                                             buscarProducto();
                                         }
                                     }}
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px',
-                                        border: '2px solid var(--color-tres)',
-                                        borderRadius: '5px',
-                                        marginBottom: '15px',
-                                        fontSize: '16px'
-                                    }}
+                                    className={styles.popupInput}
                                 />
                             </div>
                         )}
 
                         {/* Botones de acción */}
-                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                        <div className={styles.popupButtonsContainer}>
                             <button
                                 onClick={buscarProducto}
-                                style={{
-                                    padding: '10px 20px',
-                                    backgroundColor: 'var(--color-tres)',
-                                    color: 'var(--color-dos)',
-                                    border: 'none',
-                                    borderRadius: '5px',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold'
-                                }}
+                                className={`${styles.popupButton} ${styles.popupButtonPrimary}`}
                             >
                                 <i className="fas fa-search"></i> Buscar
                             </button>
                             <button
                                 onClick={cerrarPopup}
-                                style={{
-                                    padding: '10px 20px',
-                                    backgroundColor: 'var(--color-cuatro)',
-                                    color: 'var(--color-uno)',
-                                    border: '2px solid var(--color-tres)',
-                                    borderRadius: '5px',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold'
-                                }}
+                                className={`${styles.popupButton} ${styles.popupButtonSecondary}`}
                             >
                                 Cancelar
                             </button>
                         </div>
 
-                        <div style={{ marginTop: '15px', fontSize: '12px', color: 'var(--color-tres)' }}>
+                        <p className={styles.popupMessage}>
                             💡 El lector de código de barras se detecta automáticamente
-                        </div>
+                        </p>
                     </div>
                 </div>
             )}
@@ -700,47 +605,22 @@ const generarFactura = async () => {
                 <div className={styles.popup} style={{ display: 'flex' }} onClick={cerrarErrorPopup}>
                     <div className={styles.popupContent} onClick={(e) => e.stopPropagation()}>
                         <button 
-                            style={{ 
-                                position: 'absolute', 
-                                right: '15px', 
-                                top: '15px', 
-                                background: 'none', 
-                                border: 'none', 
-                                fontSize: '20px', 
-                                cursor: 'pointer',
-                                color: 'var(--color-uno)'
-                            }}
+                            className={styles.popupCloseButton}
                             onClick={cerrarErrorPopup}
                         >
                             ×
                         </button>
 
-                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                            <i className="fas fa-exclamation-triangle" style={{ 
-                                fontSize: '48px', 
-                                color: '#ff6b6b', 
-                                marginBottom: '15px' 
-                            }}></i>
-                            <h3 style={{ color: 'var(--color-uno)', marginBottom: '10px' }}>
-                                {errorTitle}
-                            </h3>
-                            <p style={{ color: 'var(--color-tres)', lineHeight: '1.4' }}>
-                                {errorMessage}
-                            </p>
+                        <div className={styles.errorContent}>
+                            <i className="fas fa-exclamation-triangle"></i>
                         </div>
+                        <h3 className={styles.errorTitle}>{errorTitle}</h3>
+                        <p className={styles.errorMessage}>{errorMessage}</p>
 
                         <button
                             onClick={cerrarErrorPopup}
-                            style={{
-                                padding: '10px 20px',
-                                backgroundColor: 'var(--color-tres)',
-                                color: 'var(--color-dos)',
-                                border: 'none',
-                                borderRadius: '5px',
-                                cursor: 'pointer',
-                                fontWeight: 'bold',
-                                fontSize: '16px'
-                            }}
+                            className={`${styles.popupButton} ${styles.popupButtonPrimary}`}
+                            style={{ marginTop: '20px' }}
                         >
                             Entendido
                         </button>

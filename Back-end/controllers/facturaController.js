@@ -135,17 +135,29 @@ const generarPDFFactura = async (datosFactura) => {
             yPosition += 50;
 
             // Generar QR Code
-            const qrData = `CUFE:${datosFactura.codigo_CUFE || 'TEMP-' + datosFactura.numero_factura}|NUM:${datosFactura.numero_factura}|TOTAL:${datosFactura.total}`;
+            const fecha = new Date(datosFactura.fecha_emision || new Date());
+            const fechaFormato = fecha.toLocaleDateString('es-CO');
+            const horaFormato = fecha.toLocaleTimeString('es-CO');
+            
+            const qrData = `Número de Factura: ${datosFactura.numero_factura}
+Fecha: ${fechaFormato}
+Hora: ${horaFormato}
+NIT: 900123456-1
+Cliente: ${datosFactura.usuario.nombre} ${datosFactura.usuario.apellido}
+Documento: ${datosFactura.usuario.tipo_documento || 'CC'} ${datosFactura.usuario.numero_documento}
+CUFE: ${datosFactura.codigo_CUFE || 'TEMP-' + datosFactura.numero_factura}`;
+
             const qrCodeImage = await QRCode.toBuffer(qrData, {
                 width: 120,
-                margin: 1
+                margin: 1,
+                color: { dark: "#276177", light: "#FFFFFF" },
+                errorCorrectionLevel: "M"
             });
 
             doc.image(qrCodeImage, 60, yPosition, { width: 120, height: 120 });
             doc.fontSize(8).fillColor(colorGris).text('Escanea para verificar', 60, yPosition + 125, { width: 120, align: 'center' });
 
-            // Información del código de barras (usando JsBarcode requiere Canvas)
-            // Como alternativa, mostramos el número en texto grande
+            // Número de factura
             doc.fontSize(16).fillColor(colorTexto).font('Helvetica-Bold')
                .text(datosFactura.numero_factura, 250, yPosition + 40, { align: 'center', width: 250 });
             
@@ -293,12 +305,10 @@ exports.obtenerFacturaPDF = async (req, res, next) => {
         }
 
         if (factura.pdf_factura && factura.pdf_factura.length > 0) {
-            // El PDF ya está guardado en la BD
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', `attachment; filename="factura-${factura.numero_factura}.pdf"`);
             return res.send(factura.pdf_factura);
         } else {
-            // Si no existe PDF guardado, generarlo al vuelo
             const pdfBuffer = await generarPDFFactura(factura);
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', `attachment; filename="factura-${factura.numero_factura}.pdf"`);
