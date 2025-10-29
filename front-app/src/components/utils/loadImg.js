@@ -2,6 +2,7 @@ import React, { Fragment, useState, useRef } from "react";
 import styles from "./loadImg.module.css";
 import Swal from "sweetalert2";
 import clienteAxios from "../../config/axios";
+import axios from "axios";
 
 function SubirImagen(props) {
     // Estados del componente
@@ -9,6 +10,10 @@ function SubirImagen(props) {
     const [previewImagen, setPreviewImagen] = useState('');
     const [cargando, setCargando] = useState(false);
     const [arrastrando, setArrastrando] = useState(false);
+    const [mostrarFormulario, setMostrarFormulario] = useState(false);
+    const [archivoReemplazo, setArchivoReemplazo] = useState(null);
+    const [indiceReemplazo, setIndiceReemplazo] = useState('');
+
     
     // Referencia al input de archivo
     const fileInputRef = useRef(null);
@@ -382,6 +387,122 @@ function SubirImagen(props) {
                             </>
                         )}
                     </button>
+
+                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '15px', justifyContent: 'center' }}>
+
+                    {/* Nuevo botón para alternar formulario */}
+                    <button
+                        type="button"
+                        onClick={() => setMostrarFormulario(!mostrarFormulario)}
+                        style={{
+                        padding: '10px 20px',
+                        backgroundColor: '#ffffffff',
+                        color: '#254454',
+                        border: 'none',
+                        borderRadius: '5px',
+                        cursor: 'pointer',
+                        fontWeight: 'bolder',
+                        
+                        }}
+                    >
+                        {mostrarFormulario ? 'Cancelar' : 'Reemplazar imagen'}
+                    </button>
+                    </div>
+
+                    {/* 🔽 Formulario desplegable */}
+                    {mostrarFormulario && (
+                    <form
+                        onSubmit={async (e) => {
+                        e.preventDefault();
+                        const archivo = archivoReemplazo;
+                        const indice = parseInt(indiceReemplazo);
+
+                        if (!archivo) {
+                            Swal.fire({ icon: 'warning', title: 'Selecciona una imagen' });
+                            return;
+                        }
+
+                        if (isNaN(indice) || indice < 1 || indice > 10) {
+                            Swal.fire({ icon: 'error', title: 'Número inválido', text: 'Elige un número entre 1 y 10' });
+                            return;
+                        }
+
+                        try {
+                            const formData = new FormData();
+                            formData.append('imagen', archivo);
+                            formData.append('index', indice - 1);
+
+                            const res = await axios.post('http://localhost:4000/api/imagenes/carousel', formData, {
+                            headers: { 'Content-Type': 'multipart/form-data' },
+                            });
+
+                            Swal.fire({
+                            icon: 'success',
+                            title: 'Éxito',
+                            text: res.data.mensaje,
+                            });
+
+                            setMostrarFormulario(false);
+                            setArchivoReemplazo(null);
+                            setIndiceReemplazo('');
+                        } catch (error) {
+                            Swal.fire({
+                            icon: 'error',
+                            title: 'Error al reemplazar',
+                            text: error.response?.data?.mensaje || 'Hubo un error al subir la imagen.',
+                            });
+                        }
+                        }}
+                        style={{
+                        marginTop: '15px',
+                        padding: '15px',
+                        border: '1px solid #ccc',
+                        borderRadius: '8px',
+                        backgroundColor: '#254454'
+                        }}
+                    >
+                        <div style={{ marginBottom: '10px'}}>
+                        <label>Selecciona nueva imagen:</label><br />
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => setArchivoReemplazo(e.target.files[0])}
+                        />
+                        </div>
+
+                        <div style={{ marginBottom: '10px' }}>
+                        <label>Número de imagen a reemplazar (1–10):</label><br />
+                        <input 
+                            type="number"
+                            min="1"
+                            max="10"
+                            value={indiceReemplazo}
+                            onChange={(e) => setIndiceReemplazo(e.target.value)}
+                            style={{
+                            width: '90%',
+                            padding: '6px',
+                            borderRadius: '5px',
+                            border: '1px solid #ccc'
+                            }}
+                        />
+                        </div>
+
+                        <button
+                        type="submit"
+                        style={{
+                            width: '100%',
+                            padding: '8px',
+                            backgroundColor: '#3d718bff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '5px',
+                            cursor: 'pointer'
+                        }}
+                        >
+                        Confirmar reemplazo
+                        </button>
+                    </form>
+                    )}
 
                     <div style={{
                         marginTop: '20px',

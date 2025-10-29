@@ -64,7 +64,8 @@
 
 /* Campo enfocado brillo simulado*/
 .loginform input[type="email"]:focus,
-.loginform input[type="password"]:focus {
+.loginform input[type="password"]:focus,
+.contrasegnaContainer input[type="text"]:focus {
     border-color: var(--color-tres); 
     box-shadow: 0 0 12px var(--color-cinco); 
     background-color: var(--color-dos); 
