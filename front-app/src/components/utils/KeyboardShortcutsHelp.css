@@ -1,0 +1,335 @@
+/* components/utils/KeyboardShortcutsHelp.css */
+
+.shortcuts-help-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--color-tres);
+  border: 2px solid var(--color-uno);
+  color: var(--color-dos);
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(39, 97, 119, 0.3);
+  transition: all 0.3s ease;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shortcuts-help-btn:hover {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(39, 97, 119, 0.5);
+  background: var(--color-uno);
+}
+
+.shortcuts-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);   
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.shortcuts-modal {
+  position: relative;
+  background: var(--color-dos);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 620px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: popupSlideIn 0.3s ease-out;
+  border: 2px solid var(--color-tres);
+}
+
+/* Borde decorativo interno (igual que tus popups) */
+.shortcuts-modal::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+  border-radius: 15px;
+  border: 2px solid var(--color-tres);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes popupSlideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.shortcuts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  background: var(--color-uno);
+  color: var(--color-dos);
+  position: relative;
+  z-index: 1;
+}
+
+.shortcuts-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: var(--color-dos);
+  font-weight: bold;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-dos);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 24px;
+  transition: all 0.3s ease;
+  z-index: 10;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: var(--color-tres);
+  background: rgba(240, 244, 248, 0.1);
+}
+
+.shortcuts-content {
+  padding: 25px;
+  padding-bottom: 35px; 
+  overflow-y: auto;
+  max-height: calc(80vh - 80px);
+  position: relative;
+  z-index: 1;
+}
+
+/* Scrollbar personalizado */
+.shortcuts-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.shortcuts-content::-webkit-scrollbar-track {
+  background: var(--color-cuatro);
+  border-radius: 10px;
+}
+
+.shortcuts-content::-webkit-scrollbar-thumb {
+  background: var(--color-tres);
+  border-radius: 10px;
+}
+
+.shortcuts-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-uno);
+}
+
+.shortcuts-note {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  position: relative;
+  z-index: 1;
+}
+
+.shortcuts-note strong {
+  color: #856404;
+}
+
+.shortcuts-list {
+  display: grid;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.shortcut-item {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 15px;
+  align-items: start;
+  padding: 12px 15px;
+  background: white;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 2px solid var(--color-cuatro);
+}
+
+.shortcut-item:hover {
+  background: var(--color-cuatro);
+  border-color: var(--color-tres);
+  transform: translateX(3px);
+}
+
+.shortcut-keys {
+  display: inline-block;
+  padding: 8px 12px;
+  background: var(--color-tres);
+  border: 2px solid var(--color-uno);
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--color-dos);
+  box-shadow: 0 2px 4px rgba(37, 68, 84, 0.2);
+  white-space: nowrap;
+  text-align: center;
+}
+
+.shortcut-desc {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shortcut-desc span {
+  font-size: 15px;
+  color: var(--color-uno);
+  font-weight: 600;
+}
+
+.shortcut-desc .warning {
+  color: var(--color-tres);
+  font-size: 12px;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Sección de categorías */
+.shortcuts-category {
+  margin-bottom: 25px;
+  position: relative;
+  z-index: 1;
+}
+
+.shortcuts-category-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--color-uno);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--color-tres);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .shortcuts-modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .shortcuts-modal::before {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .shortcut-item {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .shortcut-keys {
+    width: fit-content;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .shortcuts-content {
+    padding: 15px;
+  }
+
+  .shortcuts-help-btn {
+    bottom: 15px;
+    right: 15px;
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+  }
+
+  .shortcuts-header h2 {
+    font-size: 20px;
+  }
+
+  .shortcuts-note {
+    font-size: 13px;
+    padding: 10px;
+  }
+}
+
+/* Animación para el botón flotante */
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(39, 97, 119, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(39, 97, 119, 0.5);
+  }
+}
+
+.shortcuts-help-btn {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Estado de carga/disabled */
+.shortcuts-help-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  animation: none;
+}
+
+/* Mejora de accesibilidad */
+.shortcuts-help-btn:focus,
+.close-btn:focus {
+  outline: 2px solid var(--color-tres);
+  outline-offset: 2px;
+}
+
+/* Efecto hover en items */
+.shortcut-item:active {
+  transform: translateX(3px) scale(0.98);
+}

@@ -26,8 +26,15 @@ const Facturacion = () => {
     const [telefono, setTelefono] = useState('');
     const [correo, setCorreo] = useState('');
     
+    // Nuevos estados para el manejo de clientes
+    const [buscandoCliente, setBuscandoCliente] = useState(false);
+    const [clienteEncontrado, setClienteEncontrado] = useState(false);
+    const [clienteId, setClienteId] = useState(null);
+    const [camposHabilitados, setCamposHabilitados] = useState(true);
+    
     const barcodeInputRef = useRef(null);
     const timeoutRef = useRef(null);
+    const documentoTimeoutRef = useRef(null);
 
     const mostrarError = (titulo, mensaje) => {
         setErrorTitle(titulo);
@@ -82,6 +89,139 @@ const Facturacion = () => {
     useEffect(() => {
         obtenerProductos();
     }, []);
+
+    // 🔍 Nueva función para buscar cliente por documento
+    const buscarClientePorDocumento = async (documento) => {
+        if (!documento || documento.length < 5) {
+            return;
+        }
+
+        try {
+            setBuscandoCliente(true);
+            const res = await clienteAxios.get(`/api/Usuario/documento/${documento}`);
+            
+            if (res.data && res.data.usuario) {
+                // Cliente encontrado - autocompletar datos
+                const cliente = res.data.usuario;
+                setClienteEncontrado(true);
+                setClienteId(cliente._id);
+                setNombres(cliente.nombre || '');
+                setApellidos(cliente.apellido || '');
+                setTelefono(cliente.telefono || '');
+                setCorreo(cliente.correo_electronico || '');
+                setTipoDocumento(cliente.tipo_documento || '');
+                setCamposHabilitados(false);
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Cliente encontrado',
+                    text: `${cliente.nombre} ${cliente.apellido}`,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } else {
+                // Cliente no encontrado - habilitar campos para registro
+                setClienteEncontrado(false);
+                setClienteId(null);
+                setNombres('');
+                setApellidos('');
+                setTelefono('');
+                setCorreo('');
+                setCamposHabilitados(true);
+                
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Cliente no registrado',
+                    text: 'Complete los datos para registrar al nuevo cliente',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            }
+            setBuscandoCliente(false);
+        } catch (error) {
+            setBuscandoCliente(false);
+            console.error('Error al buscar cliente:', error);
+            
+            // Si el error es 404, el cliente no existe
+            if (error.response && error.response.status === 404) {
+                setClienteEncontrado(false);
+                setClienteId(null);
+                setNombres('');
+                setApellidos('');
+                setTelefono('');
+                setCorreo('');
+                setCamposHabilitados(true);
+                
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Cliente no registrado',
+                    text: 'Complete los datos para registrar al nuevo cliente',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            }
+        }
+    };
+
+    // Handler para el cambio en el número de documento con delay
+    const handleNumeroDocumentoChange = (value) => {
+        setNumeroDocumento(value);
+        
+        // Limpiar timeout anterior
+        clearTimeout(documentoTimeoutRef.current);
+        
+        // Crear nuevo timeout para buscar después de 800ms
+        documentoTimeoutRef.current = setTimeout(() => {
+            if (value.length >= 5 && tipoDocumento) {
+                buscarClientePorDocumento(value);
+            }
+        }, 800);
+    };
+
+    // 📝 Función para registrar nuevo cliente
+    const registrarNuevoCliente = async () => {
+        try {
+            const datosCliente = {
+                nombre: nombres,
+                apellido: apellidos,
+                tipo_documento: tipoDocumento,
+                numero_documento: numeroDocumento,
+                correo_electronico: correo,
+                telefono: telefono,
+                password: 'temporal123', // Contraseña temporal
+                estado: 'Activo',
+                tipo_usuario: 'CLIENTE'
+            };
+
+            const res = await clienteAxios.post('/api/Usuario', datosCliente);
+            
+            if (res.data) {
+                setClienteEncontrado(true);
+                setClienteId(res.data._id || null);
+                setCamposHabilitados(false);
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Cliente registrado!',
+                    text: 'El cliente ha sido registrado exitosamente',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                
+                return true;
+            }
+        } catch (error) {
+            console.error('Error al registrar cliente:', error);
+            
+            let mensajeError = 'Error al registrar el cliente';
+            if (error.response?.data?.mensaje) {
+                mensajeError = error.response.data.mensaje;
+            }
+            
+            mostrarError('Error al registrar', mensajeError);
+            return false;
+        }
+    };
 
     const handleBarcodeInput = (value) => {
         setBarcodeInput(value);
@@ -220,9 +360,30 @@ const Facturacion = () => {
     };
 
     const generarFactura = async () => {
+        // Validar que hay productos
+        if (productosFactura.length === 0) {
+            mostrarError('Error', 'Debe agregar al menos un producto a la factura');
+            return;
+        }
+
+        // Validar datos del cliente
+        if (!tipoDocumento || !numeroDocumento || !nombres || !apellidos || !telefono) {
+            mostrarError('Datos incompletos', 'Complete todos los datos del cliente');
+            return;
+        }
+
         setGenerandoFactura(true);
 
         try {
+            // Si el cliente no existe, registrarlo primero
+            if (!clienteEncontrado) {
+                const registrado = await registrarNuevoCliente();
+                if (!registrado) {
+                    setGenerandoFactura(false);
+                    return;
+                }
+            }
+
             const total = productosFactura.reduce((sum, producto) => {
                 return sum + (producto.precio * producto.cantidad);
             }, 0);
@@ -256,7 +417,7 @@ const Facturacion = () => {
         } catch (error) {
             console.error('❌ Error al generar la factura:', error.response?.data?.mensaje || error.message);
             setErrorTitle('Error de Validación');
-            setErrorMessage('Faltan campos obligatorios para generar la factura. Por favor, completa toda la información del cliente y los productos.');
+            setErrorMessage('Error al generar la factura. Verifique los datos e intente nuevamente.');
             setShowErrorPopup(true);
         } finally {
             setGenerandoFactura(false);
@@ -271,6 +432,9 @@ const Facturacion = () => {
         setTelefono('');
         setCorreo('');
         setProductosFactura([]);
+        setClienteEncontrado(false);
+        setClienteId(null);
+        setCamposHabilitados(true);
     };
 
     const cancelarFactura = () => {
@@ -345,44 +509,93 @@ const Facturacion = () => {
                 <div className={styles.facturacionForm}>
                     <select 
                         value={tipoDocumento}
-                        onChange={(e) => setTipoDocumento(e.target.value)}
+                        onChange={(e) => {
+                            setTipoDocumento(e.target.value);
+                            // Si ya hay número de documento, buscar cliente
+                            if (numeroDocumento.length >= 5) {
+                                buscarClientePorDocumento(numeroDocumento);
+                            }
+                        }}
+                        disabled={buscandoCliente}
                     >
                         <option value="">Seleccione tipo de documento</option>
-                        <option value="CC">Cédula de ciudadanía</option>
-                        <option value="CE">Cédula de extranjería</option>
-                        <option value="NIT">NIT</option>
+                        <option value="Cedula de ciudadania">Cédula de ciudadanía</option>
+                        <option value="Cedula extranjeria">Cédula de extranjería</option>
+                        <option value="Nit">NIT</option>
                         <option value="Pasaporte">Pasaporte</option>
                     </select>
-                    <input 
-                        type="text" 
-                        placeholder="Número documento"
-                        value={numeroDocumento}
-                        onChange={(e) => setNumeroDocumento(e.target.value)}
-                    />
+                    <div style={{ position: 'relative', width: '48.5%' }}>
+                        <input 
+                            type="text" 
+                            placeholder="Número documento"
+                            value={numeroDocumento}
+                            onChange={(e) => handleNumeroDocumentoChange(e.target.value)}
+                            disabled={buscandoCliente}
+                            style={{ width: '100%' }}
+                        />
+                        {buscandoCliente && (
+                            <i 
+                                className="fa fa-spinner fa-spin" 
+                                style={{
+                                    position: 'absolute',
+                                    right: '10px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    color: 'var(--color-tres)'
+                                }}
+                            ></i>
+                        )}
+                    </div>
                     <input 
                         type="text" 
                         placeholder="Nombres" 
                         value={nombres}
                         onChange={(e) => setNombres(e.target.value)}
+                        disabled={!camposHabilitados || buscandoCliente}
+                        style={{
+                            backgroundColor: !camposHabilitados ? '#f0f0f0' : 'white'
+                        }}
                     />
                     <input 
                         type="text" 
                         placeholder="Apellidos"
                         value={apellidos}
                         onChange={(e) => setApellidos(e.target.value)}
+                        disabled={!camposHabilitados || buscandoCliente}
+                        style={{
+                            backgroundColor: !camposHabilitados ? '#f0f0f0' : 'white'
+                        }}
                     />
                     <input 
                         type="text" 
                         placeholder="Teléfono"
                         value={telefono}
                         onChange={(e) => setTelefono(e.target.value)}
+                        disabled={!camposHabilitados || buscandoCliente}
+                        style={{
+                            backgroundColor: !camposHabilitados ? '#f0f0f0' : 'white'
+                        }}
                     />
                     <input 
                         type="email" 
-                        placeholder="Correo"
+                        placeholder="Correo (opcional)"
                         value={correo}
                         onChange={(e) => setCorreo(e.target.value)}
+                        disabled={!camposHabilitados || buscandoCliente}
+                        style={{
+                            backgroundColor: !camposHabilitados ? '#f0f0f0' : 'white'
+                        }}
                     />
+                    {clienteEncontrado && (
+                        <small style={{ 
+                            color: '#28a745', 
+                            marginTop: '-10px', 
+                            display: 'block',
+                            fontWeight: 'bold'
+                        }}>
+                            ✓ Cliente encontrado en el sistema
+                        </small>
+                    )}
                 </div>
                 
                 <div className={styles.botonAnadir}>
