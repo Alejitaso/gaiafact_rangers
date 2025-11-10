@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import { useLocation } from 'react-router-dom';
 import styles from './sidebar.module.css';
 
+
 const Sidebar = () => {
   const location = useLocation();
   const currentPath = location.pathname;

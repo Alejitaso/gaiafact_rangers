@@ -1,146 +1,98 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
+import axios from 'axios';
 import styles from './inicio.module.css';
 
-// Importar imágenes desde la carpeta onset/img
-import img1 from './img/imagen_1.jpg';
-import img2 from './img/imagen_1.jpg';
-import img3 from './img/imagen_1.jpg';
-import img4 from './img/imagen_1.jpg';
-import img5 from './img/imagen_1.jpg';
-import img6 from './img/imagen_1.jpg';
-import img7 from './img/imagen_1.jpg';
-import img8 from './img/imagen_1.jpg';
-import img9 from './img/imagen_1.jpg';
-import img10 from './img/imagen_1.jpg';
-
 const Inicio = () => {
-    // Array con todas las imágenes importadas
-    const images = [img1, img2, img3, img4, img5, img6, img7, img8, img9, img10];
-    
-    // Referencias de React en lugar de querySelector
     const carouselRef = useRef(null);
     const intervalRef = useRef(null);
-    
-    // Estados para el carrusel
+
+    const [images, setImages] = useState([]); // ← ahora vienen del backend
     const [currentRotation, setCurrentRotation] = useState(0);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
-    
+
+    // Cargar imágenes del backend
+    const cargarImagenes = async () => {
+        try {
+            const res = await axios.get('http://localhost:4000/api/imagenes/carousel');
+            if (res.data.exito && res.data.imagenes) {
+                // Agregamos la URL completa
+                const urls = res.data.imagenes.map(img => `http://localhost:4000${img}`);
+                setImages(urls);
+                console.log('🖼️ Imágenes cargadas:', urls);
+            } else {
+                console.warn('⚠️ No se encontraron imágenes');
+            }
+        } catch (error) {
+            console.error('❌ Error al cargar imágenes del backend:', error);
+        }
+    };
+
     const numItems = images.length;
-    const angleStep = 360 / numItems;
-    
-    // Función para actualizar el carrusel
+    const angleStep = numItems > 0 ? 360 / numItems : 0;
+
     const updateCarousel = (rotation) => {
         if (!carouselRef.current) return;
-        
         const carouselItems = carouselRef.current.querySelectorAll(`.${styles.curvedCarouselItem}`);
-        
-        // Aplicar transformación al contenedor principal
         carouselRef.current.style.transform = `rotateX(-15deg) rotateY(${rotation}deg)`;
-        
-        // Actualizar cada item
+
         carouselItems.forEach((item, index) => {
             const itemAngle = index * angleStep;
-            
-            // Calcular ángulo relativo
             let relativeAngle = (itemAngle + rotation) % 360;
             if (relativeAngle > 180) relativeAngle -= 360;
             if (relativeAngle < -180) relativeAngle += 360;
-            
-            // Establecer variable CSS personalizada
+
             item.style.setProperty('--angle', itemAngle);
-            
-            // Determinar visibilidad y posición central
+
             const isVisible = Math.abs(relativeAngle) < (angleStep * (numItems / 2 - 0.5));
             const isCenter = Math.abs(relativeAngle) < (angleStep / 2);
-            
-            // Remover clases anteriores
+
             item.classList.remove(styles.visible, styles.centerItem);
-            
-            // Agregar clases según estado
-            if (isVisible) {
-                item.classList.add(styles.visible);
-            }
+            if (isVisible) item.classList.add(styles.visible);
             if (isCenter) {
                 item.classList.add(styles.centerItem);
                 setCurrentIndex(index);
             }
         });
     };
-    
-    // Función para avanzar al siguiente item
+
     const showNextItem = () => {
         const newRotation = currentRotation - angleStep;
         setCurrentRotation(newRotation);
         updateCarousel(newRotation);
     };
-    
-    // Iniciar auto-slide
+
     const startAutoSlide = () => {
-        if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-        }
+        if (intervalRef.current) clearInterval(intervalRef.current);
         intervalRef.current = setInterval(showNextItem, 3000);
     };
-    
-    // Pausar auto-slide
+
     const stopAutoSlide = () => {
-        if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-        }
+        if (intervalRef.current) clearInterval(intervalRef.current);
     };
-    
-    // Manejar hover
+
     const handleMouseEnter = () => {
         setIsHovered(true);
         stopAutoSlide();
     };
-    
+
     const handleMouseLeave = () => {
         setIsHovered(false);
         startAutoSlide();
     };
-    
-    // Effect para inicializar y limpiar el carrusel
+
     useEffect(() => {
-        console.log('Componente Inicio montado');
-        console.log('Número de imágenes:', images.length);
-        
-        // Pequeño delay para asegurar que el DOM esté listo
-        const initTimer = setTimeout(() => {
-            // Inicializar el carrusel
-            updateCarousel(currentRotation);
-            
-            // Iniciar auto-slide si no está en hover
-            if (!isHovered) {
-                startAutoSlide();
-            }
-        }, 100);
-        
-        return () => {
-            clearTimeout(initTimer);
-            stopAutoSlide();
-        };
+        cargarImagenes(); // 👈 cargar imágenes desde el backend
     }, []);
-    
-    // Effect para manejar el auto-slide basado en hover
+
     useEffect(() => {
-        if (isHovered) {
-            stopAutoSlide();
-        } else {
-            startAutoSlide();
+        if (images.length > 0) {
+            updateCarousel(0);
+            if (!isHovered) startAutoSlide();
         }
-        
         return () => stopAutoSlide();
-    }, [isHovered]);
-    
-    // Effect de limpieza al desmontar
-    useEffect(() => {
-        return () => {
-            stopAutoSlide();
-        };
-    }, []);
-    
+    }, [images, isHovered]);
+
     return (
         <Fragment>
             <div className={styles.curvedCarouselWrapper}>
@@ -150,25 +102,26 @@ const Inicio = () => {
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
                 >
-                    {images.map((image, index) => (
-                        <div 
-                            key={index} 
-                            className={styles.curvedCarouselItem}
-                            style={{ '--angle': index * angleStep }}
-                        >
-                            <img 
-                                src={image} 
-                                alt={`Imagen ${index + 1}`}
-                                onLoad={() => console.log(`Imagen ${index + 1} cargada exitosamente`)}
-                                onError={(e) => {
-                                    console.error(`Error cargando imagen ${index + 1}:`, e);
-                                    // Fallback: podrías poner una imagen por defecto aquí
-                                }}
-                            />
-                        </div>
-                    ))}
+                    {images.length > 0 ? (
+                        images.map((image, index) => (
+                            <div 
+                                key={index} 
+                                className={styles.curvedCarouselItem}
+                                style={{ '--angle': index * angleStep }}
+                            >
+                                <img 
+                                    src={image} 
+                                    alt={`Imagen ${index + 1}`} 
+                                    onError={(e) => e.target.src = '/fallback.jpg'} 
+                                />
+                            </div>
+                        ))
+                    ) : (
+                        <p>Cargando imágenes...</p>
+                    )}
                 </div>
             </div>
+
             <div className={styles.slang}>
                 <h2>Nuestra prioridad es cuidar el planeta</h2>
             </div>

@@ -18,14 +18,7 @@
 
 /* Título del formulario de login */
 .loginbox h2 {
-    margin-bottom: 10px; 
-    color: var(--color-dos); 
-}
-
-/* Texto debajo del título (como "¿No estás registrado?") */
-.loginbox p {
     margin-bottom: 30px; 
-    font-size: 14px; 
     color: var(--color-dos); 
 }
 
@@ -71,7 +64,8 @@
 
 /* Campo enfocado brillo simulado*/
 .loginform input[type="email"]:focus,
-.loginform input[type="password"]:focus {
+.loginform input[type="password"]:focus,
+.contrasegnaContainer input[type="text"]:focus {
     border-color: var(--color-tres); 
     box-shadow: 0 0 12px var(--color-cinco); 
     background-color: var(--color-dos); 

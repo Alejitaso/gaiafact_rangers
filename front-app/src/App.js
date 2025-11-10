@@ -20,11 +20,19 @@ import Nueva_contra from './components/auth/nueva_contra.js';
 import Inventario from './components/products/inventory.js';
 import ListadoUsuarios from './components/user/listadoUsuarios.js';
 
+
+// Importar el hook de atajos de teclado
+import useKeyboardShortcuts from './hooks/useKeyboardShortcuts.js';
+import KeyboardShortcutsHelp from './components/utils/KeyboardShortcutsHelp';
+
 import './App.css'; 
 
 // Componente interno que usa useLocation
 function AppContent() {
   const location = useLocation();
+  
+  // Activar los atajos de teclado
+  useKeyboardShortcuts();
   
   // Rutas donde NO se debe mostrar el sidebar
   const rutasSinSidebar = ['/', '/login', '/recuperar', '/nueva_contra'];
@@ -59,12 +67,11 @@ function AppContent() {
             <Route path="/recuperar" element={<Recuperar />} />
             <Route path="/nueva_contra/:token" element={<Nueva_contra />} />
             <Route path="/usuarios" element={<ListadoUsuarios />} />
-
-            {/* Agrega más rutas aquí según sea necesario */}
           </Routes>
         </div>
         
         <Footer />
+        {!ocultarSidebar && <KeyboardShortcutsHelp />}
       </div>
     </Fragment>
   );

@@ -170,12 +170,6 @@ function Login() {
    return (
     <div className={styles.loginbox}>
       <h2>Ingresa a tu cuenta</h2>
-      <p>
-        ¿No estás registrado?{" "}
-        <a className={styles.link} href="/registro">
-          Registrarse
-        </a>
-      </p>
       <div className={styles.logog}>
         <i className="fa-solid fa-circle-user fa-7x" style={{ color: "#f0f4f8" }}></i>
       </div>

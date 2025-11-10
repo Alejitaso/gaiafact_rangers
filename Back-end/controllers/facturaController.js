@@ -42,10 +42,10 @@ const generarPDFFactura = async (datosFactura) => {
             doc.fontSize(24).fillColor(colorPrimario).text('Athena\'S', 50, 50);
             doc.fontSize(10).fillColor(colorGris)
                .text(' GaiaFact - Sistema de Facturación', 50, 78)
-               .text('NIT: [TU_NIT_AQUI]', 50, 92)
+               .text('NIT: 876.543.219 - 5', 50, 92)
                .text('Régimen Común', 50, 106)
-               .text('Calle [DIRECCIÓN]', 50, 120)
-               .text('Tel: [TELÉFONO]', 50, 134);
+               .text('Calle 11 #22-04', 50, 120)
+               .text('Tel: 3023650911', 50, 134);
 
             // Información de la factura (lado derecho)
             doc.fontSize(18).fillColor(colorPrimario).text('FACTURA DE VENTA', 350, 50, { align: 'right' });
@@ -343,24 +343,314 @@ exports.obtenerFacturaXML = async (req, res, next) => {
     }
 };
 
+// Reemplazar en facturaController.js
+
 exports.enviarFacturaCorreo = async (req, res, next) => {
     try {
         const { idFactura, emailCliente } = req.body;
+
+        // Validaciones
+        if (!idFactura || !emailCliente) {
+            return res.status(400).json({ 
+                mensaje: 'Faltan datos: ID de factura y correo son obligatorios' 
+            });
+        }
+
+        // Validar formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailCliente)) {
+            return res.status(400).json({ 
+                mensaje: 'El formato del correo electrónico no es válido' 
+            });
+        }
+
+        // Buscar la factura
         const factura = await Factura.findById(idFactura);
 
         if (!factura) {
             return res.status(404).json({ mensaje: 'No existe esa factura' });
         }
 
+        // Obtener PDF y XML directamente de la factura
         const pdfBuffer = factura.pdf_factura;
         const xmlBuffer = factura.xml_factura;
+
+        // Verificar que existan
+        if (!pdfBuffer || !xmlBuffer) {
+            return res.status(400).json({ 
+                mensaje: 'La factura no tiene PDF o XML generado. Genere la factura primero.' 
+            });
+        }
+
         const transportador = configurarTransportador();
 
+        // Formatear valores para el correo
+        const nombreCliente = `${factura.usuario.nombre} ${factura.usuario.apellido}`;
+        const fechaFormateada = new Date(factura.fecha_emision).toLocaleDateString('es-CO', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        const totalFormateado = factura.total.toLocaleString('es-CO', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        });
+
+        // Crear HTML del correo personalizado
+        const htmlCorreo = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura Athena'S</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #254454 0%, #276177 100%);
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .header p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #254454;
+            margin-bottom: 20px;
+        }
+        .info-box {
+            background-color: #F0F4F8;
+            border-left: 4px solid #276177;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #D1DCE6;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #276177;
+        }
+        .info-value {
+            color: #254454;
+            text-align: right;
+        }
+        .total-row {
+            background-color: #276177;
+            color: white;
+            padding: 15px 20px;
+            margin: 20px -20px -20px -20px;
+            border-radius: 0 0 5px 5px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .products-table th {
+            background-color: #276177;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        .products-table td {
+            padding: 12px;
+            border-bottom: 1px solid #D1DCE6;
+        }
+        .products-table tr:last-child td {
+            border-bottom: none;
+        }
+        .message {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 20px 0;
+        }
+        .footer {
+            background-color: #254454;
+            color: #F0F4F8;
+            padding: 20px;
+            text-align: center;
+            font-size: 13px;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .footer a {
+            color: #8E9BE8;
+            text-decoration: none;
+        }
+        .attachment-info {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .attachment-info strong {
+            color: #856404;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                margin: 10px;
+            }
+            .content {
+                padding: 20px;
+            }
+            .products-table {
+                font-size: 12px;
+            }
+            .products-table th,
+            .products-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Athena'S</h1>
+            <p>GaiaFact - Sistema de Facturación Electrónica</p>
+        </div>
+        
+        <div class="content">
+            <p class="greeting">
+                Hola <strong>${nombreCliente}</strong>,
+            </p>
+            
+            <p class="message">
+                Gracias por tu compra. Adjuntamos tu factura electrónica en formato PDF y XML.
+            </p>
+
+            <div class="info-box">
+                <div class="info-row">
+                    <span class="info-label">📄 Número de Factura:</span>
+                    <span class="info-value"><strong>${factura.numero_factura}</strong></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">📅 Fecha de emisión:</span>
+                    <span class="info-value">${fechaFormateada}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">📦 Productos:</span>
+                    <span class="info-value">${factura.productos_factura.length} item(s)</span>
+                </div>
+                ${factura.codigo_CUFE ? `
+                <div class="info-row">
+                    <span class="info-label">🔐 CUFE:</span>
+                    <span class="info-value" style="font-size: 11px; word-break: break-all;">${factura.codigo_CUFE}</span>
+                </div>
+                ` : ''}
+                <div class="total-row">
+                    <span>💰 TOTAL:</span>
+                    <span>$${totalFormateado} COP</span>
+                </div>
+            </div>
+
+            <h3 style="color: #254454; border-bottom: 2px solid #276177; padding-bottom: 10px; margin-top: 30px;">
+                📋 Detalle de productos
+            </h3>
+            
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th style="text-align: center;">Cant.</th>
+                        <th style="text-align: right;">Precio Unit.</th>
+                        <th style="text-align: right;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${factura.productos_factura.map(prod => `
+                        <tr>
+                            <td>${prod.producto}</td>
+                            <td style="text-align: center;">${prod.cantidad}</td>
+                            <td style="text-align: right;">$${prod.precio.toLocaleString('es-CO')}</td>
+                            <td style="text-align: right;">$${(prod.precio * prod.cantidad).toLocaleString('es-CO')}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+
+            <div class="attachment-info">
+                <strong>📎 Archivos adjuntos:</strong><br>
+                • factura-${factura.numero_factura}.pdf<br>
+                • factura-${factura.numero_factura}.xml
+            </div>
+
+            <p class="message">
+                Esta factura es un documento válido para efectos tributarios. 
+                Por favor, consérvala para tus registros contables.
+            </p>
+
+            <p class="message">
+                Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos 
+                respondiendo a este correo o llamando al <strong>3023650911</strong>.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Athena'S - GaiaFact</strong></p>
+            <p>📍 Calle 11 #22-04</p>
+            <p>📞 Tel: 3023650911</p>
+            <p>🆔 NIT: 876.543.219-5</p>
+            <p>📧 <a href="mailto:gaiafactrangers@gmail.com">gaiafactrangers@gmail.com</a></p>
+            <p style="margin-top: 15px; font-size: 11px; opacity: 0.8;">
+                Este correo fue generado automáticamente por el sistema GaiaFact.<br>
+                Por favor, no responder directamente a este mensaje.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+        `;
+
+        // Enviar el correo
+        console.log(`📧 Enviando factura ${factura.numero_factura} a ${emailCliente}...`);
+
         await transportador.sendMail({
-            from: '"Tu Empresa" <gaiafactrangers@gmail.com>',
+            from: '"Athena\'S - GaiaFact" <gaiafactrangers@gmail.com>',
             to: emailCliente,
-            subject: `Factura ${factura.numero_factura}`,
-            html: `<h1>Hola,</h1><p>Adjuntamos tu factura ${factura.numero_factura}.</p>`,
+            subject: `📄 Factura ${factura.numero_factura} - Athena'S`,
+            html: htmlCorreo,
             attachments: [
                 {
                     filename: `factura-${factura.numero_factura}.pdf`,
@@ -375,10 +665,34 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
             ]
         });
 
-        res.json({ mensaje: 'Factura enviada por correo' });
+        console.log(`✅ Factura enviada exitosamente a ${emailCliente}`);
+
+        res.json({ 
+            mensaje: 'Factura enviada por correo exitosamente',
+            destinatario: emailCliente,
+            numeroFactura: factura.numero_factura
+        });
+
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ mensaje: 'Error al enviar la factura por correo' });
+        console.error('❌ Error al enviar la factura por correo:', error);
+        
+        let mensajeError = 'Error al enviar la factura por correo';
+        
+        // Manejo de errores específicos de nodemailer
+        if (error.code === 'EAUTH') {
+            mensajeError = 'Error de autenticación con el servidor de correo. Verifique las credenciales en .env';
+        } else if (error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT') {
+            mensajeError = 'No se pudo conectar con el servidor de correo. Verifique su conexión a internet';
+        } else if (error.responseCode === 550) {
+            mensajeError = 'El correo del destinatario no es válido o no existe';
+        } else if (error.response) {
+            mensajeError = `Error del servidor de correo: ${error.response}`;
+        }
+        
+        res.status(500).json({ 
+            mensaje: mensajeError,
+            error: error.message 
+        });
     }
 };
 
@@ -394,3 +708,4 @@ exports.buscarFactura = async (req, res, next) => {
         res.status(500).json({ mensaje: 'Error al buscar la factura' });
     }
 };
+
