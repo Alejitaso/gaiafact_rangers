@@ -9,6 +9,7 @@ const productoController=require('../controllers/productoController.js');
 const facturaController=require('../controllers/facturaController.js');
 const authController = require("../controllers/authcontroller.js"); 
 const imagenesController = require('../controllers/imagenesController.js');
+const notificacionController = require('../controllers/notificacionController.js')
 
 module.exports=function(){
     //registro nuevo cliente
@@ -70,6 +71,8 @@ module.exports=function(){
     router.post("/auth/recover", authController.recoverPassword);
     router.get('/auth/verify-email', authController.verifyEmail);
     router.post('/auth/reset/:token', authController.resetPassword);
+
+    router.post('/notificaciones/crear', notificacionController.crearNotificacion);
 
     return router;
 }
