@@ -396,6 +396,7 @@ const Facturacion = () => {
                     apellido: apellidos,
                     tipo_documento: tipoDocumento,
                     numero_documento: numeroDocumento,
+                    correo_electronico: correo,
                     telefono: telefono
                 },
                 productos_factura: productosFactura.map(p => ({
