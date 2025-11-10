@@ -25,6 +25,7 @@ const facturasSchema = new mongoose.Schema({
         apellido: { type: String, required: true },
         tipo_documento: { type: String, required: true },
         numero_documento: { type: String, required: true },
+        correo_electronico: { type: String, required: true },
         telefono: { type: String }
     },
     productos_factura: {

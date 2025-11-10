@@ -42,8 +42,12 @@ module.exports=function(){
     // eliminar producto
     router.delete('/productos/:idProducto', productoController.eliminarProducto);
 
-    /* Facturas */
+    /*imagenes*/
+    router.post('/imagenes/carousel', imagenesController.upload.single('imagen'), imagenesController.subirImagenCarousel);
+    router.get('/imagenes/carousel', imagenesController.obtenerImagenesCarousel);
 
+
+    /* Facturas */
     router.get('/facturas/:idFactura/pdf', facturaController.obtenerFacturaPDF);
     router.get('/facturas/:idFactura/xml', facturaController.obtenerFacturaXML);
     // genera nueva factura
@@ -63,7 +67,13 @@ module.exports=function(){
     // enviar por correo
     router.post('/facturas/enviar-correo', facturaController.enviarFacturaCorreo);
     // buscar por numero de factura
-    router.get('/facturas/buscar-factura/:numeroFactura', facturaController.buscarFactura);
+        router.get('/facturas/buscar-factura/:numeroFactura', facturaController.buscarFactura);
+
+    // Ruta para buscar factura por número
+    router.get('/buscar/:numeroFactura', facturaController.buscarFactura);
+
+    // Ruta para enviar por correo
+    router.post('/enviar-correo', facturaController.enviarFacturaCorreo);
 
     // Rutas de autenticación
     router.post("/auth/login", authController.login);

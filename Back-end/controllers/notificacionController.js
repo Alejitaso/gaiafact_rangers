@@ -43,14 +43,14 @@ exports.enviarFactura = async (req, res) => {
             const transporter = nodemailer.createTransport({
                 service: "gmail",
                 auth: {
-                    user: "tu_correo@gmail.com", // Cambiar
-                    pass: "tu_password_app"      // Cambiar (usar app password)
+                    user: "EMAIL_USER", // Cambiar
+                    pass: "EMAIL_PASS"      // Cambiar (usar app password)
                 }
             });
 
             // 5. Configurar correo
             const mailOptions = {
-                from: '"Sistema de Facturación" <tu_correo@gmail.com>',
+                from: '"Sistema de Facturación" <gaiafactrangers@gmail.com>',
                 to: cliente.correo_electronico,
                 subject: "Factura de su compra",
                 text: `Hola ${cliente.nombre}, adjuntamos la factura de su compra.`,
