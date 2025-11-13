@@ -227,6 +227,17 @@ const Sidebar = () => {
           </>
         )}
 
+        {/*CLIENTE */}
+        {["USUARIO", "CLIENTE"].includes(tipoUsuario) && (
+          <a
+              onClick={(e) => { e.preventDefault(); window.location.href = "/notify"; }}
+              className={`${styles.sidebarLink} ${currentPath === '/notify' ? styles.activeLink : ''}`}
+            >
+              <i className="fa-solid fa-bell"></i>
+              <span className={styles.linkText}>Notificaciones</span>
+            </a>
+        )}
+
         {/* Todos pueden ver Perfil */}
         <a
           onClick={(e) => { e.preventDefault(); window.location.href = "/perfil"; }}
