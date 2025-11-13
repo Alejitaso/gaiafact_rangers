@@ -16,7 +16,6 @@ exports.verifyEmail = async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decoded.userId;
 
-        // 2. Encuentra y actualiza al usuario
         const usuario = await Usuario.findById(userId);
 
         if (!usuario) {
@@ -62,7 +61,7 @@ exports.login = async (req, res) => {
     const payload = {
       id: user._id,
       correo_electronico: user.correo_electronico,
-      tipo_usuario: user.tipo_usuario, // 👈 nombre igual al del modelo
+      tipo_usuario: user.tipo_usuario, 
     };
 
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
@@ -217,15 +216,13 @@ exports.resetPassword = async (req, res) => {
       });
     }
 
-    // 🔹 Hashear SIEMPRE la nueva contraseña
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(nuevaPassword, salt);
+    // 🟢 Solo asigna la contraseña, el hook pre-save la hasheará
+    user.password = nuevaPassword;
 
-    // Limpia el token
     user.resetToken = null;
     user.tokenExpiration = null;
 
-    await user.save();
+    await user.save(); // Aquí el hook pre-save hasheará automáticamente
 
     return res.json({
       success: true,
@@ -239,7 +236,7 @@ exports.resetPassword = async (req, res) => {
 // 🛡 Middleware para proteger rutas con JWT
 exports.verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; // formato: Bearer <token>
+  const token = authHeader && authHeader.split(" ")[1]; 
 
   if (!token) {
     return res.status(403).json({ success: false, message: "Token requerido" });
@@ -250,7 +247,7 @@ exports.verifyToken = (req, res, next) => {
       return res.status(403).json({ success: false, message: "Token inválido o expirado" });
     }
 
-    req.user = user; // guardamos los datos del token en req.user
+    req.user = user; 
     next();
   });
 };

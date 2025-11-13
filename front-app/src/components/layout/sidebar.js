@@ -126,7 +126,7 @@ const Sidebar = () => {
         </a>
 
         {/* Solo ADMINISTRADOR y USUARIO */}
-        {["ADMINISTRADOR", "USUARIO"].includes(tipoUsuario) && (
+        {["SUPERADMIN","ADMINISTRADOR", "USUARIO"].includes(tipoUsuario) && (
           <a
             onClick={(e) => { e.preventDefault(); window.location.href = "/facturacion"; }}
             className={`${styles.sidebarLink} ${currentPath === '/facturacion' ? styles.activeLink : ''}`}
@@ -225,6 +225,17 @@ const Sidebar = () => {
               <span className={styles.linkText}>Inventario</span>
             </a>
           </>
+        )}
+
+        {/*CLIENTE */}
+        {["USUARIO", "CLIENTE"].includes(tipoUsuario) && (
+          <a
+              onClick={(e) => { e.preventDefault(); window.location.href = "/notify"; }}
+              className={`${styles.sidebarLink} ${currentPath === '/notify' ? styles.activeLink : ''}`}
+            >
+              <i className="fa-solid fa-bell"></i>
+              <span className={styles.linkText}>Notificaciones</span>
+            </a>
         )}
 
         {/* Todos pueden ver Perfil */}
