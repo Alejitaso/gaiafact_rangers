@@ -16,7 +16,7 @@ exports.verificarAuth = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
         // 1. Obtiene el usuario de la base de datos
-        req.usuario = await Usuario.findById(decoded.userId).select('-password');
+        req.usuario = await Usuario.findById(decoded.id).select('-password');
         
         if (!req.usuario) {
             return res.status(404).json({ mensaje: 'Usuario no encontrado' });

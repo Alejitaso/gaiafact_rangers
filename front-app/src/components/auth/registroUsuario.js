@@ -15,6 +15,18 @@ const validarSoloLetras = (text) => {
     return letrasRegex.test(text.trim());
 };
 
+const validarEmail = (email) => {
+    // Regex simple para formato básico de correo (requiere algo@algo.algo)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+};
+
+const validarSoloLetras = (text) => {
+    // Permite letras (mayúsculas/minúsculas), espacios y acentos/ñ
+    const letrasRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    return letrasRegex.test(text.trim());
+};
+
 function RegistroUsuario() {
   const [usuario, setUsuario] = useState({
     nombre: '',
@@ -28,6 +40,23 @@ function RegistroUsuario() {
     password: 'temporal123'
   });
 
+ const manejarCambio = (e) => {
+    const { name, value } = e.target;
+    let newValue = value;
+
+    if (name === 'nombre' || name === 'apellido') {
+        // Filtrado en vivo: Solo permite letras, espacios y acentos
+        newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+    } else if (name === 'telefono') {
+        // Filtrado en vivo: Solo permite números
+        newValue = value.replace(/[^0-9]/g, '');
+    }
+
+    setUsuario({
+      ...usuario,
+      [name]: newValue
+    });
+  };
   const manejarCambio = (e) => {
     const { name, value } = e.target;
     let newValue = value;

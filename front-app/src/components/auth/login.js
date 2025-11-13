@@ -103,18 +103,18 @@ function Login() {
       const data = await res.json();
 
       if (data.success) {
-        setError(null);
-        setAttempts(0);
-        localStorage.removeItem("attempts");
-        
-        // 🟢 CORRECCIÓN CLAVE: Guardar el token de autenticación
-        // Asumo que tu backend lo envía como 'data.token'
-        localStorage.setItem('token', data.token); 
+        setError(null);
+        setAttempts(0);
+        localStorage.removeItem("attempts");
 
-        // La redirección ocurrirá después del temporizador
-        setTimeout(() => {
-            window.location.href = "/inicio";
-        }, 2000); 
+        // 🟢 Guardar token y tipo_usuario para controlar vistas
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("tipo_usuario", data.usuario.tipo_usuario);
+
+        // Redirigir tras un breve delay
+        setTimeout(() => {
+          window.location.href = "/inicio";
+        }, 2000);
         
       } else {
         // Error en login - restaurar estado
@@ -196,7 +196,7 @@ function Login() {
             title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
           ></i>
           <input
-            type={showPassword ? "text" : "password"}   // 👈 alterna entre ocultar/mostrar
+            type={showPassword ? "text" : "password"}   
             id="password"
             placeholder="Ingresa tu clave"
             value={password}
