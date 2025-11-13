@@ -160,7 +160,7 @@ exports.mostrarProducto = async(req, res, next) => {
         if(!producto){
             return res.json({mensaje: 'Ese producto no existe'});
         }
-        res.json(producto);
+        res.json(producto); // 👈 Devuelve el objeto producto directamente
     } catch(error) {
         console.log(error);
         next();

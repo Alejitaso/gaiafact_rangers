@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Sidebar from './components/layout/sidebar.js';
 import Header from './components/layout/Header.js';
 import Footer from './components/layout/footer.js';
@@ -21,19 +21,36 @@ import Inventario from './components/products/inventory.js';
 import ListadoUsuarios from './components/user/listadoUsuarios.js';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts.js';
 import KeyboardShortcutsHelp from './components/utils/KeyboardShortcutsHelp';
+import Swal from 'sweetalert2';
 import './App.css';
 
-
-// 🔒 Componente para proteger rutas
-const ProtectedRoute = ({ element }) => {
+// 🔒 Componente para proteger rutas con verificación de rol
+const ProtectedRoute = ({ element, allowedRoles = [] }) => {
   const token = localStorage.getItem("token");
-  return token ? element : <Login />;
+  const tipoUsuario = (localStorage.getItem("tipo_usuario") || "").toUpperCase();
+
+  // Si no hay token, redirigir a login
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Si la ruta tiene roles específicos permitidos
+  if (allowedRoles.length > 0) {
+    // Verificar si el usuario tiene permiso
+    if (!allowedRoles.includes(tipoUsuario)) {
+
+      return <Navigate to="/inicio" replace />;
+    }
+  }
+
+  // Si todo está bien, renderizar el componente
+  return element;
 };
 
 function AppContent() {
   const location = useLocation();
-  const rutasSinSidebar = ['/', '/login', '/recuperar', '/nueva_contra'];
-  const ocultarSidebar = rutasSinSidebar.includes(location.pathname);
+  const rutasSinSidebar = ['/', '/login', '/recuperar'];
+  const ocultarSidebar = rutasSinSidebar.includes(location.pathname) || location.pathname.startsWith('/nueva_contra');
   useKeyboardShortcuts();
 
   // 🟢 Estado del tipo de usuario
@@ -68,7 +85,7 @@ function AppContent() {
     }
   }, [location.pathname]);
 
-  // 🔹 Rutas públicas
+  // 🔹 Rutas públicas (sin protección)
   const rutasPublicas = [
     { path: "/", element: <Login /> },
     { path: "/login", element: <Login /> },
@@ -76,55 +93,29 @@ function AppContent() {
     { path: "/nueva_contra/:token", element: <Nueva_contra /> },
   ];
 
-  // 🔹 Rutas base para todos los usuarios logueados
-  const rutasBase = [
-    { path: "/inicio", element: <Inicio /> },
-    { path: "/perfil/:idUsuario?", element: <Perfil /> },
+  // 🔹 Definición de todas las rutas con sus roles permitidos
+  const todasLasRutas = [
+    // Rutas accesibles para TODOS los usuarios autenticados
+    { path: "/inicio", element: <Inicio />, roles: [] },
+    { path: "/perfil/:idUsuario?", element: <Perfil />, roles: [] },
+    
+    // Rutas para CLIENTE, USUARIO, ADMINISTRADOR y SUPERADMIN
+    { path: "/vis-factura", element: <VisFactura />, roles: ['CLIENTE', 'USUARIO', 'ADMINISTRADOR', 'SUPERADMIN'] },
+    { path: "/notify", element: <Notify />, roles: ['CLIENTE', 'USUARIO', 'ADMINISTRADOR', 'SUPERADMIN'] },
+    
+    // Rutas para USUARIO, ADMINISTRADOR y SUPERADMIN
+    { path: "/facturacion", element: <Facturacion />, roles: ['USUARIO', 'ADMINISTRADOR', 'SUPERADMIN'] },
+    { path: "/codigoqr", element: <Codigo_QR />, roles: ['USUARIO', 'ADMINISTRADOR', 'SUPERADMIN'] },
+    { path: "/codigoBarras", element: <CodigoBarras />, roles: ['USUARIO', 'ADMINISTRADOR', 'SUPERADMIN'] },
+    
+    // Rutas SOLO para ADMINISTRADOR y SUPERADMIN
+    { path: "/inventario", element: <Inventario />, roles: ['ADMINISTRADOR', 'SUPERADMIN'] },
+    { path: "/Img", element: <Img />, roles: ['ADMINISTRADOR', 'SUPERADMIN'] },
+    { path: "/registro", element: <RegistroUsuario />, roles: ['ADMINISTRADOR', 'SUPERADMIN', 'USUARIO'] },
+    { path: "/registroproduct", element: <Registro_product />, roles: ['ADMINISTRADOR', 'SUPERADMIN'] },
+    { path: "/productos/editar/:idProducto", element: <EditProduct />, roles: ['ADMINISTRADOR', 'SUPERADMIN'] },
+    { path: "/usuarios", element: <ListadoUsuarios />, roles: ['ADMINISTRADOR', 'SUPERADMIN'] },
   ];
-
-  // 🔹 Rutas por rol
-  const rutasPorRol = {
-    CLIENTE: [
-      { path: "/vis-factura", element: <VisFactura /> },
-      { path: "/notify", element: <Notify /> }, 
-    ],
-    USUARIO: [
-      { path: "/facturacion", element: <Facturacion /> },
-      { path: "/vis-factura", element: <VisFactura /> },
-      { path: "/codigoqr", element: <Codigo_QR /> },
-      { path: "/codigoBarras", element: <CodigoBarras /> },
-      { path: "/notify", element: <Notify /> },
-    ],
-    ADMINISTRADOR: [
-      { path: "/facturacion", element: <Facturacion /> },
-      { path: "/vis-factura", element: <VisFactura /> },
-      { path: "/codigoqr", element: <Codigo_QR /> },
-      { path: "/codigoBarras", element: <CodigoBarras /> },
-      { path: "/inventario", element: <Inventario /> },
-      { path: "/Img", element: <Img /> },
-      { path: "/registro", element: <RegistroUsuario /> },
-      { path: "/registroproduct", element: <Registro_product /> },
-      { path: "/productos/editar/:idProducto", element: <EditProduct /> },
-      { path: "/usuarios", element: <ListadoUsuarios /> },
-      { path: "/notify", element: <Notify /> },
-    ],
-    SUPERADMIN: [
-      { path: "/facturacion", element: <Facturacion /> },
-      { path: "/vis-factura", element: <VisFactura /> },
-      { path: "/codigoqr", element: <Codigo_QR /> },
-      { path: "/codigoBarras", element: <CodigoBarras /> },
-      { path: "/inventario", element: <Inventario /> },
-      { path: "/Img", element: <Img /> },
-      { path: "/registro", element: <RegistroUsuario /> },
-      { path: "/registroproduct", element: <Registro_product /> },
-      { path: "/productos/editar/:idProducto", element: <EditProduct /> },
-      { path: "/usuarios", element: <ListadoUsuarios /> },
-      { path: "/notify", element: <Notify /> },
-    ],
-  };
-
-  // Combinar rutas base con las del rol actual
-  const rutasUsuario = [...rutasBase, ...(rutasPorRol[tipoUsuario] || [])];
 
   return (
     <Fragment>
@@ -140,13 +131,31 @@ function AppContent() {
               <Route key={i} path={ruta.path} element={ruta.element} />
             ))}
 
-            {/* Rutas protegidas según rol */}
-            {rutasUsuario.map((ruta, i) => (
-              <Route key={i} path={ruta.path} element={<ProtectedRoute element={ruta.element} />} />
+            {/* Rutas protegidas con verificación de rol */}
+            {todasLasRutas.map((ruta, i) => (
+              <Route 
+                key={i} 
+                path={ruta.path} 
+                element={
+                  <ProtectedRoute 
+                    element={ruta.element} 
+                    allowedRoles={ruta.roles}
+                  />
+                } 
+              />
             ))}
 
-            {/* Ruta por defecto */}
-            <Route path="*" element={<Inicio />} />
+            {/* Ruta por defecto - redirige al inicio si está autenticado, sino a login */}
+            <Route 
+              path="*" 
+              element={
+                localStorage.getItem("token") ? (
+                  <Navigate to="/inicio" replace />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              } 
+            />
           </Routes>
         </div>
 
