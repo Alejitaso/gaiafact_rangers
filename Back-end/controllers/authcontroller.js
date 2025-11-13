@@ -217,15 +217,14 @@ exports.resetPassword = async (req, res) => {
       });
     }
 
-    // 🔹 Hashear SIEMPRE la nueva contraseña
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(nuevaPassword, salt);
+    // 🟢 Solo asigna la contraseña, el hook pre-save la hasheará
+    user.password = nuevaPassword;
 
     // Limpia el token
     user.resetToken = null;
     user.tokenExpiration = null;
 
-    await user.save();
+    await user.save(); // Aquí el hook pre-save hasheará automáticamente
 
     return res.json({
       success: true,

@@ -10,7 +10,7 @@ const OPCIONES_PRENDA = [
 ];
 
 function EditarProducto() {
-  const { id } = useParams();
+  const { idProducto: id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -34,6 +34,7 @@ function EditarProducto() {
   useEffect(() => {
     const cargarProducto = async () => {
       if (!id) {
+        console.log('❌ No hay ID en la URL');
         setModoEdicion(false);
         setCargando(false);
         return;
@@ -43,24 +44,68 @@ function EditarProducto() {
       
       try {
         setCargando(true);
-        console.log('Cargando producto con ID:', id);
-        const { data } = await clienteAxios.get(`/api/productos/${id}`);
-        console.log('Datos recibidos:', data);
+        console.log('🔍 ID capturado de la URL:', id);
+        console.log('🔍 Haciendo petición a:', `/api/productos/${id}`);
         
-        setProducto({
+        const response = await clienteAxios.get(`/api/productos/${id}`);
+        
+        console.log('📦 === RESPUESTA COMPLETA ===');
+        console.log('Status:', response.status);
+        console.log('Headers:', response.headers);
+        console.log('Data completo:', response.data);
+        console.log('Tipo de data:', typeof response.data);
+        console.log('Es array?:', Array.isArray(response.data));
+        console.log('Keys de data:', Object.keys(response.data));
+        console.log('========================');
+        
+        const data = response.data;
+        
+        console.log('📋 Campos individuales:');
+        console.log('  - nombre:', data.nombre);
+        console.log('  - descripcion:', data.descripcion);
+        console.log('  - descripcion_detallada:', data.descripcion_detallada);
+        console.log('  - tipo_prenda:', data.tipo_prenda, '(tipo:', typeof data.tipo_prenda, ')');
+        console.log('  - cantidad:', data.cantidad, '(tipo:', typeof data.cantidad, ')');
+        console.log('  - precio:', data.precio, '(tipo:', typeof data.precio, ')');
+        console.log('  - descuento:', data.descuento, '(tipo:', typeof data.descuento, ')');
+        
+        // Procesar tipo_prenda
+        let tipoPrendaFinal;
+        if (Array.isArray(data.tipo_prenda)) {
+          tipoPrendaFinal = data.tipo_prenda[0] || '';
+          console.log('✅ tipo_prenda es array, tomando primer elemento:', tipoPrendaFinal);
+        } else {
+          tipoPrendaFinal = data.tipo_prenda || '';
+          console.log('✅ tipo_prenda es string:', tipoPrendaFinal);
+        }
+        
+        const productoParaEstado = {
           nombre: data.nombre || data.descripcion || '',
           descripcion_detallada: data.descripcion_detallada || '',
-          tipo_prenda: Array.isArray(data.tipo_prenda)
-            ? (data.tipo_prenda[0] || '')
-            : (data.tipo_prenda || ''),
-          cantidad: data.cantidad ?? '',
-          precio: data.precio ?? '',
-          descuento: data.descuento ? (Number(data.descuento) || '') : ''
-        });
-        console.log('Producto cargado correctamente');
+          tipo_prenda: tipoPrendaFinal,
+          cantidad: data.cantidad !== undefined && data.cantidad !== null ? data.cantidad : '',
+          precio: data.precio !== undefined && data.precio !== null ? data.precio : '',
+          descuento: data.descuento ? Number(data.descuento) : ''
+        };
+        
+        console.log('🎯 Objeto que se va a guardar en el estado:', productoParaEstado);
+        
+        setProducto(productoParaEstado);
+        
+        console.log('✅ Estado actualizado correctamente');
+        
+        // Verificar después de 100ms que el estado se actualizó
+        setTimeout(() => {
+          console.log('🔄 Verificación del estado después de actualizar:', producto);
+        }, 100);
+        
       } catch (err) {
-        console.error('Error cargando producto:', err);
-        console.error('Detalles del error:', err.response?.data);
+        console.error('❌ ERROR COMPLETO:', err);
+        console.error('❌ Error response:', err.response);
+        console.error('❌ Status:', err.response?.status);
+        console.error('❌ Data:', err.response?.data);
+        console.error('❌ Message:', err.message);
+        
         Swal.fire('Error', 'No se pudo cargar el producto', 'error');
         navigate('/inventario');
       } finally {
@@ -85,6 +130,7 @@ function EditarProducto() {
 
   const manejarCambio = (e) => {
     const { name, value } = e.target;
+    console.log(`📝 Campo cambiado: ${name} = ${value}`);
     setProducto(prev => ({ ...prev, [name]: value }));
   };
 
@@ -178,9 +224,13 @@ function EditarProducto() {
       setCargando(true);
 
       if (modoEdicion) {
+        console.log('📤 Enviando PUT a:', `/api/productos/${id}`);
+        console.log('📤 Datos enviados:', datosProducto);
         await clienteAxios.put(`/api/productos/${id}`, datosProducto);
         mostrarPopupExito(datosProducto);
       } else {
+        console.log('📤 Enviando POST a:', '/api/productos');
+        console.log('📤 Datos enviados:', datosProducto);
         await clienteAxios.post('/api/productos', datosProducto);
         mostrarPopupExito(datosProducto);
       }
@@ -290,6 +340,8 @@ function EditarProducto() {
       </div>
     );
   }
+
+  console.log('🎨 Renderizando formulario con estado actual:', producto);
 
   return (
     <Fragment>
