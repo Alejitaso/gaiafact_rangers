@@ -6,7 +6,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 // Usa variable de entorno para seguridad
-const JWT_SECRET = process.env.JWT_SECRET || "mi_clave_secreta";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 exports.verifyEmail = async (req, res) => {
     const { token } = req.query;
@@ -58,12 +58,14 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Crear JWT real
-    const token = jwt.sign(
-      { userId: user._id, correo_electronico: user.correo_electronico, tipo: user.tipo_usuario },
-      JWT_SECRET,
-      { expiresIn: "1h" } // el token expira en 1 hora
-    );
+    // Crear JWT que incluya tipo_usuario (rol)
+    const payload = {
+      id: user._id,
+      correo_electronico: user.correo_electronico,
+      tipo_usuario: user.tipo_usuario, // 👈 nombre igual al del modelo
+    };
+
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
 
     return res.json({
       success: true,
@@ -72,9 +74,9 @@ exports.login = async (req, res) => {
         id: user._id,
         nombre: user.nombre,
         correo_electronico: user.correo_electronico,
-        tipo: user.tipo_usuario,
+        tipo_usuario: user.tipo_usuario,
       },
-      token, // ahora es un JWT válido
+      token, 
     });
   } catch (err) {
     console.error("❌ Error en login:", err);
@@ -230,7 +232,7 @@ exports.resetPassword = async (req, res) => {
       message: "Contraseña actualizada exitosamente",
     });
   } catch (err) {
-    console.error("❌ Error en resetPassword:", err);
+    console.error("❌ Error en reestablecer contraseña:", err);
     res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };
