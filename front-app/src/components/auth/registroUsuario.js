@@ -3,6 +3,18 @@ import clienteAxios from '../../config/axios';
 import Swal from 'sweetalert2';
 import styles from './registro.module.css';
 
+const validarEmail = (email) => {
+    // Regex simple para formato básico de correo (requiere algo@algo.algo)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+};
+
+const validarSoloLetras = (text) => {
+    // Permite letras (mayúsculas/minúsculas), espacios y acentos/ñ
+    const letrasRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    return letrasRegex.test(text.trim());
+};
+
 function RegistroUsuario() {
   const [usuario, setUsuario] = useState({
     nombre: '',
@@ -17,9 +29,27 @@ function RegistroUsuario() {
   });
 
   const manejarCambio = (e) => {
+    const { name, value } = e.target;
+    let newValue = value;
+
+    if (name === 'nombre' || name === 'apellido') {
+        // 1. Filtrado para Nombre/Apellido: Solo permite letras, espacios y acentos
+        newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+
+    } else if (name === 'telefono') {
+        // 2. Filtrado para Teléfono: Solo permite números
+        newValue = value.replace(/[^0-9]/g, '');
+
+    } else if (name === 'numero_documento') {
+        newValue = value.replace(/[^a-zA-Z0-9]/g, ''); 
+
+    } else if (name === 'correo_electronico') {
+        newValue = value.replace(/[^a-zA-Z0-9@._-]/g, '');
+    }
+
     setUsuario({
       ...usuario,
-      [e.target.name]: e.target.value
+      [name]: newValue
     });
   };
 

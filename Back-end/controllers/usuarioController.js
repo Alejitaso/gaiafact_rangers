@@ -6,7 +6,7 @@ const transporter = nodemailer.createTransport({
     service: 'gmail', // o tu servicio de correo
     auth: {
         user: process.env.EMAIL_USER, // Asegúrate de tener estas variables de entorno
-        pass: process.env.EMAIL_PASSWORD
+        pass: process.env.EMAIL_PASS
     }
 });
 
@@ -33,74 +33,74 @@ exports.nuevoUsuario = async (req, res) => {
             to: usuario.correo_electronico,
             subject: 'Verifica tu correo electrónico para GaiaFact',
             html: `
-        <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifica tu correo electrónico</title>
-</head>
-<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>¡Verifica tu correo electrónico!</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
 
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4;">
-        <tr>
-            <td align="center" style="padding: 20px;">
-                <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <tr>
-                        <td align="center" style="padding: 20px 20px 0;">
-                            <table cellpadding="0" cellspacing="0" border="0" style="display:inline-block;">
-                                <tr>
-                                    <td style="padding-right: 10px; vertical-align: middle;">
-                                        <img src="https://drive.google.com/uc?export=view&id=1W9hegx7_xrNjxl4bN6939vas_DFwV2s4" alt="Logo de athenas" style="width: 90px; height: auto; display:block;">
-                                    </td>
-                                    <td style="vertical-align: middle;">
-                                        <span style="font-size: 30px; font-weight: bold; color: #333333;">Athena's</span>
-                                    </td>
-                                </tr>
-                            </table>
-                            <h1 style="color: #333333; font-size: 28px; margin: 10px 0 10px;">¡Verifica tu correo electrónico!</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 20px; color: #555555; font-size: 16px; line-height: 1.6;">
-                            <h2>Hola ${usuario.nombre},</h2>
-                            <p>¡Gracias por registrarte! Para activar tu cuenta, por favor, haz clic en el botón de abajo para verificar tu dirección de correo electrónico.</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align="center" style="padding: 20px;">
-                            <a href="${verificationLink}" style="background-color: #276177; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; font-size: 16px;">
-                                Verificar mi cuenta
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align="center" style="padding: 20px; color: #999999; font-size: 12px;">
-                            <table cellpadding="0" cellspacing="0" border="0" style="display:inline-block;">
-                                <tr>
-                                    <td style="padding-right: 10px; vertical-align: middle;">
-                                        <img src="https://drive.google.com/uc?export=view&id=1YTQhGVEM1pTeurD1bF8Zf4qvNd3Ky03-" alt="Logo de Gaifact" style="width: 40px; height: auto; display:block;">
-                                    </td>
-                                    <td style="vertical-align: middle;">
-                                        <span style="font-size: 18px; font-weight: bold; color: #333333;">GaiaFact</span>
-                                    </td>
-                                </tr>
-                            </table>
-                            <p style="margin-top: 10px;">Este correo ha sido enviado por Athenas y GaiaFact. Todos los derechos reservados.</p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4;">
+                <tr>
+                    <td align="center" style="padding: 20px;">
+                        <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <tr>
+                                <td align="center" style="padding: 20px 20px 0;">
+                                    <table cellpadding="0" cellspacing="0" border="0" style="display:inline-block;">
+                                        <tr>
+                                            <td style="padding-right: 10px; vertical-align: middle;">
+                                                <img src="https://drive.google.com/uc?export=view&id=1W9hegx7_xrNjxl4bN6939vas_DFwV2s4" alt="Logo de athenas" style="width: 90px; height: auto; display:block;">
+                                            </td>
+                                            <td style="vertical-align: middle;">
+                                                <span style="font-size: 30px; font-weight: bold; color: #333333;">Athena's</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <h1 style="color: #333333; font-size: 28px; margin: 20px 0 10px;">¡Verifica tu correo electrónico!</h1>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 20px; color: #555555; font-size: 16px; line-height: 1.6;">
+                                    <h2>Hola ${usuario.nombre},</h2>
+                                    <p>¡Gracias por registrarte! Para activar tu cuenta, por favor, haz clic en el botón de abajo para verificar tu dirección de correo electrónico.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="center" style="padding: 20px;">
+                                    <a href="${verificationLink}" style="background-color:#276177;color:#ffffff;padding:15px 30px;text-decoration:none;border-radius:5px;font-weight:bold;display:inline-block;font-size:16px;">
+                                      Verificar mi cuenta
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="center" style="padding: 20px; color: #999999; font-size: 12px;">
+                                    <table cellpadding="0" cellspacing="0" border="0" style="display:inline-block;">
+                                        <tr>
+                                            <td style="padding-right: 10px; vertical-align: middle;">
+                                                <img src="https://drive.google.com/uc?export=view&id=1YTQhGVEM1pTeurD1bF8Zf4qvNd3Ky03-" alt="Logo de Gaifact" style="width: 40px; height: auto; display:block;">
+                                            </td>
+                                            <td style="vertical-align: middle;">
+                                                <span style="font-size: 18px; font-weight: bold; color: #333333;">GaiaFact</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <p style="margin-top: 10px;">Este correo ha sido enviado por Athenas y GaiaFact. Todos los derechos reservados.</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
 
-</body>
-</html>
-        `
+        </body>
+        </html>
+    `
         };
 
         // 🛑 Envía el correo - ESTA LÍNEA FUE COMENTADA PARA EVITAR EL ERROR 500
-        // await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
 
         res.json({ mensaje: 'Se agregó un nuevo usuario. Por favor, verifica tu correo electrónico.' });
     } catch (error) {

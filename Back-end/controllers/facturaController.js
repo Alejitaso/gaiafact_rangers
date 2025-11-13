@@ -425,10 +425,23 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
             padding: 30px;
             text-align: center;
         }
+
+        .header .logo {
+            width: 90px; /* Reducimos el tamaño para que quepa bien al lado del texto */
+            height: auto; 
+            margin-right: 10px; 
+            /* ¡Clave! Permite que el elemento se coloque junto a otros */
+            display: inline-block; 
+            /* Alinea la imagen con el centro vertical del texto */
+            vertical-align: middle;
+        }
+
         .header h1 {
+            display: inline-block;
             margin: 0;
             font-size: 32px;
             font-weight: bold;
+            vertical-align: middle;
         }
         .header p {
             margin: 5px 0 0 0;
@@ -516,6 +529,15 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
             color: #8E9BE8;
             text-decoration: none;
         }
+        
+        .footer .logo-gaia {
+        width: 35px; /* Tamaño pequeño, adecuado para el footer */
+        height: auto;
+        vertical-align: middle; /* Alinea verticalmente con el texto si está en línea */
+        margin-right: 5px; /* Espacio a la derecha si está antes del texto */
+        display: inline-block; /* Permite que la imagen y el texto estén en la misma línea */
+        }
+
         .attachment-info {
             background-color: #fff3cd;
             border: 1px solid #ffc107;
@@ -547,7 +569,12 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏛️ Athena'S</h1>
+            <img 
+                src="https://drive.google.com/uc?export=view&id=1W9hegx7_xrNjxl4bN6939vas_DFwV2s4" 
+                alt="Logo de athenas" 
+                class="logo"
+            >
+            <h1>Athena'S</h1>
             <p>GaiaFact - Sistema de Facturación Electrónica</p>
         </div>
         
@@ -628,7 +655,13 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
         </div>
         
         <div class="footer">
-            <p><strong>Athena'S - GaiaFact</strong></p>
+            <p>
+            <img 
+            src="https://drive.google.com/uc?export=view&id=1YTQhGVEM1pTeurD1bF8Zf4qvNd3Ky03-" 
+            alt="Logo GaiaFact" 
+            class="logo-gaia"
+            >
+            <strong>Athena'S - GaiaFact</strong></p>
             <p>📍 Calle 11 #22-04</p>
             <p>📞 Tel: 3023650911</p>
             <p>🆔 NIT: 876.543.219-5</p>
