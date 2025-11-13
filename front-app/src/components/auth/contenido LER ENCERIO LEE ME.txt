@@ -1,8 +1,0 @@
-login
-
-nueva_contr
-
-recuperar
-
-registro_usuario
-
