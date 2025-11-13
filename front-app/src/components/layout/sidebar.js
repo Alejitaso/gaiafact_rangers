@@ -126,7 +126,7 @@ const Sidebar = () => {
         </a>
 
         {/* Solo ADMINISTRADOR y USUARIO */}
-        {["ADMINISTRADOR", "USUARIO"].includes(tipoUsuario) && (
+        {["SUPERADMIN","ADMINISTRADOR", "USUARIO"].includes(tipoUsuario) && (
           <a
             onClick={(e) => { e.preventDefault(); window.location.href = "/facturacion"; }}
             className={`${styles.sidebarLink} ${currentPath === '/facturacion' ? styles.activeLink : ''}`}
