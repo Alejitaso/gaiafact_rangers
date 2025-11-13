@@ -3,17 +3,6 @@ import clienteAxios from '../../config/axios';
 import Swal from 'sweetalert2';
 import styles from './registro.module.css';
 
-const validarEmail = (email) => {
-    // Regex simple para formato básico de correo (requiere algo@algo.algo)
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-};
-
-const validarSoloLetras = (text) => {
-    // Permite letras (mayúsculas/minúsculas), espacios y acentos/ñ
-    const letrasRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
-    return letrasRegex.test(text.trim());
-};
 
 const validarEmail = (email) => {
     // Regex simple para formato básico de correo (requiere algo@algo.algo)
@@ -51,16 +40,6 @@ function RegistroUsuario() {
         // Filtrado en vivo: Solo permite números
         newValue = value.replace(/[^0-9]/g, '');
     }
-
-    setUsuario({
-      ...usuario,
-      [name]: newValue
-    });
-  };
-  const manejarCambio = (e) => {
-    const { name, value } = e.target;
-    let newValue = value;
-
     if (name === 'nombre' || name === 'apellido') {
         // 1. Filtrado para Nombre/Apellido: Solo permite letras, espacios y acentos
         newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
