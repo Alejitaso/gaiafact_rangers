@@ -647,7 +647,7 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
     <div class="container">
         <div class="header">
             <img 
-                src="https://drive.google.com/uc?export=view&id=13TxX_nmNLm5Y_nnuv576xSz-bnhxhBRc" 
+                src="https://drive.google.com/uc?export=view&id=1W9hegx7_xrNjxl4bN6939vas_DFwV2s4" 
                 alt="Logo de athenas" 
                 class="logo"
             >
@@ -677,10 +677,47 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
                     <span class="info-label">📦 Productos:</span>
                     <span class="info-value">${factura.productos_factura.length} item(s)</span>
                 </div>
+                ${factura.codigo_CUFE ? `
+                <div class="info-row">
+                    <span class="info-label">🔐 CUFE:</span>
+                    <span class="info-value" style="font-size: 11px; word-break: break-all;">${factura.codigo_CUFE}</span>
+                </div>
+                ` : ''}
                 <div class="total-row">
                     <span>💰 TOTAL:</span>
                     <span>$${totalFormateado} COP</span>
                 </div>
+            </div>
+
+            <h3 style="color: #254454; border-bottom: 2px solid #276177; padding-bottom: 10px; margin-top: 30px;">
+                📋 Detalle de productos
+            </h3>
+            
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th style="text-align: center;">Cant.</th>
+                        <th style="text-align: right;">Precio Unit.</th>
+                        <th style="text-align: right;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${factura.productos_factura.map(prod => `
+                        <tr>
+                            <td>${prod.producto}</td>
+                            <td style="text-align: center;">${prod.cantidad}</td>
+                            <td style="text-align: right;">$${prod.precio.toLocaleString('es-CO')}</td>
+                            <td style="text-align: right;">$${(prod.precio * prod.cantidad).toLocaleString('es-CO')}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+
+            <div class="attachment-info">
+                <strong>📎 Archivos adjuntos:</strong><br>
+                • factura-${factura.numero_factura}.pdf<br>
+                • factura-${factura.numero_factura}.xml
             </div>
 
             <p class="message">
@@ -693,9 +730,11 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
                 respondiendo a este correo o llamando al <strong>3023650911</strong>.
             </p>
         </div>
+        
         <div class="footer">
-            <p><img 
-            src="https://drive.google.com/uc?export=view&id=1USa0zwwDHfnyj3XUiTlhaJfDQNS3UAAa" 
+            <p>
+            <img 
+            src="https://drive.google.com/uc?export=view&id=1YTQhGVEM1pTeurD1bF8Zf4qvNd3Ky03-" 
             alt="Logo GaiaFact" 
             class="logo-gaia"
             >

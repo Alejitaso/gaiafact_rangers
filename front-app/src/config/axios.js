@@ -46,12 +46,14 @@ ClientesAxios.interceptors.response.use(
         console.warn("🔒 Token inválido o expirado. Limpiando localStorage...");
         localStorage.removeItem("token");
         localStorage.removeItem("usuario");
+        localStorage.removeItem("tipo_usuario");
         
-        // Opcional: Redirigir al login
-        if (window.location.pathname !== "/login") {
-          console.log("🔄 Redirigiendo al login...");
-          window.location.href = "/login";
-        }
+        // ⚠️ NO redirigir automáticamente - dejar que cada componente maneje el error
+        // Si quieres activar el redirect automático, descomenta las siguientes líneas:
+        // if (window.location.pathname !== "/login") {
+        //   console.log("🔄 Redirigiendo al login...");
+        //   window.location.href = "/login";
+        // }
       }
     } else if (error.request) {
       console.error("📡 No se recibió respuesta del servidor:", error.request);

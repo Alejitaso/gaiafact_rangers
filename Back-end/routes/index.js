@@ -13,20 +13,20 @@ const notificacionController = require('../controllers/notificacionController.js
 
 module.exports=function(){
     //registro nuevo cliente
-    router.post('/Usuario',usuarioController.nuevoUsuario)
-    //buscar cliente por documento
-    router.get('/Usuario/documento/:documento',verificarAuth,usuarioController.buscarPorDocumento)
+    router.post('/Usuario',usuarioController.nuevoUsuario)
+    //buscar cliente por documento
+    router.get('/Usuario/documento/:documento',verificarAuth,usuarioController.buscarPorDocumento)
 
-    // CONSULTAR CLIENTE POR ID: Requiere ser el propio usuario O un gestor
-    router.get('/Usuario/:idUsuario', verificarAuth, verificarAccesoPerfil, usuarioController.mostrarUsuario)
+    // CONSULTAR CLIENTE POR ID: Requiere ser el propio usuario O un gestor
+    router.get('/Usuario/:idUsuario', verificarAuth, verificarAccesoPerfil, usuarioController.mostrarUsuario)
 
-    // CONSULTAR TODOS LOS USUARIOS (LISTADO): Requiere ser un gestor
-    router.get('/Usuario', verificarAuth, verificarRolGestor, usuarioController.mostrarUsuarios)
-    
-    //actualizar cliente
-    router.put('/Usuario/:idUsuario',verificarAuth,usuarioController.actualizarUsuario)
-    //eliminar cliente
-    router.delete('/Usuario/:idUsuario',verificarAuth,usuarioController.eliminarUsuario)
+    // CONSULTAR TODOS LOS USUARIOS (LISTADO): Requiere ser un gestor
+    router.get('/Usuario', verificarAuth, verificarRolGestor, usuarioController.mostrarUsuarios)
+    
+    //actualizar cliente
+    router.put('/Usuario/:idUsuario',verificarAuth,usuarioController.actualizarUsuario)
+    //eliminar cliente
+    router.delete('/Usuario/:idUsuario',verificarAuth,usuarioController.eliminarUsuario)
 
 
     /* Productos */
@@ -48,35 +48,36 @@ module.exports=function(){
     router.get('/imagenes/carousel', imagenesController.obtenerImagenesCarousel);
 
 
-    /* Facturas */
-    router.get('/facturas/:idFactura/pdf', facturaController.obtenerFacturaPDF);
-    router.get('/facturas/:idFactura/xml', facturaController.obtenerFacturaXML);
-    // genera nueva factura
-    router.post('/facturas', facturaController.generarFactura);
-    // mostrar las facturas
-    router.get('/facturas', facturaController.mostrarFacturas);
-    // muestra factura por ID
-    router.get('/facturas/:idFactura', facturaController.mostrarFactura);
-    // actualiza una factura
-    router.put('/facturas/:idFactura', facturaController.actualizarFactura);
-    // eliminar factura
-    router.delete('/facturas/:idFactura', facturaController.eliminarFactura);
-    // obtiene la factura en pdf
-    router.get('/facturas/pdf/:idFactura', facturaController.obtenerFacturaPDF);
-    // obtiene la factura en xml
-    router.get('/facturas/xml/:idFactura', facturaController.obtenerFacturaXML);
-    // enviar por correo
-    router.post('/facturas/enviar-correo', facturaController.enviarFacturaCorreo);
-    // buscar por numero de factura
-        router.get('/facturas/buscar-factura/:numeroFactura', facturaController.buscarFactura);
+    /* ===== FACTURAS (CON AUTENTICACIÓN) ===== */
+    
+    // ✅ Generar nueva factura - requiere autenticación
+    router.post('/facturas', verificarAuth, facturaController.generarFactura);
+    
+    // ✅ Mostrar todas las facturas - CON CONTROL DE ACCESO POR ROL
+    router.get('/facturas', verificarAuth, facturaController.mostrarFacturas);
+    
+    // ✅ Buscar factura por número - requiere autenticación
+    router.get('/facturas/numero/:numeroFactura', verificarAuth, facturaController.buscarFactura);
+    
+    // ✅ Enviar factura por correo - requiere autenticación
+    router.post('/facturas/enviar-correo', verificarAuth, facturaController.enviarFacturaCorreo);
+    
+    // ✅ Obtener PDF de factura - CON CONTROL DE ACCESO
+    router.get('/facturas/:idFactura/pdf', verificarAuth, facturaController.obtenerFacturaPDF);
+    
+    // ✅ Obtener XML de factura - CON CONTROL DE ACCESO
+    router.get('/facturas/:idFactura/xml', verificarAuth, facturaController.obtenerFacturaXML);
+    
+    // ✅ Mostrar factura por ID - CON CONTROL DE ACCESO
+    router.get('/facturas/:idFactura', verificarAuth, facturaController.mostrarFactura);
+    
+    // ✅ Actualizar factura - requiere autenticación
+    router.put('/facturas/:idFactura', verificarAuth, facturaController.actualizarFactura);
+    
+    // ✅ Eliminar factura - requiere autenticación
+    router.delete('/facturas/:idFactura', verificarAuth, facturaController.eliminarFactura);
 
-    // Ruta para buscar factura por número
-    router.get('/buscar/:numeroFactura', facturaController.buscarFactura);
-
-    // Ruta para enviar por correo
-    router.post('/enviar-correo', facturaController.enviarFacturaCorreo);
-
-    // Rutas de autenticación
+    // Rutas de autenticación (NO requieren verificarAuth)
     router.post("/auth/login", authController.login);
     router.post("/auth/recover", authController.recoverPassword);
     router.get('/auth/verify-email', authController.verifyEmail);
