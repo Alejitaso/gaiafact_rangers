@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const ClientesAxios = axios.create({
-  baseURL: "http://localhost:4000/",
+  baseURL: process.env.REACT_APP_API_URL,
 });
 
 // ✅ Interceptor para agregar token a TODAS las peticiones
