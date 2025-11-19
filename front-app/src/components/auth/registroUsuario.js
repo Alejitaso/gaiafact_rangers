@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import clienteAxios from '../../config/axios';
 import Swal from 'sweetalert2';
 import styles from './registro.module.css';
+import { Link } from "react-router-dom";
+
 
 
 const validarEmail = (email) => {
