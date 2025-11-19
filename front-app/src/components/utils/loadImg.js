@@ -429,9 +429,11 @@ function SubirImagen(props) {
                             formData.append('imagen', archivo);
                             formData.append('index', indice - 1);
 
-                            const res = await ClientesAxios.post('/imagenes/carousel', formData, {
-                            headers: { 'Content-Type': 'multipart/form-data' },
-                            });
+                            const res = await axios.post(
+                            `${process.env.REACT_APP_API_URL}/api/imagenes/carousel`,
+                            formData,
+                            { headers: { 'Content-Type': 'multipart/form-data' } }
+                            );
 
                             Swal.fire({
                             icon: 'success',

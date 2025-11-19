@@ -90,10 +90,11 @@ const validarFormulario = () => {
 
         <p>
           ¿Ya tienes una cuenta?{' '}
-          <Link className={styles.link} to="/">
+          <a className={styles.link} onClick={() => (window.location.href = '/')}>
             Iniciar sesión
-          </Link>
+          </a>
         </p>
+
 
 
         <form className={styles['register-form']} id="registro-form" onSubmit={manejarEnvio}>
