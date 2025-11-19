@@ -429,7 +429,7 @@ function SubirImagen(props) {
                             formData.append('imagen', archivo);
                             formData.append('index', indice - 1);
 
-                            const res = await axios.post('http://localhost:4000/api/imagenes/carousel', formData, {
+                            const res = await ClientesAxios.post('/imagenes/carousel', formData, {
                             headers: { 'Content-Type': 'multipart/form-data' },
                             });
 

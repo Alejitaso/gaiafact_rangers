@@ -80,7 +80,7 @@ exports.verificarAccesoPerfil = (req, res, next) => {
     const userIdFromToken = req.usuario._id.toString(); 
     // ID del perfil que se intenta ver (de la URL)
     const userIdFromParams = req.params.idUsuario;
-
+            
     console.log('🔍 Verificando acceso a perfil:', { 
         tokenId: userIdFromToken, 
         paramsId: userIdFromParams 

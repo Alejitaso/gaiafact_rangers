@@ -86,12 +86,15 @@ const validarFormulario = () => {
     <div className={styles.content}>
       <div className={styles['login-box']}>
         <h2>Registro</h2>
+        import { Link } from "react-router-dom";
+
         <p>
           ¿Ya tienes una cuenta?{' '}
-          <a className={styles.link} onClick={() => (window.location.href = 'http://localhost:3000/')}>
+          <Link className={styles.link} to="/">
             Iniciar sesión
-          </a>
+          </Link>
         </p>
+
 
         <form className={styles['register-form']} id="registro-form" onSubmit={manejarEnvio}>
           <label htmlFor="nombre">NOMBRE</label>
