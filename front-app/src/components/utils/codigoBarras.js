@@ -17,7 +17,6 @@ function CodigoBarras() {
     obtenerProductos();
   }, []);
 
-  // Focus automático en el input
   useEffect(() => {
     if (codigoInputRef.current) {
       codigoInputRef.current.focus();
@@ -102,7 +101,6 @@ function CodigoBarras() {
             showConfirmButton: true
           });
         } else {
-          // Preguntar cantidad - Estilo similar a facturación
           const result = await Swal.fire({
             title: '¿Agregar códigos de barras?',
             html: `
@@ -165,7 +163,6 @@ function CodigoBarras() {
           if (result.isConfirmed) {
             const cantidad = result.value;
             
-            // Agregar el producto tantas veces como la cantidad solicitada
             for (let i = 0; i < cantidad; i++) {
               setProductosSeleccionados(prev => [...prev, { ...producto, uniqueId: `${producto._id}-${Date.now()}-${i}` }]);
             }
@@ -453,7 +450,6 @@ function CodigoBarras() {
       <div className={styles.content}>
         <div className={styles.form}>
           
-          {/* Campo para buscar producto por código */}
           <div className={styles.campo}>
             <label htmlFor="codigoBusqueda">
               {buscando ? (
@@ -494,7 +490,6 @@ function CodigoBarras() {
               <div className={styles.qr}>
                 <div className={styles.previsualizacion}>
                   {(() => {
-                    // Agrupar productos por ID
                     const productosAgrupados = productosSeleccionados.reduce((acc, producto) => {
                       if (!acc[producto._id]) {
                         acc[producto._id] = {

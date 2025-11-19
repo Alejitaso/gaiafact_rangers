@@ -2,8 +2,7 @@ const jwt = require('jsonwebtoken');
 const Usuario = require('../models/usuario');
 
 /**
- * Middleware de Autenticación: Verifica la validez del token JWT en el encabezado
- * y adjunta el objeto del usuario a `req.usuario` para su uso posterior.
+ * Middleware de Autenticación: Verifica la validez del token JWT 
  */
 exports.verificarAuth = async (req, res, next) => {
     const token = req.headers['authorization']?.split(' ')[1];
@@ -56,10 +55,6 @@ exports.verificarAuth = async (req, res, next) => {
     }
 };
 
-/**
- * Middleware de Autorización: Requiere que el usuario autenticado tenga el rol de 'SUPERADMIN' o 'ADMINISTRADOR'.
- * Se ejecuta después de verificarAuth.
- */
 exports.verificarRolGestor = (req, res, next) => {
     // req.usuario es proporcionado por verificarAuth
     const usuarioRol = req.usuario.tipo_usuario?.toUpperCase();
@@ -77,9 +72,8 @@ exports.verificarRolGestor = (req, res, next) => {
 
 /**
  * Middleware de Autorización de Perfil: Permite ver un perfil si:
- * 1. Es el perfil del propio usuario (ID del token coincide con el ID de los parámetros).
- * 2. El usuario autenticado es un gestor (SUPERADMIN o ADMINISTRADOR).
- * Se ejecuta después de verificarAuth.
+ * 1. Es el perfil del propio usuario 
+ * 2. El usuario autenticado es un gestor 
  */
 exports.verificarAccesoPerfil = (req, res, next) => {
     // ID del usuario autenticado (del token, gracias a verificarAuth)

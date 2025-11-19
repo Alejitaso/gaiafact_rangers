@@ -14,7 +14,6 @@ function GeneradorQR() {
   // Función para generar código QR con datos mínimos
   const generarCodigoQR = async (datosCompletos) => {
     try {
-      // Formato mínimo con saltos de línea para mejor legibilidad
       const fecha = new Date(datosCompletos.fecha_emision);
       const fechaFormato = fecha.toLocaleDateString('es-CO');
       const horaFormato = fecha.toLocaleTimeString('es-CO');
@@ -134,7 +133,7 @@ CUFE: ${datosCompletos.codigo_CUFE || 'TEMP-' + datosCompletos.numero_factura}`;
     }
   };
 
-  // Generar QR simple (sin búsqueda en BD)
+  // Generar QR simple
   const generarQRSimple = async () => {
     if (!numeroFactura.trim()) {
       Swal.fire({

@@ -222,7 +222,7 @@ exports.resetPassword = async (req, res) => {
     user.resetToken = null;
     user.tokenExpiration = null;
 
-    await user.save(); // Aquí el hook pre-save hasheará automáticamente
+    await user.save(); 
 
     return res.json({
       success: true,

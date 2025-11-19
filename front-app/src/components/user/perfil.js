@@ -63,9 +63,6 @@ const Perfil = () => {
         } catch (error) {
             setLoading(false);
             if (error.response?.status === 403) {
-                // Si el backend envía 403 (Forbidden), y no es el perfil propio,
-                // redirigimos. Esto asume que el backend YA ha determinado que NO tienes
-                // permisos para ver a TERCEROS.
                 Swal.fire("Acceso Restringido", "No tienes permisos para ver este perfil.", "error");
                 navigate('/usuarios'); 
             } else if (error.response?.status === 401) {
@@ -183,7 +180,7 @@ const Perfil = () => {
                 {/* BOTÓN DE GESTIÓN DE USUARIOS (CONDICIONAL) */}
                 {(perfil.tipo_usuario && (
                     perfil.tipo_usuario.toUpperCase() === 'SUPERADMIN' || 
-                    perfil.tipo_usuario.toUpperCase() === 'ADMINISTRADOR' // 👈 Cambio implementado aquí
+                    perfil.tipo_usuario.toUpperCase() === 'ADMINISTRADOR' 
                 )) && (
                     <div className={styles["botones-container"]} style={{ marginTop: '20px' }}>
                         <button 

@@ -28,7 +28,6 @@ function SubirImagen(props) {
     const procesarArchivo = (archivoSeleccionado) => {
         if (!archivoSeleccionado) return;
 
-        // Validar que sea una imagen
         if (!archivoSeleccionado.type.startsWith('image/')) {
             Swal.fire({
                 icon: 'error',
@@ -39,7 +38,7 @@ function SubirImagen(props) {
         }
 
         // Validar tamaño (máximo 5MB)
-        const tamañoMaximo = 5 * 1024 * 1024; // 5MB
+        const tamañoMaximo = 5 * 1024 * 1024; 
         if (archivoSeleccionado.size > tamañoMaximo) {
             Swal.fire({
                 icon: 'error',
@@ -97,7 +96,7 @@ function SubirImagen(props) {
             // Actualizar FormData con el nombre único
             formData.set('nombre', nombreUnico);
             formData.set('carpetaDestino', 'onset/img');
-            formData.set('limite', '10'); // Límite de 10 imágenes
+            formData.set('limite', '10'); 
             
             const res = await clienteAxios.post('/api/imagenes/carousel', formData, {
 
@@ -265,7 +264,6 @@ function SubirImagen(props) {
 
     return (
         <Fragment>
-            {/* Input de archivo oculto */}
             <input
                 ref={fileInputRef}
                 type="file"
@@ -390,7 +388,6 @@ function SubirImagen(props) {
 
                     <div style={{ display: 'flex', alignItems: 'center', marginTop: '15px', justifyContent: 'center' }}>
 
-                    {/* Nuevo botón para alternar formulario */}
                     <button
                         type="button"
                         onClick={() => setMostrarFormulario(!mostrarFormulario)}

@@ -30,8 +30,8 @@ function Login() {
         setTimeout(() => {
           setLoadingComplete(true);
         }, 500);
-      }, 750); // Esperar 3/4 de la transición
-    }, 2500); // Aumentado un poco el tiempo inicial
+      }, 750); 
+    }, 2500); 
 
     return () => clearTimeout(initialTimer);
   }, []);
@@ -39,7 +39,7 @@ function Login() {
   // Configuración del video
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.playbackRate = 1.5; // Velocidad un poco más lenta para mejor experiencia
+      videoRef.current.playbackRate = 1.5; 
     }
   }, []);
 
@@ -91,7 +91,7 @@ function Login() {
     e.preventDefault();
     if (isLocked) return;
 
-    setIsNavigating(true); // Activa la pantalla de carga al iniciar el login
+    setIsNavigating(true);
 
     try {
       const res = await fetch("http://localhost:4000/api/auth/login", {

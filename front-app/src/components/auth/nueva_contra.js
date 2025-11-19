@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom"; // 👈 importante
+import { useParams } from "react-router-dom"; 
 import styles from './style_new_contr.module.css';
 
 function NewPassword() {
-  const { token } = useParams(); // 👈 capturamos el token desde la URL
+  const { token } = useParams(); 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
@@ -21,7 +21,7 @@ function NewPassword() {
       const res = await fetch(`http://localhost:4000/api/auth/reset/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nuevaPassword: newPassword }) // 👈 coincide con backend
+        body: JSON.stringify({ nuevaPassword: newPassword })
       });
 
       const data = await res.json();

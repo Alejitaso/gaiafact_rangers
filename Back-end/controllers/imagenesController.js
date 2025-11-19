@@ -44,7 +44,6 @@ const subirImagenCarousel = async (req, res) => {
         const rutaNueva = `/uploads/${nuevaImagen}`;
         const index = req.body.index ? parseInt(req.body.index) : null;
 
-        // ✅ Si se mandó "index", reemplaza esa imagen
         if (index !== null && !isNaN(index)) {
             if (index < 0 || index >= 10) {
                 // fuera de rango
@@ -58,14 +57,13 @@ const subirImagenCarousel = async (req, res) => {
                 await fs.unlink(path.join(uploadPath, anterior));
                 imagenes[index] = nuevaImagen;
             } else {
-                // si hay menos de "index" imágenes, se agrega al final
                 imagenes.push(nuevaImagen);
             }
         } 
         else {
             // 🚫 Si ya hay 10 imágenes y no se está reemplazando, no deja subir más
             if (imagenes.length >= 10) {
-                await fs.unlink(path.join(uploadPath, nuevaImagen)); // borrar la que se intentó subir
+                await fs.unlink(path.join(uploadPath, nuevaImagen)); 
                 return res.status(400).json({ 
                     exito: false, 
                     mensaje: 'Límite alcanzado: solo se permiten 10 imágenes en el carrusel.' 

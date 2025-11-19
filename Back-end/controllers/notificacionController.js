@@ -10,7 +10,6 @@ const QRCode = require('qrcode');
 // Asegurar que el directorio temporal exista
 const TEMP_DIR = path.join(__dirname, '../temp');
 if (!fs.existsSync(TEMP_DIR)){
-    // Usamos 'recursive: true' para crear directorios anidados si fuera necesario
     fs.mkdirSync(TEMP_DIR, { recursive: true }); 
 }
 
@@ -255,11 +254,9 @@ const procesarEnvioFactura = async (idFactura, cliente) => {
         
         // 2. Generar PDF en Buffer (MEMORIA)
         factura.usuario = cliente; 
-        // 🚨 CORRECCIÓN AQUÍ: Capturamos el Buffer devuelto.
         const pdfBuffer = await generarPDFFactura(factura); 
 
         // 3. Escribir el Buffer al disco de forma ASÍNCRONA y SEGURA.
-        // Usamos fs.promises para garantizar que la escritura esté completa y el archivo cerrado.
         await fs.promises.writeFile(pdfPath, pdfBuffer); 
         console.log("[BG TASK DEBUG] PDF generado y escrito en disco correctamente. Iniciando envío de correo.");
 
@@ -273,7 +270,7 @@ const procesarEnvioFactura = async (idFactura, cliente) => {
             attachments: [
                 {
                     filename: `factura_${factura.numero_factura}.pdf`,
-                    path: pdfPath // Nodemailer ahora lee el archivo existente.
+                    path: pdfPath 
                 }
             ]
         };
@@ -331,7 +328,6 @@ exports.crearNotificacion = async (req, res) => {
         await nuevaNotificacion.save();
 
         // 4. Disparar la tarea pesada en segundo plano SIN esperar el resultado
-        // 🚨 BEST PRACTICE: Añadir .catch() para evitar Unhandled Rejections
         procesarEnvioFactura(factura._id, cliente)
             .catch(err => {
                 console.error("[BG TASK UNHANDLED REJECTION] Error en la promesa de envío de correo:", err.message || err);

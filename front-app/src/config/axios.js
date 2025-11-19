@@ -9,7 +9,6 @@ ClientesAxios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     
-    // 🐛 Debug: Verificar si hay token
     console.log("🔑 Token encontrado:", token ? "SÍ" : "NO");
     
     if (token) {
@@ -31,7 +30,6 @@ ClientesAxios.interceptors.request.use(
 // ✅ Interceptor para manejar respuestas y errores
 ClientesAxios.interceptors.response.use(
   (response) => {
-    // Si la respuesta es exitosa, solo la devuelve
     return response;
   },
   (error) => {
@@ -41,19 +39,11 @@ ClientesAxios.interceptors.response.use(
       
       console.error(`❌ Error ${status}:`, data.mensaje || data);
       
-      // Si es 401, el token es inválido o expiró
       if (status === 401) {
         console.warn("🔒 Token inválido o expirado. Limpiando localStorage...");
         localStorage.removeItem("token");
         localStorage.removeItem("usuario");
         localStorage.removeItem("tipo_usuario");
-        
-        // ⚠️ NO redirigir automáticamente - dejar que cada componente maneje el error
-        // Si quieres activar el redirect automático, descomenta las siguientes líneas:
-        // if (window.location.pathname !== "/login") {
-        //   console.log("🔄 Redirigiendo al login...");
-        //   window.location.href = "/login";
-        // }
       }
     } else if (error.request) {
       console.error("📡 No se recibió respuesta del servidor:", error.request);

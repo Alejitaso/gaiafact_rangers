@@ -193,7 +193,6 @@ const VisFactura = () => {
         <Fragment>
             <div className={styles.visFactura}>
                 <div className={styles.visForm}>
-                    {/* Barra de filtros y búsqueda */}
                     <div className={styles.barraBusquedaCompleta}>
                         <div className={styles.filtroBusqueda}>
                             <select 

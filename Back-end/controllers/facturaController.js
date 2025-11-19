@@ -1,5 +1,3 @@
-// controllers/facturaController.js
-
 const Factura = require('../models/factura.js');
 const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
@@ -272,7 +270,6 @@ exports.mostrarFacturas = async (req, res, next) => {
 
         // Si NO es admin, superadmin o usuario, solo ve sus propias facturas
         if (!puedeVerTodasLasFacturas(usuario.tipo_usuario)) {
-            // Filtra por el número de documento del usuario
             filtro = { 'usuario.numero_documento': usuario.numero_documento };
         }
 

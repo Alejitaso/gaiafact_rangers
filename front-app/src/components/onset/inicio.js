@@ -6,7 +6,7 @@ const Inicio = () => {
     const carouselRef = useRef(null);
     const intervalRef = useRef(null);
 
-    const [images, setImages] = useState([]); // ← ahora vienen del backend
+    const [images, setImages] = useState([]); 
     const [currentRotation, setCurrentRotation] = useState(0);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
@@ -16,7 +16,6 @@ const Inicio = () => {
         try {
             const res = await axios.get('http://localhost:4000/api/imagenes/carousel');
             if (res.data.exito && res.data.imagenes) {
-                // Agregamos la URL completa
                 const urls = res.data.imagenes.map(img => `http://localhost:4000${img}`);
                 setImages(urls);
                 console.log('🖼️ Imágenes cargadas:', urls);
@@ -82,7 +81,7 @@ const Inicio = () => {
     };
 
     useEffect(() => {
-        cargarImagenes(); // 👈 cargar imágenes desde el backend
+        cargarImagenes(); 
     }, []);
 
     useEffect(() => {

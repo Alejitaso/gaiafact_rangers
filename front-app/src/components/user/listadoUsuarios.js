@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ClientesAxios from '../../config/axios';
 import Swal from 'sweetalert2';
-// 💥 CORRECCIÓN: El archivo CSS se llama listadoUsuarios.module.css (plural)
 import styles from './listadoUsuario.module.css'; 
 
 const ListadoUsuarios = () => {
@@ -70,7 +69,6 @@ const ListadoUsuarios = () => {
             
             {/* Contenedor de botones de acción general */}
             <div className={styles['botones-container']}>
-                {/* 👈 Aplicamos la clase btn */}
                 <button onClick={() => navigate('/registro')} className={styles.btn}>
                     Crear Nuevo Usuario
                 </button>
@@ -81,7 +79,6 @@ const ListadoUsuarios = () => {
 
             {/* 👈 Contenedor de la tabla con scroll horizontal en móviles */}
             <div className={styles['tabla-wrapper']}>
-                {/* 👈 Aplicamos la clase tabla-usuarios */}
                 <table className={styles['tabla-usuarios']}>
                     <thead>
                         <tr>
@@ -98,10 +95,8 @@ const ListadoUsuarios = () => {
                                 <td>{usuario.nombre} {usuario.apellido}</td>
                                 <td>{usuario.correo_electronico}</td>
                                 <td>{usuario.tipo_usuario}</td>
-                                {/* Asumiendo que 'estado' es parte de tu objeto usuario */}
                                 <td>{usuario.estado || 'Activo'}</td> 
                                 <td>
-                                    {/* 👈 Aplicamos la clase action-btn-primary */}
                                     <button 
                                         onClick={() => verPerfil(usuario._id)} 
                                         className={styles['action-btn-primary']} 
