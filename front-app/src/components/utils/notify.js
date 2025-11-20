@@ -26,7 +26,7 @@ function NotificacionesMejorado() {
 
     try {
       // Buscar factura
-      const resFactura = await clienteAxios.get(`/api/facturas/buscar/${numeroFactura}`);
+      const resFactura = await clienteAxios.get(`/api/facturas/buscar-factura/${numeroFactura}`);
       
       if (!resFactura.data) {
         throw new Error('Factura no encontrada');
