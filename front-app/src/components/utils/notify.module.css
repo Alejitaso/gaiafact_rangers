@@ -32,7 +32,7 @@
     margin-right: 10px;
 }
 
-/* ========== SECCIÃ"N DE FORMULARIO ========== */
+/* ========== SECCION DE FORMULARIO ========== */
 .formSection {
     background-color: var(--color-dos);
     padding: 25px;
@@ -86,7 +86,7 @@
     font-weight: 500;
 }
 
-/* ========== BOTÃ"N DE BÃšSQUEDA ========== */
+/* ========== BOTON DE BUSQUEDA ========== */
 .searchButton {
     width: 100%;
     padding: 12px;
@@ -134,7 +134,7 @@
     100% { transform: rotate(360deg); }
 }
 
-/* ========== SECCIÃ"N DE PREVISUALIZACIÃ"N ========== */
+/* ========== SECCION DE PREVISUALIZACION ========== */
 .previewSection {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -247,7 +247,7 @@
     margin-top: 20px;
 }
 
-/* ========== BOTONES DE ACCIÃ"N ========== */
+/* ========== BOTONES DE ACCION ========== */
 .buttonGroup {
     display: flex;
     gap: 15px;
