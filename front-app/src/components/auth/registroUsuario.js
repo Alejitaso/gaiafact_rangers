@@ -4,17 +4,9 @@ import Swal from 'sweetalert2';
 import styles from './registro.module.css';
 import { Link } from "react-router-dom";
 
-
-
-const validarEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-};
-
-const validarSoloLetras = (text) => {
-    const letrasRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
-    return letrasRegex.test(text.trim());
-};
+// Funciones de validación
+const validarEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const validarSoloLetras = (text) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(text.trim());
 
 function RegistroUsuario() {
   const [usuario, setUsuario] = useState({
@@ -29,38 +21,27 @@ function RegistroUsuario() {
     password: 'temporal123'
   });
 
- const manejarCambio = (e) => {
+  const manejarCambio = (e) => {
     const { name, value } = e.target;
     let newValue = value;
 
     if (name === 'nombre' || name === 'apellido') {
-        newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+      newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
     } else if (name === 'telefono') {
-        newValue = value.replace(/[^0-9]/g, '');
-    }
-    if (name === 'nombre' || name === 'apellido') {
-        newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
-
-    } else if (name === 'telefono') {
-        newValue = value.replace(/[^0-9]/g, '');
-
+      newValue = value.replace(/[^0-9]/g, '');
     } else if (name === 'numero_documento') {
-        newValue = value.replace(/[^a-zA-Z0-9]/g, ''); 
-
+      newValue = value.replace(/[^a-zA-Z0-9]/g, '');
     } else if (name === 'correo_electronico') {
-        newValue = value.replace(/[^a-zA-Z0-9@._-]/g, '');
+      newValue = value.replace(/[^a-zA-Z0-9@._-]/g, '');
     }
 
-    setUsuario({
-      ...usuario,
-      [name]: newValue
-    });
+    setUsuario({ ...usuario, [name]: newValue });
   };
 
-const validarFormulario = () => {
+  const validarFormulario = () => {
     const { nombre, apellido, correo_electronico, tipo_documento, numero_documento, telefono, tipo_usuario } = usuario;
     return !nombre || !apellido || !correo_electronico || !tipo_documento || !numero_documento || !telefono || !tipo_usuario;
-};
+  };
 
   const manejarEnvio = async (e) => {
     e.preventDefault();
@@ -88,16 +69,13 @@ const validarFormulario = () => {
     <div className={styles.content}>
       <div className={styles['login-box']}>
         <h2>Registro</h2>
-        import { Link } from "react-router-dom";
 
         <p>
           ¿Ya tienes una cuenta?{' '}
-          <a className={styles.link} onClick={() => (window.location.href = '/')}>
+          <Link className={styles.link} to="/">
             Iniciar sesión
-          </a>
+          </Link>
         </p>
-
-
 
         <form className={styles['register-form']} id="registro-form" onSubmit={manejarEnvio}>
           <label htmlFor="nombre">NOMBRE</label>
@@ -125,7 +103,7 @@ const validarFormulario = () => {
           <label htmlFor="correo_electronico">CORREO ELECTRÓNICO</label>
           <input
             type="email"
-            id="email"
+            id="correo_electronico"
             name="correo_electronico"
             placeholder="Ingresa tu correo"
             value={usuario.correo_electronico}
@@ -188,13 +166,6 @@ const validarFormulario = () => {
           <button type="submit" disabled={validarFormulario()}>
             Registrar
           </button>
-
-          {/* Modal */}
-          <div id="modal" className={styles.modal}>
-            <div id="modalContenido" className={styles['modal-contenido']}>
-              <h2>Usuario registrado correctamente</h2>
-            </div>
-          </div>
         </form>
       </div>
     </div>
@@ -202,6 +173,3 @@ const validarFormulario = () => {
 }
 
 export default RegistroUsuario;
-
-
-
