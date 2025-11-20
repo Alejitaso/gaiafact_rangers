@@ -100,7 +100,7 @@ module.exports = function(){
         facturaController.mostrarFacturas
     );
 
-    router.get('/facturas/numero/:numeroFactura',
+    router.get('/facturas/buscar-factura/:numeroFactura',
         verificarAuth,
         securityNetworkMiddleware,
         facturaController.buscarFactura
