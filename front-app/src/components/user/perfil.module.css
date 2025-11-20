@@ -45,7 +45,7 @@
 }
 
 .campo input {
-  width: calc(100% - 20px); /* 🔹 deja 1cm aprox. de espacio */
+  width: calc(100% - 20px); 
   padding: 15px;
   border: none;
   border-radius: 10px;

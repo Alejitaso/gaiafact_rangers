@@ -1,7 +1,5 @@
-/* ========================= */
-/* ===== FORMULARIO ======== */
-/* ========================= */
 
+/* ===== FORMULARIO ======== */
 .register-form {
     background-color: var(--color-uno);
     margin: 3% 20%;
@@ -103,16 +101,14 @@
     transform: none;
 }
 
-/* ============================= */
 /* ===== SWEETALERT GLOBAL ===== */
-/* ============================= */
 
 :global(.custom-swal-popup) {
     background-color: var(--color-dos) !important;
-    border: 2px solid var(--color-uno) !important; /* marco sutil */
-    border-radius: 12px !important; /* esquinas redondeadas */
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2) !important; /* sombra */
-    padding: 20px !important; /* aire interno moderado */
+    border: 2px solid var(--color-uno) !important; 
+    border-radius: 12px !important; 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2) !important; 
+    padding: 20px !important; 
     animation: slideUp 0.3s ease-out;
 }
 

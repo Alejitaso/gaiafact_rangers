@@ -7,7 +7,7 @@ import styles from './registroProduct.module.css';
 function RegistroProducto() {
     const navigate = useNavigate();
     const location = useLocation();
-
+    // Estado local para capturar los datos del formulario del producto.
     const [producto, setProducto] = useState({
         nombre: '',
         cantidad: '',
@@ -18,7 +18,7 @@ function RegistroProducto() {
 
     const [cargando, setCargando] = useState(false);
 
-    // ✅ Limpieza TOTAL de cualquier popup en montaje o cambio de ruta
+    //Limpieza TOTAL de cualquier popup en montaje o cambio de ruta
     useEffect(() => {
         cerrarForzadoSweetAlert();
     }, [location.pathname]);
@@ -35,7 +35,7 @@ function RegistroProducto() {
             console.warn("No había popups para cerrar");
         }
     };
-
+    // Lógica para comprobar campos y mostrar alertas de error.
     const validarCamposCompletos = () => {
         const { nombre, cantidad, precio, tipo_prenda, descripcion } = producto;
         return nombre && cantidad && precio && tipo_prenda && descripcion;
@@ -43,7 +43,7 @@ function RegistroProducto() {
 
     const validarCantidad = () => !isNaN(producto.cantidad) && producto.cantidad >= 0;
     const validarPrecio = () => !isNaN(producto.precio) && producto.precio >= 0;
-
+    // Muestra un popup de error con mensaje personalizado usando SweetAlert
     const mostrarErrorValidacion = (titulo, mensaje) => {
         cerrarForzadoSweetAlert();
         Swal.fire({
@@ -63,7 +63,7 @@ function RegistroProducto() {
             willClose: cerrarForzadoSweetAlert
         });
     };
-
+    // Funciones para actualizar el estado, limpiar el formulario y preparar los datos.
     const leerInformacionProducto = (e) => {
         setProducto({
             ...producto,
@@ -95,7 +95,7 @@ function RegistroProducto() {
         tipo_prenda: producto.tipo_prenda,
         descripcion: producto.descripcion.trim()
     });
-
+    // Se encarga de la validación final, la comunicación con el API y el manejo de éxito/falla.
     const registrarProducto = async (e) => {
         e.preventDefault();
 
@@ -134,7 +134,7 @@ function RegistroProducto() {
             mostrarErrorValidacion('Hubo un error', error.response?.data?.mensaje || 'Intente nuevamente');
         }
     };
-
+    // Define el popup de éxito que ofrece opciones de navegación al usuario.
     const mostrarPopupExito = async (productoRegistrado) => {
         cerrarForzadoSweetAlert(); // ✅ Garantiza que no haya otro abierto
         Swal.fire({
@@ -182,7 +182,7 @@ function RegistroProducto() {
             }
         });
     };
-
+    // Estructura del formulario y renderizado condicional del botón de envío.
     return (
         <Fragment>
             <div className="background-container"></div>

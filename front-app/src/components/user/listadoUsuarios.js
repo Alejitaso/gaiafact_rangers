@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ClientesAxios from '../../config/axios';
 import Swal from 'sweetalert2';
-// 💥 CORRECCIÓN: El archivo CSS se llama listadoUsuarios.module.css (plural)
 import styles from './listadoUsuario.module.css'; 
 
 const ListadoUsuarios = () => {
@@ -10,7 +9,7 @@ const ListadoUsuarios = () => {
     const [usuarios, setUsuarios] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Función que maneja la lógica de la petición (la hacemos reusable para el botón Recargar)
+    // Lógica encapsulada para obtener la lista de usuarios del backend.
     const fetchUsuarios = useCallback(async () => {
         setLoading(true);
         try {
@@ -28,17 +27,16 @@ const ListadoUsuarios = () => {
         }
     }, [navigate]);
 
-    // 1. Efecto para obtener la lista de usuarios al montar el componente
+    // Llama a la función de fetch al montar el componente.
     useEffect(() => {
         fetchUsuarios();
     }, [fetchUsuarios]);
 
-    // 2. Función clave para la navegación
     const verPerfil = (idUsuarioSeleccionado) => {
         navigate(`/perfil/${idUsuarioSeleccionado}`); 
     };
 
-    // Renderizado de estado de carga y vacío (usando las clases del CSS)
+    // Muestra mensajes mientras se esperan datos o si la lista está vacía.
     if (loading) {
         return (
             <div className={styles['listado-container']}>
@@ -62,15 +60,14 @@ const ListadoUsuarios = () => {
             </div>
         );
     }
-
+    // Muestra la lista de usuarios en formato de tabla.
     return (
-        // 👈 Aplicamos la clase principal
         <div className={styles['listado-container']}>
             <h1>Listado de Usuarios del Sistema</h1>
             
             {/* Contenedor de botones de acción general */}
             <div className={styles['botones-container']}>
-                {/* 👈 Aplicamos la clase btn */}
+                {/*Aplicamos la clase btn */}
                 <button onClick={() => navigate('/registro')} className={styles.btn}>
                     Crear Nuevo Usuario
                 </button>
@@ -79,9 +76,9 @@ const ListadoUsuarios = () => {
                 </button>
             </div>
 
-            {/* 👈 Contenedor de la tabla con scroll horizontal en móviles */}
+            {/* Contenedor de la tabla con scroll horizontal en móviles */}
             <div className={styles['tabla-wrapper']}>
-                {/* 👈 Aplicamos la clase tabla-usuarios */}
+                {/* Aplicamos la clase tabla-usuarios */}
                 <table className={styles['tabla-usuarios']}>
                     <thead>
                         <tr>
@@ -101,7 +98,7 @@ const ListadoUsuarios = () => {
                                 {/* Asumiendo que 'estado' es parte de tu objeto usuario */}
                                 <td>{usuario.estado || 'Activo'}</td> 
                                 <td>
-                                    {/* 👈 Aplicamos la clase action-btn-primary */}
+                                    {/*Aplicamos la clase action-btn-primary */}
                                     <button 
                                         onClick={() => verPerfil(usuario._id)} 
                                         className={styles['action-btn-primary']} 
@@ -118,4 +115,4 @@ const ListadoUsuarios = () => {
     );
 };
 
-export default ListadoUsuarios;
+export default ListadoUsuarios;// Exporta el componente
