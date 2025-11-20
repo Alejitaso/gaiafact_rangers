@@ -29,7 +29,11 @@ const app = express();
 
 // Middlewares
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: [
+    process.env.FRONTEND_URL,
+    'http://localhost:3000',
+    /\.railway\.app$/, 
+  ],
   credentials: true
 }));
 
@@ -57,7 +61,7 @@ app.post("/api/auth/reset-password", authcontroller.resetPassword);
 // Rutas principales
 app.use("/api", routes());
 
-// 📸 Servir imágenes desde la carpeta /uploads
+// 📸 Servir imágenes desde /uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Manejo de errores
@@ -69,7 +73,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Rutas no encontradas
+// 404
 app.use('*', (req, res) => {
   res.status(404).json({ mensaje: 'Ruta no encontrada' });
 });
@@ -78,6 +82,6 @@ app.use('*', (req, res) => {
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
   console.log("🚀 El servidor está ejecutándose en el puerto " + port);
-  console.log("🌐 URL: http://localhost:" + port);
+  console.log("🌐 URL pública: proporcionada por Railway");
   console.log("📱 Ambiente:", process.env.NODE_ENV || 'development');
 });
