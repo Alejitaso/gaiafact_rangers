@@ -9,11 +9,13 @@ function RecoverPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Verifica si el campo de correo electrónico está vacío.
     if (!correo_electronico) {
       setError("❌ Por favor ingresa un correo válido");
       return;
     }
 
+    // Bloque de Llamada a la API
     try {
       const res = await fetch(
         `${process.env.REACT_APP_API_URL}/api/auth/recover`,
@@ -27,6 +29,7 @@ function RecoverPassword() {
 
       const data = await res.json();
 
+      //Bloque de Manejo de Respuesta Exitosa
       if (data.success) {
         Swal.fire({
           icon: 'success', 
@@ -36,6 +39,7 @@ function RecoverPassword() {
         });
         setError(null);
       } else {
+        //Bloque de Manejo de Error
         Swal.fire({
           icon: 'error', 
           title: 'Error',
@@ -45,6 +49,7 @@ function RecoverPassword() {
         setError(null);
       }
     } catch (err) {
+      //Bloque de Manejo de Error de Conexión
       Swal.fire({
         icon: 'error',
         title: 'Error de Conexión',
@@ -56,9 +61,11 @@ function RecoverPassword() {
   };
 
   return (
+    // Contenedor principal con estilos.
     <div className={styles.recoveryform}>
       <h2>Ingrese su correo electrónico</h2>
 
+      {/* Formulario con el manejador de envío */}
       <form onSubmit={handleSubmit}>
         <input
           type="email"
@@ -74,6 +81,7 @@ function RecoverPassword() {
           </p>
         )}
 
+        {/* Contenedor para el botón de envío con estilos específicos */}
         <div className={styles.boton}>
           <button type="submit">Enviar</button>
         </div>

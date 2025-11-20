@@ -33,10 +33,12 @@ function RegistroUsuario() {
     opcionesTipoUsuario = ['CLIENTE'];
   }
 
+  // Función para manejar los cambios en los campos de entrada y actualizar el estado 'usuario'.
   const manejarCambio = (e) => {
     const { name, value } = e.target;
     let newValue = value;
 
+    // Aplicación de filtros para restringir los caracteres aceptados según el campo.
     if (name === 'nombre' || name === 'apellido') {
       newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
     } else if (name === 'telefono') {
@@ -50,6 +52,7 @@ function RegistroUsuario() {
     setUsuario({ ...usuario, [name]: newValue });
   };
 
+  // Función que verifica si algún campo obligatorio está vacío.
   const validarFormulario = () => {
     const { nombre, apellido, correo_electronico, tipo_documento, numero_documento, telefono, tipo_usuario } = usuario;
     return !nombre || !apellido || !correo_electronico || !tipo_documento || !numero_documento || !telefono || !tipo_usuario;
@@ -58,6 +61,7 @@ function RegistroUsuario() {
   const manejarEnvio = async (e) => {
     e.preventDefault();
 
+    // Verifica si el usuario logueado tiene permiso para crear el 'tipo_usuario' seleccionado.
     if (
       (rolLogueado === 'ADMINISTRADOR' && ['SUPERADMIN', 'ADMINISTRADOR'].includes(usuario.tipo_usuario)) ||
       (rolLogueado === 'USUARIO' && usuario.tipo_usuario !== 'CLIENTE')
@@ -66,6 +70,7 @@ function RegistroUsuario() {
       return;
     }
 
+    //Bloque de Petición POST a la API
     try {
       await clienteAxios.post('/api/Usuario', usuario);
       Swal.fire('Correcto', 'Usuario registrado correctamente', 'success');
@@ -86,11 +91,13 @@ function RegistroUsuario() {
     }
   };
 
+  //Bloque de Renderizado
   return (
     <div className={styles.content}>
       <div className={styles['login-box']}>
         <h2>Registro</h2>
 
+        {/* Enlace para iniciar sesión */}
         <p>
           ¿Ya tienes una cuenta?{' '}
           <Link className={styles.link} to="/">
@@ -98,6 +105,7 @@ function RegistroUsuario() {
           </Link>
         </p>
 
+        {/* Formulario de registro */}
         <form className={styles['register-form']} id="registro-form" onSubmit={manejarEnvio}>
           <label htmlFor="nombre">NOMBRE</label>
           <input
@@ -110,6 +118,7 @@ function RegistroUsuario() {
             required
           />
 
+          {/* Campo Apellido */}
           <label htmlFor="apellido">APELLIDO</label>
           <input
             type="text"
@@ -121,6 +130,7 @@ function RegistroUsuario() {
             required
           />
 
+          {/* Campo Correo Electrónico */}
           <label htmlFor="correo_electronico">CORREO ELECTRÓNICO</label>
           <input
             type="email"
@@ -132,6 +142,7 @@ function RegistroUsuario() {
             required
           />
 
+          {/* Campo Tipo de Documento */}
           <label htmlFor="tipo-documento">TIPO DE DOCUMENTO</label>
           <select
             id="tipo-documento"
@@ -147,6 +158,7 @@ function RegistroUsuario() {
             <option value="Nit">NIT</option>
           </select>
 
+          {/* Campo Número de Documento */}
           <label htmlFor="documento">NÚMERO DE DOCUMENTO</label>
           <input
             type="text"
@@ -158,6 +170,7 @@ function RegistroUsuario() {
             required
           />
 
+          {/* Campo Teléfono */}
           <label htmlFor="telefono">TELÉFONO</label>
           <input
             type="tel"
@@ -169,6 +182,7 @@ function RegistroUsuario() {
             required
           />
 
+          {/* Campo Tipo de Usuario */}
           <label htmlFor="tipo-usuario">TIPO DE USUARIO</label>
           <select
             id="tipo-usuario"

@@ -73,7 +73,6 @@
 }
 
 /* estilo de inputs*/
-
 .loginform input[type="password"], .loginform input[type="text"] {
     padding: 14px 15px;
     border: 1px solid var(--color-cinco);
@@ -88,6 +87,7 @@
     font-size: 16px;
 }
 
+/* Contenedor principal para agrupar el campo de contraseña y su icono. */
 .contrasegnaContainer{
     margin-top: -65px;
     .IconoContrasegna{
@@ -95,6 +95,7 @@
     }
 }
 
+/* Estilos para el icono (ojito) que permite mostrar u ocultar la contraseña. */
 .IconoContrasegna{
     cursor: pointer;
     color: var(--color-cinco);
@@ -104,6 +105,7 @@
     transition: color 0.3s ease;
 }
 
+/* Estilos específicos para los campos de entrada de TIPO "email" dentro del formulario de login. */
 .loginform input[type="email"]{
     padding: 14px 15px;
     border: 1px solid var(--color-cinco);
@@ -241,6 +243,7 @@
     text-decoration: underline;
 }
 
+/* Aplica los siguientes estilos a pantallas con un ancho máximo de 767px (Dispositivos Móviles) */
 @media (max-width: 767px) {
     .loginform input[type="email"],
     .loginform input[type="password"] {

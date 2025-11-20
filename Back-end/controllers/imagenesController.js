@@ -3,7 +3,7 @@ const path = require('path');
 const fsSync = require('fs');
 const fs = require('fs').promises;
 
-// 🗂️ Configuración de almacenamiento
+// Configuración de almacenamiento
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         const uploadPath = path.join(__dirname, '../uploads');
@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
     }
 });
 
-// 📸 Middleware de multer
+// Middleware de multer
 const upload = multer({
     storage,
     fileFilter: (req, file, cb) => {
@@ -29,7 +29,7 @@ const upload = multer({
     limits: { fileSize: 5 * 1024 * 1024 }
 });
 
-// 📤 Subir o reemplazar imagen
+// Subir o reemplazar imagen
 const subirImagenCarousel = async (req, res) => {
     try {
         if (!req.file) {
@@ -45,8 +45,8 @@ const subirImagenCarousel = async (req, res) => {
         const index = req.body.index ? parseInt(req.body.index) : null;
 
         if (index !== null && !isNaN(index)) {
+            //asignar numero a una imagen
             if (index < 0 || index >= 10) {
-                // fuera de rango
                 await fs.unlink(path.join(uploadPath, nuevaImagen));
                 return res.status(400).json({ exito: false, mensaje: 'Índice fuera del rango permitido (0–9).' });
             }
@@ -61,7 +61,7 @@ const subirImagenCarousel = async (req, res) => {
             }
         } 
         else {
-            // 🚫 Si ya hay 10 imágenes y no se está reemplazando, no deja subir más
+            // Si ya hay 10 imágenes y no se está reemplazando, no deja subir más
             if (imagenes.length >= 10) {
                 await fs.unlink(path.join(uploadPath, nuevaImagen)); 
                 return res.status(400).json({ 
@@ -86,7 +86,7 @@ const subirImagenCarousel = async (req, res) => {
     }
 };
 
-// 📥 Obtener imágenes del carrusel
+// Obtener imágenes del carrusel
 const obtenerImagenesCarousel = async (req, res) => {
     try {
         const uploadPath = path.join(__dirname, '../uploads');

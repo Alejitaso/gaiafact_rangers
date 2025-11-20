@@ -3,6 +3,7 @@ const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
 const nodemailer = require('nodemailer');
 
+//Configuración del Transportador de Correo
 const configurarTransportador = () => {
     return nodemailer.createTransport({
         service: 'gmail',
@@ -16,12 +17,14 @@ const configurarTransportador = () => {
 const generarPDFFactura = async (datosFactura) => {
     return new Promise(async (resolve, reject) => {
         try {
+            // ... (Configuración inicial de PDFDocument)
             const doc = new PDFDocument({
                 size: 'A4',
                 margin: 40,
                 bufferPages: true
             });
 
+            // ... (Manejo de buffers y eventos para crear el PDF)
             const buffers = [];
             doc.on('data', buffers.push.bind(buffers));
             doc.on('end', () => {
@@ -54,11 +57,9 @@ const generarPDFFactura = async (datosFactura) => {
                    year: 'numeric', month: 'long', day: 'numeric' 
                })}`, 350, 90, { align: 'right' });
 
-            // CUFE en texto más pequeño
             doc.fontSize(7).text(`CUFE: ${datosFactura.codigo_CUFE || 'TEMPORAL-' + datosFactura.numero_factura}`, 
                      300, 110, { align: 'right', width: 245 });
 
-            // Línea divisoria
             doc.moveTo(50, 160).lineTo(545, 160).strokeColor(colorPrimario).lineWidth(2).stroke();
 
             // ========== INFORMACIÓN DEL CLIENTE ==========
@@ -132,7 +133,6 @@ const generarPDFFactura = async (datosFactura) => {
             // ========== CÓDIGOS QR ==========
             yPosition += 50;
 
-            // Generar QR Code
             const fecha = new Date(datosFactura.fecha_emision || new Date());
             const fechaFormato = fecha.toLocaleDateString('es-CO');
             const horaFormato = fecha.toLocaleTimeString('es-CO');
@@ -145,6 +145,7 @@ Cliente: ${datosFactura.usuario.nombre} ${datosFactura.usuario.apellido}
 Documento: ${datosFactura.usuario.tipo_documento || 'CC'} ${datosFactura.usuario.numero_documento}
 CUFE: ${datosFactura.codigo_CUFE || 'TEMP-' + datosFactura.numero_factura}`;
 
+            // Generar QR Code (Prepara la información para el QR y lo genera como Buffer)
             const qrCodeImage = await QRCode.toBuffer(qrData, {
                 width: 120,
                 margin: 1,
@@ -185,6 +186,7 @@ CUFE: ${datosFactura.codigo_CUFE || 'TEMP-' + datosFactura.numero_factura}`;
     });
 };
 
+//Función que retorna un string XML básico.
 const generarXMLFactura = (datosFactura) => {
     return `<?xml version="1.0" encoding="UTF-8"?>
 <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" 
@@ -317,6 +319,7 @@ exports.mostrarFactura = async (req, res, next) => {
     }
 };
 
+//Permite actualizar una factura buscando por ID. Retorna el documento actualizado
 exports.actualizarFactura = async (req, res, next) => {
     try {
         const factura = await Factura.findOneAndUpdate(
@@ -331,6 +334,7 @@ exports.actualizarFactura = async (req, res, next) => {
     }
 };
 
+//Permite eliminar una factura buscando por ID.
 exports.eliminarFactura = async (req, res, next) => {
     try {
         await Factura.findOneAndDelete({ _id: req.params.idFactura });
@@ -381,7 +385,7 @@ exports.obtenerFacturaPDF = async (req, res, next) => {
     }
 };
 
-// ========== MODIFICADO: obtenerFacturaXML con control de acceso ==========
+// ========== obtenerFacturaXML con control de acceso ==========
 exports.obtenerFacturaXML = async (req, res, next) => {
     try {
         const usuario = req.usuario;

@@ -1,4 +1,4 @@
-const IP_EMPRESA = "181.237.111.210"; // Cambia esta IP
+const IP_EMPRESA = "181.237.111.210"; 
 
 module.exports = function securityNetworkMiddleware(req, res, next) {
   try {
@@ -11,24 +11,24 @@ module.exports = function securityNetworkMiddleware(req, res, next) {
     console.log("➡ UserType:", userType);
     console.log("➡ IP:", cleanIP);
 
-    // ✅ 1. Modo desarrollo → acceso libre
+    // Modo desarrollo → acceso libre
     if (process.env.NODE_ENV !== "production") {
       console.log("✔ Modo desarrollo — seguridad desactivada");
       return next();
     }
 
-    // 🟢 2. Cliente → acceso libre siempre
+    // Cliente → acceso libre siempre
     if (userType === "CLIENTE") {
       return next();
     }
 
-    // 🟢 3. Permitir acceso desde localhost en producción (seguridad)
+    // Permitir acceso desde localhost en producción (seguridad)
     if (cleanIP === "127.0.0.1" || cleanIP === "::1") {
       console.log("✔ Acceso local permitido");
       return next();
     }
 
-    // 🔒 4. Resto de roles → debe ser la IP de la empresa
+    // Resto de roles → debe ser la IP de la empresa
     if (cleanIP !== IP_EMPRESA) {
       console.log("⛔ Acceso bloqueado — IP no autorizada");
       return res.status(403).json({

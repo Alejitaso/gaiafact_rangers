@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styles from './style_loguin.module.css';
 
 function Login() {
+  //Declaración de Estados de Formulario y UI
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -16,6 +17,7 @@ function Login() {
   
   const videoRef = useRef(null);
 
+  //Lógica de Carga Inicial (Simulación de Pre-Carga)
   useEffect(() => {
     const initialTimer = setTimeout(() => {
       setFadeOut(true);
@@ -56,6 +58,7 @@ function Login() {
     localStorage.setItem("timeLeft", timeLeft);
   }, [attempts, isLocked, timeLeft]);
 
+  //Temporizador de cuenta regresiva para el bloqueo
   useEffect(() => {
     let timer;
     if (isLocked && timeLeft > 0) {
@@ -77,6 +80,7 @@ function Login() {
     return () => clearInterval(timer);
   }, [isLocked, timeLeft]);
 
+  //Función de utilidad para formatear el tiempo restante
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
@@ -89,6 +93,7 @@ function Login() {
 
     setIsNavigating(true);
 
+    // Simula la llamada API al endpoint de autenticación.
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
         method: "POST",
@@ -99,11 +104,13 @@ function Login() {
 
       const data = await res.json();
 
+      // Autenticación exitosa
       if (data.success) {
         setError(null);
         setAttempts(0);
         localStorage.removeItem("attempts");
 
+        // Guarda el token y tipo de usuario para la sesión.
         localStorage.setItem("token", data.token);
         localStorage.setItem("tipo_usuario", data.usuario.tipo_usuario);
 
@@ -116,6 +123,7 @@ function Login() {
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
 
+        // Lógica de bloqueo: si se alcanzan 3 intentos, se bloquea por 5 minutos (300 segundos).
         if (newAttempts >= 3) {
           setIsLocked(true);
           setTimeLeft(60 * 5);
@@ -128,6 +136,8 @@ function Login() {
           setShowContent(true);
         }, 500);
       }
+
+      // Manejo de errores de conexión de red.
     } catch (err) {
       setError("Error de conexión con el servidor");
       
@@ -157,6 +167,7 @@ function Login() {
     );
   }
 
+   //Renderizado del Formulario de Login
    return (
     <div className={styles.loginbox}>
       <h2>Ingresa a tu cuenta</h2>

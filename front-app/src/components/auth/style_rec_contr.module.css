@@ -12,10 +12,12 @@
     margin-top: 60px;
 }
 
+/*Selector del Encabezado (h2) en el Formulario de Recuperación*/
 .recoveryform h2{
     text-align: center;
 }
 
+/*Selector de la Línea Decorativa con Sombra*/
 .linea-s{
     background-image: linear-gradient(to right, var(--color-uno), var(--color-tres));
     height: 30px; 
