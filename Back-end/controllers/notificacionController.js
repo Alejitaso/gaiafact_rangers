@@ -241,7 +241,11 @@ const procesarEnvioFactura = async (idFactura, cliente) => {
         factura.usuario = cliente; 
         const pdfBuffer = await generarPDFFactura(factura); 
 
+<<<<<<< HEAD
         //Escribir el Buffer al disco de forma ASÍNCRONA y SEGURA.
+=======
+        // 3. Escribir el Buffer al disco de forma ASÍNCRONA y SEGURA.
+>>>>>>> cb2ec803b3e18b0b8549c6237502974d71a95ea5
         await fs.promises.writeFile(pdfPath, pdfBuffer); 
         console.log("[BG TASK DEBUG] PDF generado y escrito en disco correctamente. Iniciando envío de correo.");
 
@@ -310,7 +314,11 @@ exports.crearNotificacion = async (req, res) => {
 
         await nuevaNotificacion.save();
 
+<<<<<<< HEAD
         //Disparar la tarea pesada en segundo plano SIN esperar el resultado
+=======
+        // 4. Disparar la tarea pesada en segundo plano SIN esperar el resultado
+>>>>>>> cb2ec803b3e18b0b8549c6237502974d71a95ea5
         procesarEnvioFactura(factura._id, cliente)
             .catch(err => {
                 console.error("[BG TASK UNHANDLED REJECTION] Error en la promesa de envío de correo:", err.message || err);

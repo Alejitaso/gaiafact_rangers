@@ -265,7 +265,6 @@ function NotificacionesMejorado() {
         {facturaData && clienteData && !buscando && (
           <>
             <div className={styles.previewSection}>
-              {/* Información del Cliente */}
               <div className={styles.previewCard}>
                 <h3 className={styles.previewTitle}>
                   <i className="fas fa-user"></i> Información del Cliente

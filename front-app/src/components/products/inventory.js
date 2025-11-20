@@ -167,7 +167,6 @@ const descargarCodigoBarras = async (idProducto) => {
     // Seleccionar producto (para modificar)
     const seleccionarProducto = (producto) => {
         setProductoSeleccionado(producto);
-        // Cambiar el estilo visual del producto seleccionado
         const filas = document.querySelectorAll(`.${styles.inventory_table} tbody tr`);
         filas.forEach(fila => fila.classList.remove(styles.selected));
         
@@ -181,7 +180,7 @@ const descargarCodigoBarras = async (idProducto) => {
     const modificarProducto = () => {
         if (!productoSeleccionado) {
             Swal.fire({
-                icon: 'warning', // CAMBIO: 'type' por 'icon'
+                icon: 'warning', 
                 title: 'No hay producto seleccionado',
                 text: 'Por favor selecciona un producto de la tabla para modificar.'
             });
@@ -214,21 +213,19 @@ const descargarCodigoBarras = async (idProducto) => {
             try {
                 const res = await clienteAxios.delete(`/api/productos/${id}`);
                 
-                // CAMBIO: Verificar tanto success como status 200
                 if (res.data.success || res.status === 200) {
                     Swal.fire(
                         'Eliminado',
                         'El producto ha sido eliminado correctamente.',
                         'success'
                     );
-                    // Recargar la lista de productos
                     obtenerProductos();
                     setProductoSeleccionado(null);
                 }
             } catch (error) {
                 console.log(error);
                 Swal.fire({
-                    icon: 'error', // CAMBIO: 'type' por 'icon'
+                    icon: 'error', 
                     title: 'Error al eliminar',
                     text: 'No se pudo eliminar el producto. Intente nuevamente.'
                 });
@@ -238,7 +235,6 @@ const descargarCodigoBarras = async (idProducto) => {
 
     // Formatear precio
     const formatearPrecio = (precio) => {
-        // CAMBIO: Manejar casos donde precio sea null/undefined
         const precioNum = Number(precio) || 0;
         return `$${precioNum.toLocaleString('es-CO', {
             minimumFractionDigits: 0,
@@ -248,7 +244,6 @@ const descargarCodigoBarras = async (idProducto) => {
 
     // Truncar texto largo
     const truncarTexto = (texto, limite = 50) => {
-        // CAMBIO: Verificar que texto exista
         if (!texto) return '';
         return texto.length > limite ? texto.substring(0, limite) + '...' : texto;
     }

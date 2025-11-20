@@ -5,7 +5,7 @@ const express = require("express");
 const routes = require("./routes");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const path = require("path"); // 👈 agregado aquí
+const path = require("path"); 
 const authcontroller = require("./controllers/authcontroller");
 
 mongoose.set("strictQuery", true);
@@ -57,7 +57,6 @@ app.post("/api/auth/reset-password", authcontroller.resetPassword);
 // Rutas principales
 app.use("/api", routes());
 
-// 👇👇 Agrega esta parte después de tus rutas API
 // 📸 Servir imágenes desde la carpeta /uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

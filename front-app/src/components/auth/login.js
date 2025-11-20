@@ -16,30 +16,26 @@ function Login() {
   
   const videoRef = useRef(null);
 
-  // Carga inicial con transición suave
   useEffect(() => {
     const initialTimer = setTimeout(() => {
       setFadeOut(true);
       
-      // Después de que comience el fade-out, mostrar el contenido
       setTimeout(() => {
         setIsLoaded(true);
         setShowContent(true);
         
-        // Ocultar completamente la pantalla de carga
         setTimeout(() => {
           setLoadingComplete(true);
         }, 500);
-      }, 750); // Esperar 3/4 de la transición
-    }, 2500); // Aumentado un poco el tiempo inicial
+      }, 750); 
+    }, 2500); 
 
     return () => clearTimeout(initialTimer);
   }, []);
 
-  // Configuración del video
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.playbackRate = 1.5; // Velocidad un poco más lenta para mejor experiencia
+      videoRef.current.playbackRate = 1.5; 
     }
   }, []);
 
@@ -91,14 +87,15 @@ function Login() {
     e.preventDefault();
     if (isLocked) return;
 
-    setIsNavigating(true); // Activa la pantalla de carga al iniciar el login
+    setIsNavigating(true);
 
     try {
-      const res = await fetch("http://localhost:4000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ correo_electronico: email, password })
-      });
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ correo_electronico: email, password })
+  });
+
 
       const data = await res.json();
 
@@ -107,17 +104,14 @@ function Login() {
         setAttempts(0);
         localStorage.removeItem("attempts");
 
-        // 🟢 Guardar token y tipo_usuario para controlar vistas
         localStorage.setItem("token", data.token);
         localStorage.setItem("tipo_usuario", data.usuario.tipo_usuario);
 
-        // Redirigir tras un breve delay
         setTimeout(() => {
           window.location.href = "/inicio";
-        }, 2000);
+        }, 500);
         
       } else {
-        // Error en login - restaurar estado
         setError(data.message || "Correo o contraseña incorrectos");
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
@@ -129,7 +123,6 @@ function Login() {
           localStorage.setItem("timeLeft", 60 * 5);
         }
         
-        // Restaurar visibilidad del contenido con transición
         setTimeout(() => {
           setIsNavigating(false);
           setShowContent(true);
@@ -138,7 +131,6 @@ function Login() {
     } catch (err) {
       setError("Error de conexión con el servidor");
       
-      // Restaurar visibilidad del contenido
       setTimeout(() => {
         setIsNavigating(false);
         setShowContent(true);
@@ -154,7 +146,6 @@ function Login() {
           className="loading-video" 
           autoPlay 
           muted
-          // El video se repetirá mientras isLoading o isNavigating sea true
           onEnded={(e) => {
             e.target.play(); 
           }}
@@ -166,7 +157,6 @@ function Login() {
     );
   }
 
-  // De lo contrario, renderiza el formulario de login
    return (
     <div className={styles.loginbox}>
       <h2>Ingresa a tu cuenta</h2>

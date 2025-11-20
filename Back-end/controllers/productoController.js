@@ -57,7 +57,6 @@ const generarCodigoBarras = (datosProducto) => {
 
 //agregar nuevos productos
 exports.nuevoProducto = async(req, res, next) => {
-    // Extraemos nombre y cantidad del body
     const { nombre, cantidad } = req.body;
     const cantidadNumerica = Number(cantidad);
 
@@ -69,11 +68,8 @@ exports.nuevoProducto = async(req, res, next) => {
     try{
         // 1. Intentar encontrar y actualizar SOLO LA CANTIDAD usando el nombre como clave
         const productoActualizado = await Productos.findOneAndUpdate(
-            // Criterio de búsqueda: busca el producto por su nombre
             { nombre: nombre },
-            // Operación: incrementar el campo 'cantidad' por el valor de 'cantidadNumerica'
             { $inc: { cantidad: cantidadNumerica } },
-            // Opciones: new: true para devolver el documento actualizado; runValidators: true para validar el esquema
             { new: true, runValidators: true }
         );
 
@@ -102,8 +98,6 @@ exports.nuevoProducto = async(req, res, next) => {
                 producto: nuevoProducto
             });
 
-            // Generar código de barras PDF
-            // Generar código de barras
             // Generar código de barras
             try {
                 console.log('📝 Generando código de barras...');
@@ -160,7 +154,7 @@ exports.mostrarProducto = async(req, res, next) => {
         if(!producto){
             return res.json({mensaje: 'Ese producto no existe'});
         }
-        res.json(producto); // 👈 Devuelve el objeto producto directamente
+        res.json(producto); 
     } catch(error) {
         console.log(error);
         next();

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styles from './style_rec_contr.module.css';
-import Swal from 'sweetalert2'; // 👈 Importa SweetAlert2
+import Swal from 'sweetalert2'; 
 
 function RecoverPassword() {
   const [correo_electronico, setCorreoElectronico] = useState("");
@@ -15,27 +15,29 @@ function RecoverPassword() {
     }
 
     try {
-      const res = await fetch("http://localhost:4000/api/auth/recover", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ correo_electronico })
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/auth/recover`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ correo_electronico })
+        }
+      );
+
 
       const data = await res.json();
 
       if (data.success) {
-        // 🚨 Reemplaza el popup de React con SweetAlert2
         Swal.fire({
-          icon: 'success', // Muestra un ícono de éxito ✅
+          icon: 'success', 
           title: 'Correo Enviado',
           text: `Se envió un correo de recuperación a ${correo_electronico}.`,
           customClass: { popup: 'swal-contorno-interior' }
         });
         setError(null);
       } else {
-        // 🚨 También puedes usar SweetAlert2 para el error
         Swal.fire({
-          icon: 'error', // Muestra un ícono de error ❌
+          icon: 'error', 
           title: 'Error',
           text: data.message || "Error al enviar correo de recuperación",
           customClass: { popup: 'swal-contorno-interior' }

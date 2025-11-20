@@ -28,7 +28,9 @@ const VisFactura = () => {
         try {
             setCargando(true);
             const res = await clienteAxios.get('/api/facturas');
-            setFacturas(Array.isArray(res.data) ? res.data : []);
+            console.log('📦 Respuesta completa:', res.data);
+            const facturasData = res.data.facturas || res.data;
+            setFacturas(Array.isArray(facturasData) ? facturasData : []);
         } catch (error) {
             console.error('Error al obtener facturas:', error);
             Swal.fire({
@@ -191,7 +193,6 @@ const VisFactura = () => {
         <Fragment>
             <div className={styles.visFactura}>
                 <div className={styles.visForm}>
-                    {/* Barra de filtros y búsqueda */}
                     <div className={styles.barraBusquedaCompleta}>
                         <div className={styles.filtroBusqueda}>
                             <select 

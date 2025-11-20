@@ -2,19 +2,11 @@ import React, { useState } from 'react';
 import clienteAxios from '../../config/axios';
 import Swal from 'sweetalert2';
 import styles from './registro.module.css';
+import { Link } from "react-router-dom";
 
-
-const validarEmail = (email) => {
-    // Regex simple para formato básico de correo (requiere algo@algo.algo)
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-};
-
-const validarSoloLetras = (text) => {
-    // Permite letras (mayúsculas/minúsculas), espacios y acentos/ñ
-    const letrasRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
-    return letrasRegex.test(text.trim());
-};
+// Funciones de validación
+const validarEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const validarSoloLetras = (text) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(text.trim());
 
 function RegistroUsuario() {
   const [usuario, setUsuario] = useState({
@@ -29,45 +21,51 @@ function RegistroUsuario() {
     password: 'temporal123'
   });
 
- const manejarCambio = (e) => {
+  const rolLogueado = localStorage.getItem('tipo_usuario'); 
+
+  // Definir opciones del select según el rol
+  let opcionesTipoUsuario = [];
+  if (rolLogueado === 'SUPERADMIN') {
+    opcionesTipoUsuario = ['SUPERADMIN', 'ADMINISTRADOR', 'USUARIO', 'CLIENTE'];
+  } else if (rolLogueado === 'ADMINISTRADOR') {
+    opcionesTipoUsuario = ['USUARIO', 'CLIENTE'];
+  } else if (rolLogueado === 'USUARIO') {
+    opcionesTipoUsuario = ['CLIENTE'];
+  }
+
+  const manejarCambio = (e) => {
     const { name, value } = e.target;
     let newValue = value;
 
     if (name === 'nombre' || name === 'apellido') {
-        // Filtrado en vivo: Solo permite letras, espacios y acentos
-        newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+      newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
     } else if (name === 'telefono') {
-        // Filtrado en vivo: Solo permite números
-        newValue = value.replace(/[^0-9]/g, '');
-    }
-    if (name === 'nombre' || name === 'apellido') {
-        // 1. Filtrado para Nombre/Apellido: Solo permite letras, espacios y acentos
-        newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
-
-    } else if (name === 'telefono') {
-        // 2. Filtrado para Teléfono: Solo permite números
-        newValue = value.replace(/[^0-9]/g, '');
-
+      newValue = value.replace(/[^0-9]/g, '');
     } else if (name === 'numero_documento') {
-        newValue = value.replace(/[^a-zA-Z0-9]/g, ''); 
-
+      newValue = value.replace(/[^a-zA-Z0-9]/g, '');
     } else if (name === 'correo_electronico') {
-        newValue = value.replace(/[^a-zA-Z0-9@._-]/g, '');
+      newValue = value.replace(/[^a-zA-Z0-9@._-]/g, '');
     }
 
-    setUsuario({
-      ...usuario,
-      [name]: newValue
-    });
+    setUsuario({ ...usuario, [name]: newValue });
   };
 
-const validarFormulario = () => {
+  const validarFormulario = () => {
     const { nombre, apellido, correo_electronico, tipo_documento, numero_documento, telefono, tipo_usuario } = usuario;
     return !nombre || !apellido || !correo_electronico || !tipo_documento || !numero_documento || !telefono || !tipo_usuario;
-};
+  };
 
   const manejarEnvio = async (e) => {
     e.preventDefault();
+
+    if (
+      (rolLogueado === 'ADMINISTRADOR' && ['SUPERADMIN', 'ADMINISTRADOR'].includes(usuario.tipo_usuario)) ||
+      (rolLogueado === 'USUARIO' && usuario.tipo_usuario !== 'CLIENTE')
+    ) {
+      Swal.fire('Error', 'No tienes permisos para crear este tipo de usuario', 'error');
+      return;
+    }
+
     try {
       await clienteAxios.post('/api/Usuario', usuario);
       Swal.fire('Correcto', 'Usuario registrado correctamente', 'success');
@@ -92,11 +90,12 @@ const validarFormulario = () => {
     <div className={styles.content}>
       <div className={styles['login-box']}>
         <h2>Registro</h2>
+
         <p>
           ¿Ya tienes una cuenta?{' '}
-          <a className={styles.link} onClick={() => (window.location.href = 'http://localhost:3000/')}>
+          <Link className={styles.link} to="/">
             Iniciar sesión
-          </a>
+          </Link>
         </p>
 
         <form className={styles['register-form']} id="registro-form" onSubmit={manejarEnvio}>
@@ -125,7 +124,7 @@ const validarFormulario = () => {
           <label htmlFor="correo_electronico">CORREO ELECTRÓNICO</label>
           <input
             type="email"
-            id="email"
+            id="correo_electronico"
             name="correo_electronico"
             placeholder="Ingresa tu correo"
             value={usuario.correo_electronico}
@@ -179,22 +178,14 @@ const validarFormulario = () => {
             required
           >
             <option value="">Seleccione...</option>
-            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-            <option value="USUARIO">USUARIO</option>
-            <option value="CLIENTE">CLIENTE</option>
-            <option value="SUPERADMIN">SUPERADMIN</option>
+            {opcionesTipoUsuario.map((tipo) => (
+              <option key={tipo} value={tipo}>{tipo}</option>
+            ))}
           </select>
 
           <button type="submit" disabled={validarFormulario()}>
             Registrar
           </button>
-
-          {/* Modal */}
-          <div id="modal" className={styles.modal}>
-            <div id="modalContenido" className={styles['modal-contenido']}>
-              <h2>Usuario registrado correctamente</h2>
-            </div>
-          </div>
         </form>
       </div>
     </div>
@@ -202,6 +193,3 @@ const validarFormulario = () => {
 }
 
 export default RegistroUsuario;
-
-
-

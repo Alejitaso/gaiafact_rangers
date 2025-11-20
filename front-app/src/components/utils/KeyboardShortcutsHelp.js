@@ -1,4 +1,3 @@
-// components/utils/KeyboardShortcutsHelp.js
 import React, { useState, useEffect } from 'react';
 import './KeyboardShortcutsHelp.css';
 

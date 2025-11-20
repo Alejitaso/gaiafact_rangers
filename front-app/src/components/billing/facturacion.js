@@ -101,7 +101,6 @@ const Facturacion = () => {
             const res = await clienteAxios.get(`/api/Usuario/documento/${documento}`);
             
             if (res.data && res.data.usuario) {
-                // Cliente encontrado - autocompletar datos
                 const cliente = res.data.usuario;
                 setClienteEncontrado(true);
                 setClienteId(cliente._id);
@@ -120,7 +119,6 @@ const Facturacion = () => {
                     showConfirmButton: false
                 });
             } else {
-                // Cliente no encontrado - habilitar campos para registro
                 setClienteEncontrado(false);
                 setClienteId(null);
                 setNombres('');
@@ -142,7 +140,6 @@ const Facturacion = () => {
             setBuscandoCliente(false);
             console.error('Error al buscar cliente:', error);
             
-            // Si el error es 404, el cliente no existe
             if (error.response && error.response.status === 404) {
                 setClienteEncontrado(false);
                 setClienteId(null);
@@ -188,7 +185,7 @@ const Facturacion = () => {
                 numero_documento: numeroDocumento,
                 correo_electronico: correo,
                 telefono: telefono,
-                password: 'temporal123', // Contraseña temporal
+                password: 'temporal123', 
                 estado: 'Activo',
                 tipo_usuario: 'CLIENTE'
             };
@@ -375,7 +372,6 @@ const Facturacion = () => {
         setGenerandoFactura(true);
 
         try {
-            // Si el cliente no existe, registrarlo primero
             if (!clienteEncontrado) {
                 const registrado = await registrarNuevoCliente();
                 if (!registrado) {
@@ -512,7 +508,6 @@ const Facturacion = () => {
                         value={tipoDocumento}
                         onChange={(e) => {
                             setTipoDocumento(e.target.value);
-                            // Si ya hay número de documento, buscar cliente
                             if (numeroDocumento.length >= 5) {
                                 buscarClientePorDocumento(numeroDocumento);
                             }

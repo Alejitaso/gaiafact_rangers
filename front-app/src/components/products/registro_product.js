@@ -136,7 +136,7 @@ function RegistroProducto() {
     };
 
     const mostrarPopupExito = async (productoRegistrado) => {
-        cerrarForzadoSweetAlert(); // ✅ Garantiza que no haya otro abierto
+        cerrarForzadoSweetAlert(); 
         Swal.fire({
             title: '¡Producto registrado correctamente!',
             html: `

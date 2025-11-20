@@ -6,7 +6,7 @@ const Inicio = () => {
     const carouselRef = useRef(null);
     const intervalRef = useRef(null);
 
-    const [images, setImages] = useState([]); // ← ahora vienen del backend
+    const [images, setImages] = useState([]); 
     const [currentRotation, setCurrentRotation] = useState(0);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
@@ -14,19 +14,19 @@ const Inicio = () => {
     // Cargar imágenes del backend
     const cargarImagenes = async () => {
         try {
-            const res = await axios.get('http://localhost:4000/api/imagenes/carousel');
+            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/imagenes/carousel`);
+
             if (res.data.exito && res.data.imagenes) {
-                // Agregamos la URL completa
-                const urls = res.data.imagenes.map(img => `http://localhost:4000${img}`);
-                setImages(urls);
-                console.log('🖼️ Imágenes cargadas:', urls);
+            const urls = res.data.imagenes.map(img => `${process.env.REACT_APP_API_URL}${img}`);
+            setImages(urls);
+            console.log('🖼️ Imágenes cargadas:', urls);
             } else {
-                console.warn('⚠️ No se encontraron imágenes');
+            console.warn('⚠️ No se encontraron imágenes');
             }
         } catch (error) {
             console.error('❌ Error al cargar imágenes del backend:', error);
         }
-    };
+        };
 
     const numItems = images.length;
     const angleStep = numItems > 0 ? 360 / numItems : 0;
@@ -82,7 +82,7 @@ const Inicio = () => {
     };
 
     useEffect(() => {
-        cargarImagenes(); // 👈 cargar imágenes desde el backend
+        cargarImagenes(); 
     }, []);
 
     useEffect(() => {

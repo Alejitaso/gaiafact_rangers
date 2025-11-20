@@ -1,5 +1,3 @@
-// controllers/facturaController.js
-
 const Factura = require('../models/factura.js');
 const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
@@ -200,6 +198,15 @@ const generarXMLFactura = (datosFactura) => {
 </Invoice>`;
 };
 
+// ========== FUNCIÓN AUXILIAR PARA VERIFICAR PERMISOS ==========
+// Usa tipo_usuario en mayúsculas según tu middleware
+const puedeVerTodasLasFacturas = (tipoUsuario) => {
+    if (!tipoUsuario) return false;
+    const tipoUsuarioUpper = tipoUsuario.toUpperCase();
+    const rolesPermitidos = ['SUPERADMIN', 'ADMINISTRADOR', 'USUARIO'];
+    return rolesPermitidos.includes(tipoUsuarioUpper);
+};
+
 exports.generarFactura = async (req, res, next) => {
     try {
         const datosFactura = req.body;
@@ -249,22 +256,60 @@ exports.generarFactura = async (req, res, next) => {
     }
 };
 
+// ========== MODIFICADO: mostrarFacturas con control de acceso ==========
 exports.mostrarFacturas = async (req, res, next) => {
     try {
-        const facturas = await Factura.find({});
-        res.json(facturas);
+        // req.usuario viene del middleware verificarAuth
+        const usuario = req.usuario;
+
+        if (!usuario) {
+            return res.status(401).json({ mensaje: 'Usuario no autenticado' });
+        }
+
+        let filtro = {};
+
+        // Si NO es admin, superadmin o usuario, solo ve sus propias facturas
+        if (!puedeVerTodasLasFacturas(usuario.tipo_usuario)) {
+            filtro = { 'usuario.numero_documento': usuario.numero_documento };
+        }
+
+        const facturas = await Factura.find(filtro).sort({ fecha_emision: -1 });
+        
+        res.json({
+            facturas,
+            total: facturas.length,
+            tipo_usuario: usuario.tipo_usuario
+        });
     } catch (error) {
         console.log(error);
         res.status(500).json({ mensaje: 'Error al mostrar las facturas' });
     }
 };
 
+// ========== MODIFICADO: mostrarFactura con control de acceso ==========
 exports.mostrarFactura = async (req, res, next) => {
     try {
+        const usuario = req.usuario;
+
+        if (!usuario) {
+            return res.status(401).json({ mensaje: 'Usuario no autenticado' });
+        }
+
         const factura = await Factura.findById(req.params.idFactura);
+        
         if (!factura) {
             return res.status(404).json({ mensaje: 'No existe esa factura' });
         }
+
+        // Verificar permisos: si no es admin/superadmin/usuario, solo puede ver sus propias facturas
+        if (!puedeVerTodasLasFacturas(usuario.tipo_usuario)) {
+            if (factura.usuario.numero_documento !== usuario.numero_documento) {
+                return res.status(403).json({ 
+                    mensaje: 'No tienes permiso para ver esta factura' 
+                });
+            }
+        }
+
         res.json(factura);
     } catch (error) {
         console.log(error);
@@ -296,12 +341,28 @@ exports.eliminarFactura = async (req, res, next) => {
     }
 };
 
+// ========== MODIFICADO: obtenerFacturaPDF con control de acceso ==========
 exports.obtenerFacturaPDF = async (req, res, next) => {
     try {
+        const usuario = req.usuario;
+
+        if (!usuario) {
+            return res.status(401).json({ mensaje: 'Usuario no autenticado' });
+        }
+
         const factura = await Factura.findById(req.params.idFactura);
         
         if (!factura) {
             return res.status(404).json({ mensaje: 'No existe esa factura' });
+        }
+
+        // Verificar permisos
+        if (!puedeVerTodasLasFacturas(usuario.tipo_usuario)) {
+            if (factura.usuario.numero_documento !== usuario.numero_documento) {
+                return res.status(403).json({ 
+                    mensaje: 'No tienes permiso para descargar esta factura' 
+                });
+            }
         }
 
         if (factura.pdf_factura && factura.pdf_factura.length > 0) {
@@ -320,11 +381,28 @@ exports.obtenerFacturaPDF = async (req, res, next) => {
     }
 };
 
+// ========== MODIFICADO: obtenerFacturaXML con control de acceso ==========
 exports.obtenerFacturaXML = async (req, res, next) => {
     try {
+        const usuario = req.usuario;
+
+        if (!usuario) {
+            return res.status(401).json({ mensaje: 'Usuario no autenticado' });
+        }
+
         const factura = await Factura.findById(req.params.idFactura);
+        
         if (!factura) {
             return res.status(404).json({ mensaje: 'No existe esa factura' });
+        }
+
+        // Verificar permisos
+        if (!puedeVerTodasLasFacturas(usuario.tipo_usuario)) {
+            if (factura.usuario.numero_documento !== usuario.numero_documento) {
+                return res.status(403).json({ 
+                    mensaje: 'No tienes permiso para descargar esta factura' 
+                });
+            }
         }
 
         if (factura.xml_factura) {
@@ -342,8 +420,6 @@ exports.obtenerFacturaXML = async (req, res, next) => {
         res.status(500).json({ mensaje: 'Error al obtener la factura en XML' });
     }
 };
-
-// Reemplazar en facturaController.js
 
 exports.enviarFacturaCorreo = async (req, res, next) => {
     try {
@@ -427,12 +503,10 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
         }
 
         .header .logo {
-            width: 90px; /* Reducimos el tamaño para que quepa bien al lado del texto */
+            width: 90px;
             height: auto; 
             margin-right: 10px; 
-            /* ¡Clave! Permite que el elemento se coloque junto a otros */
             display: inline-block; 
-            /* Alinea la imagen con el centro vertical del texto */
             vertical-align: middle;
         }
 
@@ -531,11 +605,11 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
         }
         
         .footer .logo-gaia {
-        width: 35px; /* Tamaño pequeño, adecuado para el footer */
+        width: 35px;
         height: auto;
-        vertical-align: middle; /* Alinea verticalmente con el texto si está en línea */
-        margin-right: 5px; /* Espacio a la derecha si está antes del texto */
-        display: inline-block; /* Permite que la imagen y el texto estén en la misma línea */
+        vertical-align: middle;
+        margin-right: 5px;
+        display: inline-block;
         }
 
         .attachment-info {
@@ -729,16 +803,33 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
     }
 };
 
+// ========== MODIFICADO: buscarFactura con control de acceso ==========
 exports.buscarFactura = async (req, res, next) => {
     try {
+        const usuario = req.usuario;
+
+        if (!usuario) {
+            return res.status(401).json({ mensaje: 'Usuario no autenticado' });
+        }
+
         const factura = await Factura.findOne({ numero_factura: req.params.numeroFactura });
+        
         if (!factura) {
             return res.status(404).json({ mensaje: 'No existe factura con ese número' });
         }
+
+        // Verificar permisos
+        if (!puedeVerTodasLasFacturas(usuario.tipo_usuario)) {
+            if (factura.usuario.numero_documento !== usuario.numero_documento) {
+                return res.status(403).json({ 
+                    mensaje: 'No tienes permiso para ver esta factura' 
+                });
+            }
+        }
+
         res.json(factura);
     } catch (error) {
         console.log(error);
         res.status(500).json({ mensaje: 'Error al buscar la factura' });
     }
 };
-
