@@ -1,7 +1,5 @@
-/* ========================= */
-/* ===== FORMULARIO ======== */
-/* ========================= */
 
+/* ===== FORMULARIO ======== */
 .register-form {
     background-color: var(--color-uno);
     margin: 3% 20%;
@@ -103,9 +101,7 @@
     transform: none;
 }
 
-/* ============================= */
 /* ===== SWEETALERT GLOBAL ===== */
-/* ============================= */
 
 :global(.custom-swal-popup) {
     background-color: var(--color-dos) !important;

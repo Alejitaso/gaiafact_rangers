@@ -1,5 +1,6 @@
 /* === Contenedor principal === */
 .listado-container { 
+.listado-container { 
     width: 100%;
     max-width: 1100px;                                                                      
     margin: 40px auto;
@@ -20,7 +21,7 @@
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* === Contenedor de la Tabla (Similar a .info-perfil) === */
+/* === Contenedor de la Tabla === */
 .tabla-wrapper { 
     overflow-x: auto; 
     padding: 20px;
@@ -36,6 +37,7 @@
     width: 100%;
     border-collapse: separate;
     border-spacing: 0; 
+    min-width: 700px; 
     min-width: 700px; 
 }
 
@@ -56,7 +58,7 @@
     text-transform: uppercase;
 }
 
-/* Estilo para filas impares (opcional, para mejor legibilidad) */
+/* Estilo para filas impares */
 .tabla-usuarios tbody tr:nth-child(odd) {
     background-color: rgba(255, 255, 255, 0.05);
 }
@@ -94,8 +96,10 @@
     transform: translateY(-2px);
 }
 
-/* 💥 ACTUALIZACIÓN: Estilo para botones de acción en la tabla (Ver Perfil) */
+/* Estilo para botones de acción en la tabla (Ver Perfil) */
 .action-btn-primary {
+    padding: 6px 12px; 
+    border: 2px solid var(--color-tres); 
     padding: 6px 12px; 
     border: 2px solid var(--color-tres); 
     border-radius: 8px;

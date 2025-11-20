@@ -6,7 +6,7 @@ import styles from './perfil.module.css';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const Perfil = () => {
-    // 1. Inicialización de hooks y estados
+    // Inicialización de hooks y estados
     const { idUsuario: idParam } = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
@@ -20,7 +20,7 @@ const Perfil = () => {
     // Indica si el perfil actual puede ser editado (solo el propio usuario)
     const [isEditable, setIsEditable] = useState(false);
 
-    // 2. Lógica para decodificar el token y obtener el ID del usuario actual
+    // Extrae el ID del usuario logueado del token JWT en localStorage.
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
@@ -35,10 +35,9 @@ const Perfil = () => {
         }
     }, []); 
 
-    // El ID final a usar: prioriza el ID de la URL (si estamos viendo otro perfil)
     const finalUserId = idParam || idUsuarioToken; 
 
-    // 3. Función para obtener los datos del perfil
+    // Lógica de petición y manejo de errores de autenticación/autorización.
     const obtenerPerfil = useCallback(async () => {
         if (!finalUserId) {
             setLoading(false);
@@ -75,7 +74,7 @@ const Perfil = () => {
         }
     }, [finalUserId, idUsuarioToken, navigate]); 
 
-    // 4. useEffect para disparar la carga del perfil
+    // Ejecuta el fetch y define la lógica para editar y guardar cambios.
     useEffect(() => {
         if (finalUserId) {
             obtenerPerfil();
@@ -105,7 +104,7 @@ const Perfil = () => {
         }
     };
 
-
+    // Muestra el perfil, campos solo lectura/editables y botones condicionales.
     if (loading || !finalUserId) {
         return <div className={styles["perfil-container"]}><h1>Cargando perfil...</h1></div>;
     }
