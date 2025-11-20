@@ -4,6 +4,7 @@ import clienteAxios from '../../config/axios';
 import styles from './notify.module.css';
 
 function NotificacionesMejorado() {
+   // ESTADOS DEL COMPONENTE
   const [numeroFactura, setNumeroFactura] = useState('');
   const [facturaData, setFacturaData] = useState(null);
   const [clienteData, setClienteData] = useState(null);
@@ -17,7 +18,7 @@ function NotificacionesMejorado() {
       setError('Por favor ingrese un número de factura');
       return;
     }
-
+    //estado de carga
     setBuscando(true);
     setError('');
     setFacturaData(null);
@@ -69,6 +70,7 @@ function NotificacionesMejorado() {
       }
 
     } catch (error) {
+      //manejo de errores en la busqueda
       console.error('Error al buscar factura:', error);
       setError(error.response?.data?.mensaje || 'Factura no encontrada. Verifique el número.');
       Swal.fire({
@@ -123,6 +125,7 @@ function NotificacionesMejorado() {
     setEnviando(true);
 
     try {
+      //peticion al backend para envio del correo 
       const res = await clienteAxios.post('/api/facturas/enviar-correo', {
         idFactura: facturaData._id,
         emailCliente: correo,
@@ -147,6 +150,7 @@ function NotificacionesMejorado() {
       setClienteData(null);
 
     } catch (error) {
+      //error al enviar correo 
       console.error('Error al enviar correo:', error);
       Swal.fire({
         icon: 'error',
@@ -158,7 +162,7 @@ function NotificacionesMejorado() {
       setEnviando(false);
     }
   };
-
+// peticion para cancelar y reiniciar el formulario
   const cancelarAccion = () => {
     Swal.fire({
       title: '¿Cancelar?',
@@ -171,6 +175,7 @@ function NotificacionesMejorado() {
       cancelButtonColor: '#276177',
     }).then((result) => {
       if (result.isConfirmed) {
+        //reset de todos los estados
         setNumeroFactura('');
         setFacturaData(null);
         setClienteData(null);
@@ -184,7 +189,7 @@ function NotificacionesMejorado() {
       }
     });
   };
-
+//formateadores (precio y fecha)
   const formatearPrecio = (precio) => {
     return precio.toLocaleString('es-CO', {
       minimumFractionDigits: 0,
@@ -199,7 +204,7 @@ function NotificacionesMejorado() {
       day: 'numeric',
     });
   };
-
+//render del componente 
   return (
     <Fragment>
       <div className={styles.mainContainer}>
