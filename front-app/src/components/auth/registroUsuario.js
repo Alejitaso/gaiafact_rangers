@@ -21,6 +21,18 @@ function RegistroUsuario() {
     password: 'temporal123'
   });
 
+  const rolLogueado = localStorage.getItem('tipo_usuario'); 
+
+  // Definir opciones del select según el rol
+  let opcionesTipoUsuario = [];
+  if (rolLogueado === 'SUPERADMIN') {
+    opcionesTipoUsuario = ['SUPERADMIN', 'ADMINISTRADOR', 'USUARIO', 'CLIENTE'];
+  } else if (rolLogueado === 'ADMINISTRADOR') {
+    opcionesTipoUsuario = ['USUARIO', 'CLIENTE'];
+  } else if (rolLogueado === 'USUARIO') {
+    opcionesTipoUsuario = ['CLIENTE'];
+  }
+
   const manejarCambio = (e) => {
     const { name, value } = e.target;
     let newValue = value;
@@ -45,6 +57,15 @@ function RegistroUsuario() {
 
   const manejarEnvio = async (e) => {
     e.preventDefault();
+
+    if (
+      (rolLogueado === 'ADMINISTRADOR' && ['SUPERADMIN', 'ADMINISTRADOR'].includes(usuario.tipo_usuario)) ||
+      (rolLogueado === 'USUARIO' && usuario.tipo_usuario !== 'CLIENTE')
+    ) {
+      Swal.fire('Error', 'No tienes permisos para crear este tipo de usuario', 'error');
+      return;
+    }
+
     try {
       await clienteAxios.post('/api/Usuario', usuario);
       Swal.fire('Correcto', 'Usuario registrado correctamente', 'success');
@@ -157,10 +178,9 @@ function RegistroUsuario() {
             required
           >
             <option value="">Seleccione...</option>
-            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-            <option value="USUARIO">USUARIO</option>
-            <option value="CLIENTE">CLIENTE</option>
-            <option value="SUPERADMIN">SUPERADMIN</option>
+            {opcionesTipoUsuario.map((tipo) => (
+              <option key={tipo} value={tipo}>{tipo}</option>
+            ))}
           </select>
 
           <button type="submit" disabled={validarFormulario()}>

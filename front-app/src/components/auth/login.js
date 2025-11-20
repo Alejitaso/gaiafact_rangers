@@ -16,17 +16,14 @@ function Login() {
   
   const videoRef = useRef(null);
 
-  // Carga inicial con transición suave
   useEffect(() => {
     const initialTimer = setTimeout(() => {
       setFadeOut(true);
       
-      // Después de que comience el fade-out, mostrar el contenido
       setTimeout(() => {
         setIsLoaded(true);
         setShowContent(true);
         
-        // Ocultar completamente la pantalla de carga
         setTimeout(() => {
           setLoadingComplete(true);
         }, 500);
@@ -36,7 +33,6 @@ function Login() {
     return () => clearTimeout(initialTimer);
   }, []);
 
-  // Configuración del video
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.playbackRate = 1.5; 
@@ -108,17 +104,14 @@ function Login() {
         setAttempts(0);
         localStorage.removeItem("attempts");
 
-        // 🟢 Guardar token y tipo_usuario para controlar vistas
         localStorage.setItem("token", data.token);
         localStorage.setItem("tipo_usuario", data.usuario.tipo_usuario);
 
-        // Redirigir tras un breve delay
         setTimeout(() => {
           window.location.href = "/inicio";
-        }, 2000);
+        }, 500);
         
       } else {
-        // Error en login - restaurar estado
         setError(data.message || "Correo o contraseña incorrectos");
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
@@ -130,7 +123,6 @@ function Login() {
           localStorage.setItem("timeLeft", 60 * 5);
         }
         
-        // Restaurar visibilidad del contenido con transición
         setTimeout(() => {
           setIsNavigating(false);
           setShowContent(true);
@@ -139,7 +131,6 @@ function Login() {
     } catch (err) {
       setError("Error de conexión con el servidor");
       
-      // Restaurar visibilidad del contenido
       setTimeout(() => {
         setIsNavigating(false);
         setShowContent(true);
@@ -155,7 +146,6 @@ function Login() {
           className="loading-video" 
           autoPlay 
           muted
-          // El video se repetirá mientras isLoading o isNavigating sea true
           onEnded={(e) => {
             e.target.play(); 
           }}
@@ -167,7 +157,6 @@ function Login() {
     );
   }
 
-  // De lo contrario, renderiza el formulario de login
    return (
     <div className={styles.loginbox}>
       <h2>Ingresa a tu cuenta</h2>
