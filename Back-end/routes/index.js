@@ -145,7 +145,7 @@ module.exports = function(){
 
     /* ====================== NOTIFICACIONES ====================== */
 
-    router.post('/notificaciones/crear',
+    router.post('/notificaciones/crearNotificacion',
         verificarAuth,
         securityNetworkMiddleware,
         notificacionController.crearNotificacion
