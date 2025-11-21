@@ -7,10 +7,12 @@ const nodemailer = require('nodemailer');
 
 //Configuración del Transportador de Correo
 const configurarTransportador = () => nodemailer.createTransport({
-  service: 'SendGrid',
+  host: 'smtp.sendgrid.net',
+  port: 465,        // SSL
+  secure: true,     // true para 465
   auth: {
-    user: 'apikey',
-    pass: process.env.EMAIL_PASS,
+    user: 'apikey', // siempre la palabra literal "apikey"
+    pass: process.env.EMAIL_PASS, // tu clave completa SG.xxx
   },
 });
 

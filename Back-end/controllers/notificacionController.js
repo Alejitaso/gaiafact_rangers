@@ -6,6 +6,7 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 const QRCode = require('qrcode');
+const { configurarTransportador } = require('./facturaController');
 
 // Asegura que el directorio temporal exista. Crea la carpeta '../temp' si no está presente.
 const TEMP_DIR = path.join(__dirname, '../temp');
@@ -208,13 +209,7 @@ const generarCuerpoCorreo = (factura, cliente) => {
 const procesarEnvioFactura = async (idFactura, cliente) => {
     
     //Configura el transportador de Nodemailer (conexión al servidor de correo saliente).
-    const transporter = nodemailer.createTransport({
-        service: "SendGrid",
-        auth: {
-            user: "apikey",              
-            pass: process.env.EMAIL_PASS,
-        }
-    });
+    const transporter = configurarTransportador();
     
     //Verificación crítica de las variables de entorno para el correo.
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
