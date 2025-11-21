@@ -422,7 +422,8 @@ exports.obtenerFacturaXML = async (req, res, next) => {
 };
 
 exports.enviarFacturaCorreo = async (req, res, next) => {
-    console.log('✉️  EMAIL_PASS:', process.env.EMAIL_PASS);
+console.log('📦 process.env:', Object.keys(process.env));
+console.log('📧 EMAIL_PASS:', process.env.EMAIL_PASS);    
     try {
         const { idFactura, emailCliente } = req.body;
 
