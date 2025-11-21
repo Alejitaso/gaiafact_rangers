@@ -304,11 +304,8 @@ exports.mostrarFacturas = async (req, res, next) => {
 
         const facturas = await Factura.find(filtro).sort({ fecha_emision: -1 });
         
-        res.json({
-            facturas,
-            total: facturas.length,
-            tipo_usuario: usuario.tipo_usuario
-        });
+        res.json(facturas);
+        
     } catch (error) {
         console.log(error);
         res.status(500).json({ mensaje: 'Error al mostrar las facturas' });
