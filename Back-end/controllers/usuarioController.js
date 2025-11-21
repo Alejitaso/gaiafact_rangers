@@ -154,30 +154,17 @@ exports.mostrarUsuario = async (req, res) => {
 
 // Buscar usuario por documento
 exports.buscarPorDocumento = async (req, res) => {
-  try {
-    const usuario = await Usuario.findOne({
-      numero_documento: req.params.documento, 
-    });
+  const doc = req.params.documento;
+  console.log("🔍 Buscando numero_documento:", doc, typeof doc);
 
-    if (!usuario) {
-      return res.json({ 
-        mensaje: 'Usuario no encontrado',
-        usuario: null 
-      });
-    }
+  const usuario = await Usuario.findOne({ numero_documento: doc });
+  console.log("🔎 Resultado findOne:", usuario);
 
-    return res.json({ 
-      mensaje: 'Usuario encontrado', 
-      usuario: usuario 
-    });
-
-  } catch (error) {
-    console.error("❌ Error al buscar usuario:", error);
-    return res.status(500).json({ 
-      mensaje: 'Error al buscar usuario', 
-      error: error.message 
-    });
+  if (!usuario) {
+    return res.json({ mensaje: 'Usuario no encontrado', usuario: null });
   }
+
+  return res.json({ mensaje: 'Usuario encontrado', usuario });
 };
 
 exports.actualizarUsuario = async (req, res, next) => {
