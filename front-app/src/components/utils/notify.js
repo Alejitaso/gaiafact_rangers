@@ -52,18 +52,11 @@ function NotificacionesMejorado() {
       let cliente = factura.usuario;
       if (factura.usuario?.numero_documento) {
         try {
-<<<<<<< HEAD
-          const resCliente = await clienteAxios.get(`/Usuario/documento/${factura.usuario.numero_documento}`);
-          cliente = resCliente.data.usuario;
-        } catch {
-          console.warn('Cliente no encontrado, usando datos de factura');
-=======
           const resCliente = await clienteAxios.get(`api/Usuario/documento/${factura.usuario.numero_documento}`);
           setClienteData(resCliente.data.usuario);
         } catch (err) {
           console.warn('Cliente no encontrado en base de datos, usando datos de factura');
           setClienteData(factura.usuario);
->>>>>>> fbf23a1d7ede273f7f593aff7cb3d228be0ddaa2
         }
       }
       setClienteData(cliente);

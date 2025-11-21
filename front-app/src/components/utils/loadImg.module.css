@@ -234,16 +234,20 @@
     margin-top: 10px;
 }
 
-/* Responsividad */
 @media (max-width: 480px) {
     .uploadcard {
-        width: 90%;
-        padding: 20px;
+        padding: 15px;
     }
+    
     .uploadbox {
-        padding: 30px 15px;
+        padding: 25px 10px;
     }
-    :global(.btn-agregar) {
+    
+    .uploadbox i {
+        font-size: 32px;
+    }
+    
+    .uploadbox p {
         font-size: 14px;
         padding: 10px 20px;
     }
