@@ -13,6 +13,62 @@
   border-width: 0;
 }
 
+.contrasegnaContainer {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* Input dentro del contenedor de contraseña */
+.contrasegnaContainer input {
+    padding-right: 50px; /* ✅ Espacio para el botón */
+    padding-left: 15px;
+}
+
+/* ========================================
+   BOTÓN MOSTRAR/OCULTAR CONTRASEÑA
+   ======================================== */
+.IconoContrasegna {
+    position: absolute;
+    right: 10px;
+    top: 40%;
+    transform: translateY(-40%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-cinco);
+    font-size: 20px;
+    transition: color 0.3s ease, opacity 0.3s ease;
+    z-index: 2;
+    line-height: 1;
+}
+
+.IconoContrasegna:hover {
+    opacity: 0.7;
+    color: var(--color-tres);
+    top: 40%;
+}
+
+/* ✅ ACCESIBILIDAD: Focus visible en el botón */
+.IconoContrasegna:focus {
+    outline: 2px solid var(--color-cinco);
+    outline-offset: 2px;
+    border-radius: 4px;
+    opacity: 1;
+    top: 40%;
+}
+
+/* ✅ ACCESIBILIDAD: Estado deshabilitado */
+.IconoContrasegna:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
 /* ========================================
    CAJA DE LOGIN
    ======================================== */
@@ -117,63 +173,6 @@
 .loginform input[aria-invalid="true"] {
     border-color: var(--color-seis);
     border-width: 2px;
-}
-
-/* ========================================
-   CONTENEDOR DE CONTRASEÑA CON BOTÓN
-   ======================================== */
-.contrasegnaContainer {
-    position: relative;
-    width: 100%;
-    display: flex;
-    align-items: center;
-}
-
-/* Input dentro del contenedor de contraseña */
-.contrasegnaContainer input {
-    padding-right: 50px; /* ✅ Espacio para el botón */
-    padding-left: 15px;
-}
-
-/* ========================================
-   BOTÓN MOSTRAR/OCULTAR CONTRASEÑA
-   ======================================== */
-.IconoContrasegna {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-cinco);
-    font-size: 20px;
-    transition: color 0.3s ease, opacity 0.3s ease;
-    z-index: 2;
-    line-height: 1;
-}
-
-.IconoContrasegna:hover {
-    opacity: 0.7;
-    color: var(--color-tres);
-}
-
-/* ✅ ACCESIBILIDAD: Focus visible en el botón */
-.IconoContrasegna:focus {
-    outline: 2px solid var(--color-cinco);
-    outline-offset: 2px;
-    border-radius: 4px;
-    opacity: 1;
-}
-
-/* ✅ ACCESIBILIDAD: Estado deshabilitado */
-.IconoContrasegna:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
 }
 
 /* ========================================
@@ -371,3 +370,70 @@
         transition-duration: 0.01ms !important;
     }
 }
+
+
+
+/* =========================================================
+   FIX: LOGIN NO SE SALE DE LA PANTALLA EN MÓVILES
+   ========================================================= */
+@media (max-width: 768px) {
+  .loginbox {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 20px 15px;
+    border-radius: 0;
+    box-sizing: border-box;
+  }
+
+  .loginform input[type="email"],
+  .loginform input[type="password"],
+  .loginform input[type="text"] {
+    width: 100%;
+    font-size: 16px; /* evita zoom en iOS */
+    box-sizing: border-box;
+  }
+
+  .loginform button[type="submit"] {
+    width: 100%;
+    font-size: 16px;
+    padding: 14px 20px;
+    box-sizing: border-box;
+  }
+
+  .IconoContrasegna {
+    padding: 10px;
+    font-size: 18px;
+  }
+
+  .logog {
+    padding-bottom: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .loginbox {
+    padding: 25px 0px;
+    border-radius: 12px;
+    margin-top: 10%;
+  }
+
+  .loginbox h1 {
+    font-size: 1.5rem;
+    word-break: break-word;
+  }
+
+  .loginform label {
+    font-size: 14px;
+  }
+
+  .loginform input::placeholder {
+    font-size: 14px;
+  }
+
+  .loginform button[type="submit"] {
+    font-size: 14px;
+    padding: 12px;
+  }
+}
+

@@ -1,14 +1,3 @@
-/* colores globales */
-:root {
-    --color-uno: #254454;
-    --color-dos: #F0F4F8;
-    --color-tres: #276177;
-    --color-cuatro: #D1DCE6;
-    --color-cinco: #8E9BE8;
-    --color-seis: #C7BEDB;
-    --color-siete: #F61507;
-    --color-ocho: #406f81;
-}
 
 /* ✅ Accesibilidad: ocultar visualmente pero mantener para lectores */
 .sr-only {
