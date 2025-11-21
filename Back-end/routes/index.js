@@ -112,15 +112,9 @@ module.exports = function(){
         facturaController.obtenerFacturaXML
     );
 
-    console.log('🔎 CHECK antes de /facturas/:idFactura', {
-    obtenerFacturaPDF: typeof facturaController.obtenerFacturaPDF,
-    obtenerFacturaXML: typeof facturaController.obtenerFacturaXML,
-    mostrarFactura: typeof facturaController.mostrarFactura,
-    });
-    
     router.get('/facturas/:idFactura',
         verificarAuth,
-        facturaController.mostrarFactura
+        facturaController.mostrarFacturas
     );
 
     router.put('/facturas/:idFactura',
