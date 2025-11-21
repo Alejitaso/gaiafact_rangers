@@ -26,7 +26,6 @@ function EditarProducto() {
   const [cargando, setCargando] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
 
-  // ✅ Limpieza de popups al montar o cambiar ruta
   useEffect(() => {
     cerrarForzadoSweetAlert();
   }, [location.pathname]);
@@ -94,7 +93,6 @@ function EditarProducto() {
         
         console.log('✅ Estado actualizado correctamente');
         
-        // Verificar después de 100ms que el estado se actualizó
         setTimeout(() => {
           console.log('🔄 Verificación del estado después de actualizar:', producto);
         }, 100);
@@ -289,7 +287,6 @@ function EditarProducto() {
         document.getElementById('btnContinuar').addEventListener('click', () => {
           cerrarForzadoSweetAlert();
           if (!modoEdicion) {
-            // Si estamos creando, limpiar el formulario
             setProducto({
               nombre: '',
               descripcion_detallada: '',

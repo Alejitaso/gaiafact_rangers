@@ -15,7 +15,6 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     return <Navigate to="/inicio" replace />;
   }
 
-  // Si pasa las validaciones, muestra la vista
   return children;
 };
 

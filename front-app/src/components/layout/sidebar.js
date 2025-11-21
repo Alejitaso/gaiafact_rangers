@@ -7,8 +7,6 @@ const Sidebar = () => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  // ---- <- AQUI definimos tipoUsuario
-  // Lee el tipo de usuario desde localStorage y normaliza a mayúsculas
   const tipoUsuario = (localStorage.getItem("tipo_usuario") || "").toUpperCase();
 
   const toggleNav = () => {

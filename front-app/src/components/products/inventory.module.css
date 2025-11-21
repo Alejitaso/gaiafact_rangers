@@ -64,14 +64,14 @@
 .inventory_table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px; /* Space from search bar */
+    margin-top: 20px; 
     
 }
 
 /* Modifica el texto de la tabla */
 .inventory_table th,
 .inventory_table td {
-    border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle white border for lines */
+    border: 1px solid rgba(255, 255, 255, 0.3);
     padding: 10px;
     text-align: left;
     color: var(--color-uno);
@@ -158,8 +158,8 @@
 .botones {
     display: flex;
     justify-content: space-between;
-    gap: 20px; /* Espacio entre los botones */
-    margin-top: 20px; /* Space from the table */
+    gap: 20px; 
+    margin-top: 20px; 
     text-align: center;
 }
 
