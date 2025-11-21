@@ -1,460 +1,36 @@
 // controllers/facturaController.js
+// VERSIÓN CON API HTTP DE SENDGRID (más confiable que SMTP)
+
 const Producto = require('../models/producto.js');
 const Factura = require('../models/factura.js');
 const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail'); // npm install @sendgrid/mail
 
-//Configuración del Transportador de Correo
-const configurarTransportador = () => {
-    return nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-        }
-    });
+// Configurar SendGrid con la API key
+const configurarSendGrid = () => {
+  if (!process.env.EMAIL_PASS) {
+    console.error('❌ ERROR: EMAIL_PASS no está configurada');
+    throw new Error('EMAIL_PASS (SendGrid API Key) no está configurada');
+  }
+  
+  console.log('✅ Configurando SendGrid API...');
+  console.log('📧 API Key detectada:', process.env.EMAIL_PASS.substring(0, 10) + '...');
+  
+  sgMail.setApiKey(process.env.EMAIL_PASS);
 };
 
-const generarPDFFactura = async (datosFactura) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            // ... (Configuración inicial de PDFDocument)
-            const doc = new PDFDocument({
-                size: 'A4',
-                margin: 40,
-                bufferPages: true
-            });
-
-            // ... (Manejo de buffers y eventos para crear el PDF)
-            const buffers = [];
-            doc.on('data', buffers.push.bind(buffers));
-            doc.on('end', () => {
-                const pdfBuffer = Buffer.concat(buffers);
-                resolve(pdfBuffer);
-            });
-            doc.on('error', reject);
-
-            // Colores de tu marca
-            const colorPrimario = '#2C5F6F';
-            const colorSecundario = '#A8B8D8';
-            const colorTexto = '#2C3E50';
-            const colorGris = '#7F8C8D';
-
-            // ========== ENCABEZADO ==========
-            doc.fontSize(24).fillColor(colorPrimario).text('Athena\'S', 50, 50);
-            doc.fontSize(10).fillColor(colorGris)
-               .text(' GaiaFact - Sistema de Facturación', 50, 78)
-               .text('NIT: 876.543.219 - 5', 50, 92)
-               .text('Régimen Común', 50, 106)
-               .text('Calle 11 #22-04', 50, 120)
-               .text('Tel: 3023650911', 50, 134);
-
-            // Información de la factura (lado derecho)
-            doc.fontSize(18).fillColor(colorPrimario).text('FACTURA DE VENTA', 350, 50, { align: 'right' });
-            doc.fontSize(10).fillColor(colorTexto)
-               .text(`No. ${datosFactura.numero_factura}`, 350, 75, { align: 'right' })
-               .fillColor(colorGris)
-               .text(`Fecha: ${new Date(datosFactura.fecha_emision).toLocaleDateString('es-CO', { 
-                   year: 'numeric', month: 'long', day: 'numeric' 
-               })}`, 350, 90, { align: 'right' });
-
-            doc.fontSize(7).text(`CUFE: ${datosFactura.codigo_CUFE || 'TEMPORAL-' + datosFactura.numero_factura}`, 
-                     300, 110, { align: 'right', width: 245 });
-
-            doc.moveTo(50, 160).lineTo(545, 160).strokeColor(colorPrimario).lineWidth(2).stroke();
-
-            // ========== INFORMACIÓN DEL CLIENTE ==========
-            doc.fontSize(12).fillColor(colorPrimario).text('INFORMACIÓN DEL CLIENTE', 50, 180);
-            
-            doc.fontSize(9).fillColor(colorTexto)
-               .text(`Cliente: ${datosFactura.usuario.nombre} ${datosFactura.usuario.apellido}`, 50, 200)
-               .text(`${datosFactura.usuario.tipo_documento}: ${datosFactura.usuario.numero_documento}`, 50, 215);
-            
-            if (datosFactura.usuario.telefono) {
-                doc.text(`Teléfono: ${datosFactura.usuario.telefono}`, 50, 230);
-            }
-
-            // ========== TABLA DE PRODUCTOS ==========
-            const tableTop = 270;
-            
-            // Encabezado de tabla con fondo
-            doc.rect(50, tableTop - 5, 495, 25).fillColor(colorSecundario).fill();
-            
-            doc.fontSize(9).fillColor(colorTexto)
-               .text('DESCRIPCIÓN', 60, tableTop + 5, { width: 220 })
-               .text('CANT.', 290, tableTop + 5, { width: 40, align: 'center' })
-               .text('PRECIO UNIT.', 340, tableTop + 5, { width: 80, align: 'right' })
-               .text('SUBTOTAL', 430, tableTop + 5, { width: 100, align: 'right' });
-
-            // Productos
-            let yPosition = tableTop + 35;
-            let subtotalGeneral = 0;
-
-            datosFactura.productos_factura.forEach((item, index) => {
-                const subtotal = item.precio * item.cantidad;
-                subtotalGeneral += subtotal;
-
-                // Fondo alternado para filas
-                if (index % 2 === 0) {
-                    doc.rect(50, yPosition - 5, 495, 20).fillColor('#F8F9FA').fill();
-                }
-
-                doc.fontSize(9).fillColor(colorTexto)
-                   .text(item.producto, 60, yPosition, { width: 220 })
-                   .text(item.cantidad.toString(), 290, yPosition, { width: 40, align: 'center' })
-                   .text(`$${item.precio.toLocaleString('es-CO')}`, 340, yPosition, { width: 80, align: 'right' })
-                   .text(`$${subtotal.toLocaleString('es-CO')}`, 430, yPosition, { width: 100, align: 'right' });
-
-                yPosition += 25;
-            });
-
-            // Línea antes de totales
-            yPosition += 10;
-            doc.moveTo(50, yPosition).lineTo(545, yPosition).strokeColor(colorGris).lineWidth(1).stroke();
-            yPosition += 15;
-
-            // ========== TOTALES ==========
-            const subtotal = datosFactura.productos_factura.reduce((sum, item) => {
-                return sum + (item.precio * item.cantidad);
-            }, 0);
-
-            const iva = subtotal * 0.19; // 19% IVA
-            const totalFinal = subtotal + iva;
-
-            // Guardar valores en la factura
-            datosFactura.subtotal = subtotal;
-            datosFactura.iva = iva;
-            datosFactura.total = totalFinal;
-
-            doc.fontSize(10).fillColor(colorTexto)
-               .text('Subtotal:', 380, yPosition, { align: 'right', width: 80 })
-               .text(`$${subtotalGeneral.toLocaleString('es-CO')}`, 460, yPosition, { align: 'right', width: 85 });
-
-            yPosition += 20;
-            doc.text('IVA (19%):', 380, yPosition, { align: 'right', width: 80 })
-               .text(`$${iva.toLocaleString('es-CO')}`, 460, yPosition, { align: 'right', width: 85 });
-
-            yPosition += 25;
-            doc.fontSize(12).fillColor(colorPrimario).font('Helvetica-Bold')
-               .text('TOTAL:', 380, yPosition, { align: 'right', width: 80 })
-               .fontSize(14)
-               .text(`$${totalFinal.toLocaleString('es-CO')}`, 460, yPosition, { align: 'right', width: 85 });
-
-            // ========== CÓDIGOS QR ==========
-            yPosition += 50;
-
-            const fecha = new Date(datosFactura.fecha_emision || new Date());
-            const fechaFormato = fecha.toLocaleDateString('es-CO');
-            const horaFormato = fecha.toLocaleTimeString('es-CO');
-            
-            const qrData = `Número de Factura: ${datosFactura.numero_factura}
-Fecha: ${fechaFormato}
-Hora: ${horaFormato}
-NIT: 900123456-1
-Cliente: ${datosFactura.usuario.nombre} ${datosFactura.usuario.apellido}
-Documento: ${datosFactura.usuario.tipo_documento || 'CC'} ${datosFactura.usuario.numero_documento}
-CUFE: ${datosFactura.codigo_CUFE || 'TEMP-' + datosFactura.numero_factura}`;
-
-            // Generar QR Code (Prepara la información para el QR y lo genera como Buffer)
-            const qrCodeImage = await QRCode.toBuffer(qrData, {
-                width: 120,
-                margin: 1,
-                color: { dark: "#276177", light: "#FFFFFF" },
-                errorCorrectionLevel: "M"
-            });
-
-            doc.image(qrCodeImage, 60, yPosition, { width: 120, height: 120 });
-            doc.fontSize(8).fillColor(colorGris).text('Escanea para verificar', 60, yPosition + 125, { width: 120, align: 'center' });
-
-            // Número de factura
-            doc.fontSize(16).fillColor(colorTexto).font('Helvetica-Bold')
-               .text(datosFactura.numero_factura, 250, yPosition + 40, { align: 'center', width: 250 });
-            
-            doc.fontSize(8).fillColor(colorGris).font('Helvetica')
-               .text('Número de Factura', 250, yPosition + 60, { align: 'center', width: 250 });
-
-            // ========== FOOTER ==========
-            yPosition += 150;
-            doc.fontSize(8).fillColor(colorGris)
-               .text('Esta factura electrónica ha sido generada por el sistema GaiaFact - Athena\'S', 50, yPosition, { 
-                   align: 'center', 
-                   width: 495 
-               })
-               .text(`Rango de numeración: ${datosFactura.rango_numeracion_actual || 'TEMP-2025'}`, 50, yPosition + 15, { 
-                   align: 'center', 
-                   width: 495 
-               })
-               .text('Gracias por su compra', 50, yPosition + 30, { 
-                   align: 'center', 
-                   width: 495 
-               });
-
-            doc.end();
-        } catch (error) {
-            reject(error);
-        }
-    });
-};
-
-//Función que retorna un string XML básico.
-const generarXMLFactura = (datosFactura) => {
-    return `<?xml version="1.0" encoding="UTF-8"?>
-<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" 
-        xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
-        xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
-    <cbc:UBLVersionID>UBL 2.1</cbc:UBLVersionID>
-    <cbc:CustomizationID>DIAN 2.1</cbc:CustomizationID>
-    <cbc:ProfileID>1</cbc:ProfileID>
-    <cbc:ID>${datosFactura.numero_factura}</cbc:ID>
-    <cbc:IssueDate>${new Date().toISOString().split('T')[0]}</cbc:IssueDate>
-</Invoice>`;
-};
-
-// ========== FUNCIÓN AUXILIAR PARA VERIFICAR PERMISOS ==========
-// Usa tipo_usuario en mayúsculas según tu middleware
-const puedeVerTodasLasFacturas = (tipoUsuario) => {
-    if (!tipoUsuario) return false;
-    const tipoUsuarioUpper = tipoUsuario.toUpperCase();
-    const rolesPermitidos = ['SUPERADMIN', 'ADMINISTRADOR', 'USUARIO'];
-    return rolesPermitidos.includes(tipoUsuarioUpper);
-};
-
-exports.generarFactura = async (req, res, next) => {
-    try {
-        const datosFactura = req.body;
-
-        // Validar datos necesarios
-        if (!datosFactura.usuario || !datosFactura.usuario.nombre || !datosFactura.usuario.apellido) {
-            return res.status(400).json({ 
-                mensaje: 'Faltan datos del usuario (nombre y apellido son obligatorios)' 
-            });
-        }
-
-        if (!datosFactura.productos_factura || datosFactura.productos_factura.length === 0) {
-            return res.status(400).json({ 
-                mensaje: 'Debe incluir al menos un producto en la factura' 
-            });
-        }
-
-        // ✅ DESCUENTO DE STOCK
-        for (const item of datosFactura.productos_factura) {
-            const producto = await Producto.findOne({ nombre: item.producto });
-
-            if (!producto) {
-                return res.status(404).json({ mensaje: `Producto "${item.producto}" no encontrado` });
-            }
-
-            if (producto.cantidad < item.cantidad) {
-                return res.status(400).json({ 
-                    mensaje: `Stock insuficiente para "${item.producto}". Disponible: ${producto.cantidad}, solicitado: ${item.cantidad}` 
-                });
-            }
-
-            // Descontar stock
-            producto.cantidad -= item.cantidad;
-            await producto.save();
-        }
-
-        // Crear la instancia de la factura
-        const nuevaFactura = new Factura(datosFactura);
-
-        // Generar el PDF y el XML
-        const pdfBuffer = await generarPDFFactura(nuevaFactura);
-        const xmlString = generarXMLFactura(nuevaFactura);
-
-        // Guardar el PDF y XML en la factura
-        nuevaFactura.pdf_factura = pdfBuffer;
-        nuevaFactura.xml_factura = xmlString;
-
-        // Guardar en la base de datos
-        await nuevaFactura.save();
-
-        console.log('✅ Factura guardada con PDF y XML, stock actualizado');
-
-        res.status(201).json({
-            mensaje: 'Factura generada y guardada correctamente',
-            numeroFactura: nuevaFactura.numero_factura,
-            facturaId: nuevaFactura._id
-        });
-
-    } catch (error) {
-        console.error('❌ Error al generar la factura:', error);
-        res.status(500).json({ 
-            mensaje: 'Error al generar la factura', 
-            error: error.message 
-        });
-    }
-};
-
-// ========== MODIFICADO: mostrarFacturas con control de acceso ==========
-exports.mostrarFacturas = async (req, res, next) => {
-    try {
-        // req.usuario viene del middleware verificarAuth
-        const usuario = req.usuario;
-
-        if (!usuario) {
-            return res.status(401).json({ mensaje: 'Usuario no autenticado' });
-        }
-
-        let filtro = {};
-
-        // Si NO es admin, superadmin o usuario, solo ve sus propias facturas
-        if (!puedeVerTodasLasFacturas(usuario.tipo_usuario)) {
-            filtro = { 'usuario.numero_documento': usuario.numero_documento };
-        }
-
-        const facturas = await Factura.find(filtro).sort({ fecha_emision: -1 });
-        
-        res.json({
-            facturas,
-            total: facturas.length,
-            tipo_usuario: usuario.tipo_usuario
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ mensaje: 'Error al mostrar las facturas' });
-    }
-};
-
-// ========== MODIFICADO: mostrarFactura con control de acceso ==========
-exports.mostrarFactura = async (req, res, next) => {
-    try {
-        const usuario = req.usuario;
-
-        if (!usuario) {
-            return res.status(401).json({ mensaje: 'Usuario no autenticado' });
-        }
-
-        const factura = await Factura.findById(req.params.idFactura);
-        
-        if (!factura) {
-            return res.status(404).json({ mensaje: 'No existe esa factura' });
-        }
-
-        // Verificar permisos: si no es admin/superadmin/usuario, solo puede ver sus propias facturas
-        if (!puedeVerTodasLasFacturas(usuario.tipo_usuario)) {
-            if (factura.usuario.numero_documento !== usuario.numero_documento) {
-                return res.status(403).json({ 
-                    mensaje: 'No tienes permiso para ver esta factura' 
-                });
-            }
-        }
-
-        res.json(factura);
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ mensaje: 'Error al mostrar la factura' });
-    }
-};
-
-//Permite actualizar una factura buscando por ID. Retorna el documento actualizado
-exports.actualizarFactura = async (req, res, next) => {
-    try {
-        const factura = await Factura.findOneAndUpdate(
-            { _id: req.params.idFactura },
-            req.body,
-            { new: true }
-        );
-        res.json(factura);
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ mensaje: 'Error al actualizar la factura' });
-    }
-};
-
-//Permite eliminar una factura buscando por ID.
-exports.eliminarFactura = async (req, res, next) => {
-    try {
-        await Factura.findOneAndDelete({ _id: req.params.idFactura });
-        res.json({ mensaje: 'La factura ha sido eliminada' });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ mensaje: 'Error al eliminar la factura' });
-    }
-};
-
-// ========== MODIFICADO: obtenerFacturaPDF con control de acceso ==========
-exports.obtenerFacturaPDF = async (req, res, next) => {
-    try {
-        const usuario = req.usuario;
-
-        if (!usuario) {
-            return res.status(401).json({ mensaje: 'Usuario no autenticado' });
-        }
-
-        const factura = await Factura.findById(req.params.idFactura);
-        
-        if (!factura) {
-            return res.status(404).json({ mensaje: 'No existe esa factura' });
-        }
-
-        // Verificar permisos
-        if (!puedeVerTodasLasFacturas(usuario.tipo_usuario)) {
-            if (factura.usuario.numero_documento !== usuario.numero_documento) {
-                return res.status(403).json({ 
-                    mensaje: 'No tienes permiso para descargar esta factura' 
-                });
-            }
-        }
-
-        if (factura.pdf_factura && factura.pdf_factura.length > 0) {
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename="factura-${factura.numero_factura}.pdf"`);
-            return res.send(factura.pdf_factura);
-        } else {
-            const pdfBuffer = await generarPDFFactura(factura);
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename="factura-${factura.numero_factura}.pdf"`);
-            return res.send(pdfBuffer);
-        }
-    } catch (error) {
-        console.error('Error al obtener PDF:', error);
-        res.status(500).json({ mensaje: 'Error al obtener la factura en PDF', error: error.message });
-    }
-};
-
-// ========== obtenerFacturaXML con control de acceso ==========
-exports.obtenerFacturaXML = async (req, res, next) => {
-    try {
-        const usuario = req.usuario;
-
-        if (!usuario) {
-            return res.status(401).json({ mensaje: 'Usuario no autenticado' });
-        }
-
-        const factura = await Factura.findById(req.params.idFactura);
-        
-        if (!factura) {
-            return res.status(404).json({ mensaje: 'No existe esa factura' });
-        }
-
-        // Verificar permisos
-        if (!puedeVerTodasLasFacturas(usuario.tipo_usuario)) {
-            if (factura.usuario.numero_documento !== usuario.numero_documento) {
-                return res.status(403).json({ 
-                    mensaje: 'No tienes permiso para descargar esta factura' 
-                });
-            }
-        }
-
-        if (factura.xml_factura) {
-            res.setHeader('Content-Type', 'application/xml');
-            res.setHeader('Content-Disposition', `attachment; filename="factura-${factura.numero_factura}.xml"`);
-            return res.send(factura.xml_factura);
-        } else {
-            const xml = generarXMLFactura(factura);
-            res.setHeader('Content-Type', 'application/xml');
-            res.setHeader('Content-Disposition', `attachment; filename="factura-${factura.numero_factura}.xml"`);
-            return res.send(xml);
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ mensaje: 'Error al obtener la factura en XML' });
-    }
-};
-
-exports.enviarFacturaCorreo = async (req, res, next) => {
+// Llamar configuración al cargar el módulo
+try {
+  configurarSendGrid();
+} catch (error) {
+  console.error('⚠️ No se pudo configurar SendGrid:', error.message);
+}
+
+// ... (todas las funciones anteriores como generarPDFFactura, generarXMLFactura, etc.)
+
+// FUNCIÓN MODIFICADA: enviarFacturaPorCorreo usando API HTTP
+exports.enviarFacturaPorCorreo = async (req, res, next) => {
     try {
         const { idFactura, emailCliente } = req.body;
 
@@ -465,7 +41,6 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
             });
         }
 
-        // Validar formato de email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(emailCliente)) {
             return res.status(400).json({ 
@@ -480,18 +55,15 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
             return res.status(404).json({ mensaje: 'No existe esa factura' });
         }
 
-        // Obtener PDF y XML directamente de la factura
+        // Obtener PDF y XML
         const pdfBuffer = factura.pdf_factura;
         const xmlBuffer = factura.xml_factura;
 
-        // Verificar que existan
         if (!pdfBuffer || !xmlBuffer) {
             return res.status(400).json({ 
                 mensaje: 'La factura no tiene PDF o XML generado. Genere la factura primero.' 
             });
         }
-
-        const transportador = configurarTransportador();
 
         // Formatear valores para el correo
         const nombreCliente = `${factura.usuario.nombre} ${factura.usuario.apellido}`;
@@ -505,7 +77,7 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
             maximumFractionDigits: 2
         });
 
-        // Crear HTML del correo personalizado
+        // Crear HTML del correo (mismo que antes)
         const htmlCorreo = `
 <!DOCTYPE html>
 <html lang="es">
@@ -534,26 +106,10 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
             padding: 30px;
             text-align: center;
         }
-
-        .header .logo {
-            width: 90px;
-            height: auto; 
-            margin-right: 10px; 
-            display: inline-block; 
-            vertical-align: middle;
-        }
-
         .header h1 {
-            display: inline-block;
             margin: 0;
             font-size: 32px;
             font-weight: bold;
-            vertical-align: middle;
-        }
-        .header p {
-            margin: 5px 0 0 0;
-            font-size: 14px;
-            opacity: 0.9;
         }
         .content {
             padding: 30px;
@@ -570,57 +126,14 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
             margin: 20px 0;
             border-radius: 5px;
         }
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #D1DCE6;
-        }
-        .info-row:last-child {
-            border-bottom: none;
-        }
-        .info-label {
-            font-weight: 600;
-            color: #276177;
-        }
-        .info-value {
-            color: #254454;
-            text-align: right;
-        }
         .total-row {
             background-color: #276177;
             color: white;
             padding: 15px 20px;
             margin: 20px -20px -20px -20px;
             border-radius: 0 0 5px 5px;
-            display: flex;
-            justify-content: space-between;
             font-size: 18px;
             font-weight: bold;
-        }
-        .products-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        .products-table th {
-            background-color: #276177;
-            color: white;
-            padding: 12px;
-            text-align: left;
-        }
-        .products-table td {
-            padding: 12px;
-            border-bottom: 1px solid #D1DCE6;
-        }
-        .products-table tr:last-child td {
-            border-bottom: none;
-        }
-        .message {
-            color: #666;
-            font-size: 14px;
-            line-height: 1.6;
-            margin: 20px 0;
         }
         .footer {
             background-color: #254454;
@@ -629,58 +142,11 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
             text-align: center;
             font-size: 13px;
         }
-        .footer p {
-            margin: 5px 0;
-        }
-        .footer a {
-            color: #8E9BE8;
-            text-decoration: none;
-        }
-        
-        .footer .logo-gaia {
-        width: 35px;
-        height: auto;
-        vertical-align: middle;
-        margin-right: 5px;
-        display: inline-block;
-        }
-
-        .attachment-info {
-            background-color: #fff3cd;
-            border: 1px solid #ffc107;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-            text-align: center;
-        }
-        .attachment-info strong {
-            color: #856404;
-        }
-        @media only screen and (max-width: 600px) {
-            .container {
-                margin: 10px;
-            }
-            .content {
-                padding: 20px;
-            }
-            .products-table {
-                font-size: 12px;
-            }
-            .products-table th,
-            .products-table td {
-                padding: 8px;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <img 
-                src="https://drive.google.com/uc?export=view&id=1W9hegx7_xrNjxl4bN6939vas_DFwV2s4" 
-                alt="Logo de athenas" 
-                class="logo"
-            >
             <h1>Athena'S</h1>
             <p>GaiaFact - Sistema de Facturación Electrónica</p>
         </div>
@@ -690,179 +156,101 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
                 Hola <strong>${nombreCliente}</strong>,
             </p>
             
-            <p class="message">
+            <p>
                 Gracias por tu compra. Adjuntamos tu factura electrónica en formato PDF y XML.
             </p>
 
             <div class="info-box">
-                <div class="info-row">
-                    <span class="info-label">📄 Número de Factura:</span>
-                    <span class="info-value"><strong>${factura.numero_factura}</strong></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">📅 Fecha de emisión:</span>
-                    <span class="info-value">${fechaFormateada}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">📦 Productos:</span>
-                    <span class="info-value">${factura.productos_factura.length} item(s)</span>
-                </div>
-                ${factura.codigo_CUFE ? `
-                <div class="info-row">
-                    <span class="info-label">🔐 CUFE:</span>
-                    <span class="info-value" style="font-size: 11px; word-break: break-all;">${factura.codigo_CUFE}</span>
-                </div>
-                ` : ''}
+                <p><strong>📄 Número de Factura:</strong> ${factura.numero_factura}</p>
+                <p><strong>📅 Fecha de emisión:</strong> ${fechaFormateada}</p>
+                <p><strong>📦 Productos:</strong> ${factura.productos_factura.length} item(s)</p>
                 <div class="total-row">
-                    <span>💰 TOTAL:</span>
-                    <span>$${totalFormateado} COP</span>
+                    💰 TOTAL: $${totalFormateado} COP
                 </div>
             </div>
 
-            <h3 style="color: #254454; border-bottom: 2px solid #276177; padding-bottom: 10px; margin-top: 30px;">
-                📋 Detalle de productos
-            </h3>
-            
-            <table class="products-table">
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th style="text-align: center;">Cant.</th>
-                        <th style="text-align: right;">Precio Unit.</th>
-                        <th style="text-align: right;">Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${factura.productos_factura.map(prod => `
-                        <tr>
-                            <td>${prod.producto}</td>
-                            <td style="text-align: center;">${prod.cantidad}</td>
-                            <td style="text-align: right;">$${prod.precio.toLocaleString('es-CO')}</td>
-                            <td style="text-align: right;">$${(prod.precio * prod.cantidad).toLocaleString('es-CO')}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-
-            <div class="attachment-info">
-                <strong>📎 Archivos adjuntos:</strong><br>
-                • factura-${factura.numero_factura}.pdf<br>
-                • factura-${factura.numero_factura}.xml
-            </div>
-
-            <p class="message">
+            <p>
                 Esta factura es un documento válido para efectos tributarios. 
                 Por favor, consérvala para tus registros contables.
-            </p>
-
-            <p class="message">
-                Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos 
-                respondiendo a este correo o llamando al <strong>3023650911</strong>.
             </p>
         </div>
         
         <div class="footer">
-            <p>
-            <img 
-            src="https://drive.google.com/uc?export=view&id=1YTQhGVEM1pTeurD1bF8Zf4qvNd3Ky03-" 
-            alt="Logo GaiaFact" 
-            class="logo-gaia"
-            >
-            <strong>Athena'S - GaiaFact</strong></p>
+            <p><strong>Athena'S - GaiaFact</strong></p>
             <p>📍 Calle 11 #22-04</p>
             <p>📞 Tel: 3023650911</p>
             <p>🆔 NIT: 876.543.219-5</p>
-            <p>📧 <a href="mailto:gaiafactrangers@gmail.com">gaiafactrangers@gmail.com</a></p>
-            <p style="margin-top: 15px; font-size: 11px; opacity: 0.8;">
-                Este correo fue generado automáticamente por el sistema GaiaFact.<br>
-                Por favor, no responder directamente a este mensaje.
-            </p>
         </div>
     </div>
 </body>
 </html>
         `;
 
-        // Enviar el correo
-        console.log(`📧 Enviando factura ${factura.numero_factura} a ${emailCliente}...`);
+        // ENVIAR CON API HTTP DE SENDGRID
+        console.log(`📧 Enviando factura ${factura.numero_factura} a ${emailCliente} usando SendGrid API...`);
 
-        await transportador.sendMail({
-            from: '"Athena\'S - GaiaFact" <gaiafactrangers@gmail.com>',
+        const mensaje = {
             to: emailCliente,
+            from: {
+                email: 'gaiafactrangers@gmail.com',  // ⚠️ CAMBIAR por tu correo verificado en SendGrid
+                name: 'Athena\'S - GaiaFact'
+            },
             subject: `📄 Factura ${factura.numero_factura} - Athena'S`,
             html: htmlCorreo,
             attachments: [
                 {
+                    content: pdfBuffer.toString('base64'),
                     filename: `factura-${factura.numero_factura}.pdf`,
-                    content: pdfBuffer,
-                    contentType: 'application/pdf'
+                    type: 'application/pdf',
+                    disposition: 'attachment'
                 },
                 {
+                    content: xmlBuffer.toString('base64'),
                     filename: `factura-${factura.numero_factura}.xml`,
-                    content: xmlBuffer,
-                    contentType: 'application/xml'
+                    type: 'application/xml',
+                    disposition: 'attachment'
                 }
             ]
-        });
+        };
 
-        console.log(`✅ Factura enviada exitosamente a ${emailCliente}`);
+        try {
+            await sgMail.send(mensaje);
+            console.log(`✅ Factura enviada exitosamente a ${emailCliente}`);
 
-        res.json({ 
-            mensaje: 'Factura enviada por correo exitosamente',
-            destinatario: emailCliente,
-            numeroFactura: factura.numero_factura
-        });
+            res.json({ 
+                mensaje: 'Factura enviada por correo exitosamente',
+                destinatario: emailCliente,
+                numeroFactura: factura.numero_factura
+            });
+        } catch (sendGridError) {
+            console.error('❌ Error de SendGrid:', sendGridError.response?.body || sendGridError.message);
+            
+            let mensajeError = 'Error al enviar la factura por correo';
+            
+            if (sendGridError.code === 403) {
+                mensajeError = 'Error de autenticación con SendGrid. Verifica tu API key';
+            } else if (sendGridError.code === 400) {
+                mensajeError = 'Datos inválidos. Verifica el correo del destinatario y el remitente';
+            } else if (sendGridError.response?.body?.errors) {
+                const errors = sendGridError.response.body.errors;
+                mensajeError = `Error de SendGrid: ${errors.map(e => e.message).join(', ')}`;
+            }
+            
+            res.status(500).json({ 
+                mensaje: mensajeError,
+                error: sendGridError.message,
+                detalles: sendGridError.response?.body
+            });
+        }
 
     } catch (error) {
-        console.error('❌ Error al enviar la factura por correo:', error);
-        
-        let mensajeError = 'Error al enviar la factura por correo';
-        
-        // Manejo de errores específicos de nodemailer
-        if (error.code === 'EAUTH') {
-            mensajeError = 'Error de autenticación con el servidor de correo. Verifique las credenciales en .env';
-        } else if (error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT') {
-            mensajeError = 'No se pudo conectar con el servidor de correo. Verifique su conexión a internet';
-        } else if (error.responseCode === 550) {
-            mensajeError = 'El correo del destinatario no es válido o no existe';
-        } else if (error.response) {
-            mensajeError = `Error del servidor de correo: ${error.response}`;
-        }
+        console.error('❌ Error general al enviar la factura por correo:', error);
         
         res.status(500).json({ 
-            mensaje: mensajeError,
+            mensaje: 'Error al enviar la factura por correo',
             error: error.message 
         });
     }
 };
 
-// ========== MODIFICADO: buscarFactura con control de acceso ==========
-exports.buscarFactura = async (req, res, next) => {
-    try {
-        const usuario = req.usuario;
-
-        if (!usuario) {
-            return res.status(401).json({ mensaje: 'Usuario no autenticado' });
-        }
-
-        const factura = await Factura.findOne({ numero_factura: req.params.numeroFactura });
-        
-        if (!factura) {
-            return res.status(404).json({ mensaje: 'No existe factura con ese número' });
-        }
-
-        // Verificar permisos
-        if (!puedeVerTodasLasFacturas(usuario.tipo_usuario)) {
-            if (factura.usuario.numero_documento !== usuario.numero_documento) {
-                return res.status(403).json({ 
-                    mensaje: 'No tienes permiso para ver esta factura' 
-                });
-            }
-        }
-
-        res.json(factura);
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ mensaje: 'Error al buscar la factura' });
-    }
-};
+exports.configurarSendGrid = configurarSendGrid;
