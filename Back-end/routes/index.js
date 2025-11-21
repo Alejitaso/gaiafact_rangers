@@ -85,6 +85,7 @@ module.exports = function(){
         facturaController.generarFactura
     );
 
+    console.log('🔎 CHECK verificarAuth:', typeof verificarAuth, verificarAuth);
     router.get('/facturas',
         verificarAuth,
         validarRolRegistro,
