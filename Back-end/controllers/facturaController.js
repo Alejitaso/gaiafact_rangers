@@ -285,36 +285,6 @@ exports.generarFactura = async (req, res, next) => {
     }
 };
 
-// ========== MODIFICADO: mostrarFacturas con control de acceso ==========
-exports.mostrarFacturas = async (req, res, next) => {
-    try {
-        // req.usuario viene del middleware verificarAuth
-        const usuario = req.usuario;
-
-        if (!usuario) {
-            return res.status(401).json({ mensaje: 'Usuario no autenticado' });
-        }
-
-        let filtro = {};
-
-        // Si NO es admin, superadmin o usuario, solo ve sus propias facturas
-        if (!puedeVerTodasLasFacturas(usuario.tipo_usuario)) {
-            filtro = { 'usuario.numero_documento': usuario.numero_documento };
-        }
-
-        const facturas = await Factura.find(filtro).sort({ fecha_emision: -1 });
-        
-        res.json({
-            facturas,
-            total: facturas.length,
-            tipo_usuario: usuario.tipo_usuario
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ mensaje: 'Error al mostrar las facturas' });
-    }
-};
-
 // ========== MODIFICADO: mostrarFactura con control de acceso ==========
 exports.mostrarFactura = async (req, res, next) => {
     try {
