@@ -99,7 +99,7 @@ module.exports = function(){
 
     router.post('/facturas/enviar-correo',
         verificarAuth,
-        facturaController.enviarFacturaCorreo
+        facturaController.enviarFacturaPorCorreo
     );
 
     router.get('/facturas/:idFactura/pdf',
