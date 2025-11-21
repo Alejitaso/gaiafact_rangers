@@ -139,3 +139,114 @@
         width: 100%;
     }
 }
+
+/* =========================================================
+   SCROLL HORIZONTAL + ACCESIBILIDAD EN MÓVILES
+   ========================================================= */
+@media (max-width: 768px) {
+  .tabla-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 5px;
+  }
+
+  .tabla-usuarios {
+    min-width: 600px;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .botones-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn {
+    width: 100%;
+    font-size: 16px;
+    padding: 12px;
+  }
+}
+
+/* =========================================================
+   MÓVILES PEQUEÑOS (< 480px)
+   ========================================================= */
+/* =========================================================
+   FIX: CONTENEDOR NO SE SALE DE LA PANTALLA EN MÓVILES
+   ========================================================= */
+@media (max-width: 768px) {
+  .listado-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 20px 15px;
+    border-radius: 0;
+    box-sizing: border-box;
+  }
+
+  .listado-container h1 {
+    font-size: 1.8rem;
+    word-break: break-word;
+  }
+
+  .botones-container {
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 10px;
+  }
+
+  .btn {
+    width: 100%;
+    max-width: 100%;
+    font-size: 16px;
+    padding: 12px;
+    box-sizing: border-box;
+  }
+
+  .tabla-wrapper {
+    padding: 10px 5px;
+  }
+
+  .tabla-usuarios {
+    min-width: 600px;
+    font-size: 12px;
+  }
+
+  .tabla-usuarios th,
+  .tabla-usuarios td {
+    padding: 8px 6px;
+  }
+
+  .action-btn-primary {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .listado-container {
+    padding: 15px 10px;
+  }
+
+  .listado-container h1 {
+    font-size: 1.5rem;
+  }
+
+  .tabla-usuarios {
+    min-width: 550px;
+    font-size: 11px;
+  }
+
+  .tabla-usuarios th,
+  .tabla-usuarios td {
+    padding: 6px 4px;
+  }
+
+  .action-btn-primary {
+    font-size: 10px;
+    padding: 5px 8px;
+  }
+}

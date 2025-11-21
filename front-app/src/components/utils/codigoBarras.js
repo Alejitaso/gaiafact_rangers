@@ -9,9 +9,11 @@ function CodigoBarras() {
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
   const [codigoInput, setCodigoInput] = useState('');
   const [buscando, setBuscando] = useState(false);
+  const [mensajeEstado, setMensajeEstado] = useState('');
   
   const codigoInputRef = useRef(null);
   const timeoutRef = useRef(null);
+  const anuncioRef = useRef(null);
 
   useEffect(() => {
     obtenerProductos();
@@ -24,9 +26,18 @@ function CodigoBarras() {
     }
   }, []);
 
+  // Anunciar cambios importantes para lectores de pantalla
+  const anunciar = (mensaje, tipoAnuncio = 'polite') => {
+    setMensajeEstado(mensaje);
+    // Limpiar el mensaje después de un tiempo
+    setTimeout(() => setMensajeEstado(''), 100);
+  };
+
   const obtenerProductos = async () => {
     try {
       setCargando(true);
+      anunciar('Cargando productos, por favor espere');
+      
       const res = await clienteAxios.get('/api/productos');
       
       let productosData;
@@ -42,9 +53,11 @@ function CodigoBarras() {
       
       setProductos(productosData);
       setCargando(false);
+      anunciar(`${productosData.length} productos cargados exitosamente`);
     } catch (error) {
       console.error('Error al obtener productos:', error);
       setCargando(false);
+      anunciar('Error al cargar productos');
       Swal.fire({
         icon: 'error',
         title: 'Error al cargar productos',
@@ -61,6 +74,7 @@ function CodigoBarras() {
 
   const buscarProductoPorCodigo = async (codigo) => {
     if (!codigo.trim()) {
+      anunciar('Por favor ingrese un código de barras');
       Swal.fire({
         title: 'Campo vacío',
         text: 'Por favor ingrese un código de barras',
@@ -73,6 +87,7 @@ function CodigoBarras() {
 
     try {
       setBuscando(true);
+      anunciar('Buscando producto, por favor espere');
       
       // Buscar producto por código de barras
       const producto = productos.find(p => 
@@ -86,6 +101,7 @@ function CodigoBarras() {
         const yaSeleccionado = productosSeleccionados.find(p => p._id === producto._id);
         
         if (yaSeleccionado) {
+          anunciar(`El producto ${producto.nombre} ya está en la lista de códigos seleccionados`);
           Swal.fire({
             title: 'Producto ya seleccionado',
             html: `
@@ -102,7 +118,9 @@ function CodigoBarras() {
             showConfirmButton: true
           });
         } else {
-          // Preguntar cantidad - Estilo similar a facturación
+          anunciar(`Producto encontrado: ${producto.nombre}. Ingrese la cantidad de códigos a generar`);
+          
+          // Preguntar cantidad
           const result = await Swal.fire({
             title: '¿Agregar códigos de barras?',
             html: `
@@ -120,17 +138,22 @@ function CodigoBarras() {
                   <strong>Tipo:</strong> ${producto.tipo_prenda || 'N/A'}
                 </p>
                 <div style="margin-top: 15px;">
-                  <label style="display: block; margin-bottom: 5px;">
+                  <label for="cantidadCodigos" style="display: block; margin-bottom: 5px;">
                     <strong>¿Cuántos códigos desea generar?</strong>
                   </label>
                   <input 
                     type="number" 
                     id="cantidadCodigos" 
+                    aria-label="Cantidad de códigos a generar"
+                    aria-describedby="cantidadHelp"
                     value="1" 
                     min="1" 
                     max="100"
                     style="width: 80px; padding: 5px; border: 2px solid #276177; border-radius: 4px;"
                   />
+                  <small id="cantidadHelp" style="display: block; margin-top: 5px; color: #666;">
+                    Ingrese un número entre 1 y 100
+                  </small>
                 </div>
               </div>
             `,
@@ -170,6 +193,8 @@ function CodigoBarras() {
               setProductosSeleccionados(prev => [...prev, { ...producto, uniqueId: `${producto._id}-${Date.now()}-${i}` }]);
             }
             
+            anunciar(`${cantidad} código${cantidad > 1 ? 's' : ''} de ${producto.nombre} agregado${cantidad > 1 ? 's' : ''} a la lista. Total de códigos seleccionados: ${productosSeleccionados.length + cantidad}`);
+            
             Swal.fire({
               icon: 'success',
               title: '¡Códigos agregados!',
@@ -184,6 +209,7 @@ function CodigoBarras() {
         setCodigoInput('');
         codigoInputRef.current?.focus();
       } else {
+        anunciar(`No se encontró ningún producto con el código ${codigo}`);
         Swal.fire({
           title: 'Producto no encontrado',
           html: `
@@ -202,6 +228,7 @@ function CodigoBarras() {
     } catch (error) {
       setBuscando(false);
       console.error('Error al buscar producto:', error);
+      anunciar('Error al buscar el producto');
       Swal.fire({
         title: 'Error',
         text: 'Error al buscar el producto',
@@ -219,7 +246,9 @@ function CodigoBarras() {
   };
 
   const eliminarProducto = (uniqueId) => {
+    const producto = productosSeleccionados.find(p => p.uniqueId === uniqueId);
     setProductosSeleccionados(prev => prev.filter(p => p.uniqueId !== uniqueId));
+    anunciar(`Código de ${producto?.nombre || 'producto'} eliminado. Códigos restantes: ${productosSeleccionados.length - 1}`);
   };
 
   const eliminarTodosDeUnProducto = (productoId) => {
@@ -248,6 +277,7 @@ function CodigoBarras() {
     }).then((result) => {
       if (result.isConfirmed) {
         setProductosSeleccionados(prev => prev.filter(p => p._id !== productoId));
+        anunciar(`${cantidad} código${cantidad > 1 ? 's' : ''} de ${producto?.nombre || 'producto'} eliminado${cantidad > 1 ? 's' : ''}. Códigos restantes: ${productosSeleccionados.length - cantidad}`);
         Swal.fire({
           icon: 'success',
           title: 'Eliminados',
@@ -284,6 +314,7 @@ function CodigoBarras() {
           setProductosSeleccionados([]);
           setCodigoInput('');
           codigoInputRef.current?.focus();
+          anunciar('Todos los códigos han sido eliminados');
           Swal.fire({
             icon: 'success',
             title: 'Cancelado',
@@ -302,6 +333,7 @@ function CodigoBarras() {
 
   const descargarCodigos = async () => {
     if (productosSeleccionados.length === 0) {
+      anunciar('No hay productos seleccionados para descargar');
       Swal.fire({
         title: 'Sin productos',
         text: 'No hay productos seleccionados para descargar',
@@ -313,6 +345,8 @@ function CodigoBarras() {
     }
 
     try {
+      anunciar(`Iniciando descarga de ${productosSeleccionados.length} códigos de barras`);
+      
       for (const producto of productosSeleccionados) {
         if (producto.codigo_barras_datos) {
           const urlCodigoBarras = `https://barcodeapi.org/api/128/${producto.codigo_barras_datos}`;
@@ -328,6 +362,9 @@ function CodigoBarras() {
           window.URL.revokeObjectURL(url);
         }
       }
+      
+      anunciar(`Descarga completada. Se descargaron ${productosSeleccionados.length} códigos de barras`);
+      
       Swal.fire({
         icon: 'success',
         title: '¡Descarga completada!',
@@ -337,6 +374,7 @@ function CodigoBarras() {
       });
     } catch (error) {
       console.error('Error al descargar:', error);
+      anunciar('Error al descargar algunos códigos');
       Swal.fire({
         title: 'Error en la descarga',
         text: 'No se pudieron descargar algunos códigos',
@@ -349,6 +387,7 @@ function CodigoBarras() {
 
   const imprimirCodigos = () => {
     if (productosSeleccionados.length === 0) {
+      anunciar('No hay productos seleccionados para imprimir');
       Swal.fire({
         title: 'Sin productos',
         text: 'No hay productos seleccionados para imprimir',
@@ -359,11 +398,15 @@ function CodigoBarras() {
       return;
     }
 
+    anunciar(`Abriendo vista de impresión para ${productosSeleccionados.length} códigos`);
+
     const ventanaImpresion = window.open('', '_blank');
     const html = `
       <!DOCTYPE html>
-      <html>
+      <html lang="es">
       <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Códigos de Barras - Impresión</title>
         <style>
           * {
@@ -428,7 +471,7 @@ function CodigoBarras() {
           ${productosSeleccionados.map(producto => `
             <div class="codigo-item">
               <h3>${producto.nombre}</h3>
-              <img src="https://barcodeapi.org/api/128/${producto.codigo_barras_datos}" alt="Código de barras" />
+              <img src="https://barcodeapi.org/api/128/${producto.codigo_barras_datos}" alt="Código de barras para ${producto.nombre}" />
               <p>${producto.codigo_barras_datos}</p>
             </div>
           `).join('')}
@@ -450,14 +493,28 @@ function CodigoBarras() {
 
   return (
     <Fragment>
+      {/* Región de anuncios en vivo para lectores de pantalla */}
+      <div 
+        role="status" 
+        aria-live="polite" 
+        aria-atomic="true"
+        className="sr-only"
+        ref={anuncioRef}
+      >
+        {mensajeEstado}
+      </div>
+
       <div className={styles.content}>
-        <div className={styles.form}>
+        <div className={styles.form} role="main" aria-label="Generador de códigos de barras">
+          
+          {/* Título principal oculto visualmente pero accesible */}
+          <h1 className="sr-only">Generador de códigos de barras</h1>
           
           {/* Campo para buscar producto por código */}
           <div className={styles.campo}>
             <label htmlFor="codigoBusqueda">
               {buscando ? (
-                <><i className="fas fa-search fa-spin"></i> Buscando producto...</>
+                <><i className="fas fa-search fa-spin" aria-hidden="true"></i> Buscando producto...</>
               ) : (
                 'Escanee o ingrese código de barras del producto'
               )}
@@ -472,7 +529,12 @@ function CodigoBarras() {
               onChange={(e) => handleCodigoInput(e.target.value)}
               onKeyPress={handleKeyPress}
               disabled={cargando || buscando}
+              aria-describedby="codigoHelp"
+              aria-required="true"
             />
+            <span id="codigoHelp" className="sr-only">
+              Ingrese el código de barras del producto y presione Enter o haga clic en el botón Buscar
+            </span>
           </div>
 
           {/* Botón de búsqueda */}
@@ -482,16 +544,22 @@ function CodigoBarras() {
               onClick={() => buscarProductoPorCodigo(codigoInput)}
               disabled={cargando || buscando || !codigoInput.trim()}
               className={styles.btnBuscar}
+              aria-label={`Buscar producto con código ${codigoInput || 'ingresado'}`}
             >
-              <i className="fas fa-search"></i> Buscar Producto
+              <i className="fas fa-search" aria-hidden="true"></i> Buscar Producto
             </button>
           </div>
 
           {/* Previsualización de códigos seleccionados */}
           {productosSeleccionados.length > 0 ? (
-            <div className={styles.campo}>
-              <label>Códigos de Barras ({productosSeleccionados.length} seleccionados)</label>
-              <div className={styles.qr}>
+            <section 
+              className={styles.campo}
+              aria-labelledby="seccionSeleccionados"
+            >
+              <h2 id="seccionSeleccionados">
+                Códigos de Barras ({productosSeleccionados.length} seleccionados)
+              </h2>
+              <div className={styles.qr} role="region" aria-label="Lista de códigos seleccionados">
                 <div className={styles.previsualizacion}>
                   {(() => {
                     // Agrupar productos por ID
@@ -509,15 +577,21 @@ function CodigoBarras() {
                     }, {});
 
                     return Object.values(productosAgrupados).map(({ producto, cantidad, items }) => (
-                      <div key={producto._id} className={styles.grupoProducto}>
+                      <article 
+                        key={producto._id} 
+                        className={styles.grupoProducto}
+                        aria-label={`${producto.nombre}, ${cantidad} códigos`}
+                      >
                         <div className={styles.headerGrupo}>
-                          <span className={styles.cantidadBadge}>{cantidad}x</span>
+                          <span className={styles.cantidadBadge} aria-label={`${cantidad} códigos`}>
+                            {cantidad}x
+                          </span>
                           <button 
                             className={styles.btnEliminarTodos}
                             onClick={() => eliminarTodosDeUnProducto(producto._id)}
-                            title="Eliminar todos los códigos de este producto"
+                            aria-label={`Eliminar todos los ${cantidad} códigos de ${producto.nombre}`}
                           >
-                            🗑️ Eliminar todos
+                            <span aria-hidden="true">🗑️</span> Eliminar todos
                           </button>
                         </div>
                         <div className={styles.codigoPreview}>
@@ -528,42 +602,44 @@ function CodigoBarras() {
                             <>
                               <img
                                 src={`https://barcodeapi.org/api/128/${producto.codigo_barras_datos}`}
-                                alt="Código de barras"
+                                alt={`Código de barras ${producto.codigo_barras_datos} para ${producto.nombre}`}
+                                role="img"
                               />
-                              <p className={styles.codigoNumero}>
+                              <p className={styles.codigoNumero} aria-label={`Código: ${producto.codigo_barras_datos}`}>
                                 {producto.codigo_barras_datos}
                               </p>
                             </>
                           )}
                         </div>
-                        <div className={styles.listaItems}>
+                        <div className={styles.listaItems} role="list" aria-label={`Lista de ${cantidad} códigos individuales`}>
                           {items.map((item, index) => (
                             <button
                               key={item.uniqueId}
                               className={styles.itemTag}
                               onClick={() => eliminarProducto(item.uniqueId)}
-                              title="Eliminar este código"
+                              aria-label={`Eliminar código número ${index + 1} de ${producto.nombre}`}
+                              role="listitem"
                             >
-                              #{index + 1} ✕
+                              #{index + 1} <span aria-hidden="true">✕</span>
                             </button>
                           ))}
                         </div>
-                      </div>
+                      </article>
                     ));
                   })()}
                 </div>
               </div>
-            </div>
+            </section>
           ) : (
             <div className={styles.campo}>
-              <label>Vista Previa</label>
-              <div className={styles.qr}>
-                <div className={styles.mensajeVacio}>
+              <h2 id="seccionVista">Vista Previa</h2>
+              <div className={styles.qr} role="region" aria-labelledby="seccionVista">
+                <div className={styles.mensajeVacio} role="status">
                   {cargando ? (
-                    <>⏳ Cargando productos...</>
+                    <><span aria-hidden="true">⏳</span> Cargando productos...</>
                   ) : (
                     <>
-                      📊 Escanee códigos de barras para agregarlos
+                      <span aria-hidden="true">📊</span> Escanee códigos de barras para agregarlos
                       <br />
                       <small>Los productos aparecerán aquí</small>
                     </>
@@ -574,18 +650,19 @@ function CodigoBarras() {
           )}
 
           {/* Información */}
-          <div className={styles.infoContador}>
+          <div className={styles.infoContador} role="status" aria-live="polite">
             <span>Total productos: <strong>{productos.length}</strong></span>
             <span>Seleccionados: <strong>{productosSeleccionados.length}</strong></span>
           </div>
 
           {/* Botones */}
-          <div className={styles.botones}>
+          <nav className={styles.botones} aria-label="Acciones principales">
             <div className={styles.boton}>
               <button 
                 type="button" 
                 onClick={cancelar}
                 disabled={cargando}
+                aria-label="Cancelar y limpiar selección"
               >
                 Cancelar
               </button>
@@ -595,6 +672,8 @@ function CodigoBarras() {
                 type="button" 
                 onClick={descargarCodigos} 
                 disabled={productosSeleccionados.length === 0 || cargando}
+                aria-label={`Descargar ${productosSeleccionados.length} códigos de barras`}
+                aria-disabled={productosSeleccionados.length === 0}
               >
                 Descargar
               </button>
@@ -604,11 +683,13 @@ function CodigoBarras() {
                 type="button" 
                 onClick={imprimirCodigos}
                 disabled={productosSeleccionados.length === 0 || cargando}
+                aria-label={`Imprimir ${productosSeleccionados.length} códigos de barras`}
+                aria-disabled={productosSeleccionados.length === 0}
               >
                 Imprimir
               </button>
             </div>
-          </div>
+          </nav>
 
         </div>
       </div>
@@ -616,4 +697,4 @@ function CodigoBarras() {
   );
 }
 
-export default CodigoBarras;  
+export default CodigoBarras;

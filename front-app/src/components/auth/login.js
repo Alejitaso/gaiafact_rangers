@@ -15,23 +15,27 @@ function Login() {
   const [loadingComplete, setLoadingComplete] = useState(false);
   
   const videoRef = useRef(null);
+  const emailInputRef = useRef(null);
+  const announceRef = useRef(null); // ✅ Para anuncios en vivo
 
   // Carga inicial con transición suave
   useEffect(() => {
     const initialTimer = setTimeout(() => {
       setFadeOut(true);
       
-      // Después de que comience el fade-out, mostrar el contenido
       setTimeout(() => {
         setIsLoaded(true);
         setShowContent(true);
         
-        // Ocultar completamente la pantalla de carga
         setTimeout(() => {
           setLoadingComplete(true);
+          // ✅ Enfocar el primer campo al cargar
+          if (emailInputRef.current) {
+            emailInputRef.current.focus();
+          }
         }, 500);
-      }, 750); // Esperar 3/4 de la transición
-    }, 2500); // Aumentado un poco el tiempo inicial
+      }, 750);
+    }, 2500);
 
     return () => clearTimeout(initialTimer);
   }, []);
@@ -39,7 +43,7 @@ function Login() {
   // Configuración del video
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.playbackRate = 1.5; // Velocidad un poco más lenta para mejor experiencia
+      videoRef.current.playbackRate = 1.5;
     }
   }, []);
 
@@ -88,36 +92,33 @@ function Login() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (isLocked) return;
+    e.preventDefault();
+    if (isLocked) return;
 
-    setIsNavigating(true); // Activa la pantalla de carga al iniciar el login
+    setIsNavigating(true);
 
-    try {
-      const res = await fetch("http://localhost:4000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ correo_electronico: email, password })
-      });
+    try {
+      const res = await fetch("http://localhost:4000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ correo_electronico: email, password })
+      });
 
-      const data = await res.json();
+      const data = await res.json();
 
-      if (data.success) {
+      if (data.success) {
         setError(null);
         setAttempts(0);
         localStorage.removeItem("attempts");
 
-        // 🟢 Guardar token y tipo_usuario para controlar vistas
         localStorage.setItem("token", data.token);
         localStorage.setItem("tipo_usuario", data.usuario.tipo_usuario);
 
-        // Redirigir tras un breve delay
         setTimeout(() => {
           window.location.href = "/inicio";
         }, 2000);
         
       } else {
-        // Error en login - restaurar estado
         setError(data.message || "Correo o contraseña incorrectos");
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
@@ -129,19 +130,24 @@ function Login() {
           localStorage.setItem("timeLeft", 60 * 5);
         }
         
-        // Restaurar visibilidad del contenido con transición
         setTimeout(() => {
           setIsNavigating(false);
           setShowContent(true);
+          // ✅ Enfocar el email después de error
+          if (emailInputRef.current) {
+            emailInputRef.current.focus();
+          }
         }, 500);
       }
     } catch (err) {
       setError("Error de conexión con el servidor");
       
-      // Restaurar visibilidad del contenido
       setTimeout(() => {
         setIsNavigating(false);
         setShowContent(true);
+        if (emailInputRef.current) {
+          emailInputRef.current.focus();
+        }
       }, 500);
     }
   };
@@ -149,12 +155,17 @@ function Login() {
   // Pantalla de carga inicial
   if (!isLoaded || isNavigating) {
     return (
-      <div className="loading-screen">
+      <div 
+        className="loading-screen"
+        role="status" // ✅ Indica que es un estado de carga
+        aria-live="polite" // ✅ Anuncia cambios
+      >
+        <span className="sr-only">Cargando, por favor espere...</span>
         <video 
           className="loading-video" 
           autoPlay 
           muted
-          // El video se repetirá mientras isLoading o isNavigating sea true
+          aria-hidden="true" // ✅ Oculta el video de lectores de pantalla
           onEnded={(e) => {
             e.target.play(); 
           }}
@@ -166,18 +177,37 @@ function Login() {
     );
   }
 
-  // De lo contrario, renderiza el formulario de login
-   return (
+  return (
     <div className={styles.loginbox}>
-      <h2>Ingresa a tu cuenta</h2>
-      <div className={styles.logog}>
+      {/* ✅ Región para anuncios en vivo */}
+      <div 
+        ref={announceRef}
+        aria-live="assertive" 
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {error && error}
+        {isLocked && `Cuenta bloqueada. Intenta de nuevo en ${formatTime(timeLeft)}`}
+      </div>
+
+      <h1>Ingresa a tu cuenta</h1>
+      
+      <div className={styles.logog} aria-hidden="true">
         <i className="fa-solid fa-circle-user fa-7x" style={{ color: "#f0f4f8" }}></i>
       </div>
 
-      <form className={styles.loginform} onSubmit={handleSubmit}>
-        <label htmlFor="email">CORREO ELECTRÓNICO</label>
-        <i className="fa-regular fa-user fa-2x"></i>
+      <form 
+        className={styles.loginform} 
+        onSubmit={handleSubmit}
+        aria-label="Formulario de inicio de sesión"
+      >
+        <label htmlFor="email">
+          CORREO ELECTRÓNICO
+        </label>
+        {/* ✅ Icono decorativo oculto */}
+        <i className="fa-regular fa-user fa-2x" aria-hidden="true"></i>
         <input
+          ref={emailInputRef}
           type="email"
           id="email"
           placeholder="Ingresa tu correo"
@@ -185,16 +215,32 @@ function Login() {
           onChange={(e) => setEmail(e.target.value)}
           required
           disabled={isLocked}
+          aria-describedby={error && !isLocked ? "error-message" : undefined}
+          aria-invalid={error && !isLocked ? "true" : "false"}
         />
 
-        <label htmlFor="password">CLAVE</label>
-        <i className="fa-solid fa-lock fa-2x"></i>
+        <label htmlFor="password">
+          CLAVE
+        </label>
+        <i className="fa-solid fa-lock fa-2x" aria-hidden="true"></i>
+        
         <div className={styles.contrasegnaContainer}>
-          <i
-            className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"} ${styles.IconoContrasegna}`}  // 👈 cambia el ícono
+          {/* ✅ Botón accesible para mostrar/ocultar contraseña */}
+          <button
+            type="button"
+            className={styles.IconoContrasegna}
             onClick={() => setShowPassword(!showPassword)}
-            title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-          ></i>
+            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            aria-pressed={showPassword}
+            disabled={isLocked}
+            tabIndex={0}
+          >
+            <i
+              className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"}`}
+              aria-hidden="true"
+            ></i>
+          </button>
+          
           <input
             type={showPassword ? "text" : "password"}   
             id="password"
@@ -203,34 +249,45 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
             required
             disabled={isLocked}
+            aria-describedby={error && !isLocked ? "error-message" : undefined}
+            aria-invalid={error && !isLocked ? "true" : "false"}
           />
-          
         </div>
 
-        
         <a className={styles.link} href="/recuperar">
           ¿Olvidaste tu contraseña?
         </a>
 
+        {/* ✅ Mensajes de error con ID para aria-describedby */}
         {error && !isLocked && (
-          <div style={{ color: "red", textAlign: "center", fontWeight: "bold" }}>
+          <div 
+            id="error-message"
+            role="alert"
+            style={{ color: "red", textAlign: "center", fontWeight: "bold" }}
+          >
             {error}
           </div>
         )}
 
         {isLocked && (
-          <div style={{ color: "red", textAlign: "center", fontWeight: "bold" }}>
+          <div 
+            role="alert"
+            style={{ color: "red", textAlign: "center", fontWeight: "bold" }}
+          >
             Demasiados intentos. Intenta de nuevo en {formatTime(timeLeft)}
           </div>
         )}
 
-          <button type="submit" disabled={isLocked}>
-            Ingresar
-          </button>
-        </form>
-      </div>
+        <button 
+          type="submit" 
+          disabled={isLocked}
+          aria-disabled={isLocked}
+        >
+          Ingresar
+        </button>
+      </form>
+    </div>
   );
 }
-
 
 export default Login;
