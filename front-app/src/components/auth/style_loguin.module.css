@@ -141,8 +141,8 @@
 .IconoContrasegna {
     position: absolute;
     right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 40%;
+    transform: translateY(-40%);
     background: transparent;
     border: none;
     cursor: pointer;
@@ -164,10 +164,9 @@
 
 /* ✅ ACCESIBILIDAD: Focus visible en el botón */
 .IconoContrasegna:focus {
-    outline: 2px solid var(--color-cinco);
     outline-offset: 2px;
     border-radius: 4px;
-    opacity: 1;
+    opacity: 1; 
 }
 
 /* ✅ ACCESIBILIDAD: Estado deshabilitado */
@@ -370,4 +369,68 @@
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
+}
+
+/* =========================================================
+   FIX: LOGIN NO SE SALE DE LA PANTALLA EN MÓVILES
+   ========================================================= */
+@media (max-width: 768px) {
+  .loginbox {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 20px 15px;
+    border-radius: 0;
+    box-sizing: border-box;
+  }
+
+  .loginform input[type="email"],
+  .loginform input[type="password"],
+  .loginform input[type="text"] {
+    width: 100%;
+    font-size: 16px; /* evita zoom en iOS */
+    box-sizing: border-box;
+  }
+
+  .loginform button[type="submit"] {
+    width: 100%;
+    font-size: 16px;
+    padding: 14px 20px;
+    box-sizing: border-box;
+  }
+
+  .IconoContrasegna {
+    padding: 10px;
+    font-size: 18px;
+  }
+
+  .logog {
+    padding-bottom: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .loginbox {
+    padding: 25px 20px;
+    margin-top: 10%;
+    border-radius: 12px;
+  }
+
+  .loginbox h1 {
+    font-size: 1.5rem;
+    word-break: break-word;
+  }
+
+  .loginform label {
+    font-size: 14px;
+  }
+
+  .loginform input::placeholder {
+    font-size: 14px;
+  }
+
+  .loginform button[type="submit"] {
+    font-size: 14px;
+    padding: 12px;
+  }
 }
