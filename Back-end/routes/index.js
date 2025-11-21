@@ -30,19 +30,16 @@ module.exports = function(){
     router.get('/Usuario',
         verificarAuth,
         verificarRolGestor,
-        securityNetworkMiddleware,
         usuarioController.mostrarUsuarios
     );
 
     router.put('/Usuario/:idUsuario',
         verificarAuth,
-        securityNetworkMiddleware,
         usuarioController.actualizarUsuario
     );
 
     router.delete('/Usuario/:idUsuario',
         verificarAuth,
-        securityNetworkMiddleware,
         usuarioController.eliminarUsuario
     );
 
@@ -51,7 +48,6 @@ module.exports = function(){
 
     router.post('/productos',
         verificarAuth,
-        securityNetworkMiddleware,
         productoController.subirArchivo,
         productoController.nuevoProducto
     );
@@ -64,14 +60,12 @@ module.exports = function(){
 
     router.put('/productos/:idProducto',
         verificarAuth,
-        securityNetworkMiddleware,
         productoController.subirArchivo,
         productoController.actualizarProducto
     );
 
     router.delete('/productos/:idProducto',
         verificarAuth,
-        securityNetworkMiddleware,
         productoController.eliminarProducto
     );
 
@@ -90,55 +84,47 @@ module.exports = function(){
 
     router.post('/facturas',
         verificarAuth,
-        securityNetworkMiddleware,
         facturaController.generarFactura
     );
 
     router.get('/facturas',
         verificarAuth,
-        securityNetworkMiddleware,
+        validarRolRegistro,
         facturaController.mostrarFacturas
     );
 
     router.get('/facturas/buscar-factura/:numeroFactura',
         verificarAuth,
-        securityNetworkMiddleware,
         facturaController.buscarFactura
     );
 
     router.post('/facturas/enviar-correo',
         verificarAuth,
-        securityNetworkMiddleware,
         facturaController.enviarFacturaCorreo
     );
 
     router.get('/facturas/:idFactura/pdf',
         verificarAuth,
-        securityNetworkMiddleware,
         facturaController.obtenerFacturaPDF
     );
 
     router.get('/facturas/:idFactura/xml',
         verificarAuth,
-        securityNetworkMiddleware,
         facturaController.obtenerFacturaXML
     );
 
     router.get('/facturas/:idFactura',
         verificarAuth,
-        securityNetworkMiddleware,
         facturaController.mostrarFactura
     );
 
     router.put('/facturas/:idFactura',
         verificarAuth,
-        securityNetworkMiddleware,
         facturaController.actualizarFactura
     );
 
     router.delete('/facturas/:idFactura',
         verificarAuth,
-        securityNetworkMiddleware,
         facturaController.eliminarFactura
     );
 
@@ -147,7 +133,6 @@ module.exports = function(){
 
     router.post('/notificaciones/crear',
         verificarAuth,
-        securityNetworkMiddleware,
         notificacionController.crearNotificacion
     );
 
