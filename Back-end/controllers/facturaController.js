@@ -8,11 +8,11 @@ const nodemailer = require('nodemailer');
 //Configuración del Transportador de Correo
 const configurarTransportador = () => nodemailer.createTransport({
   host: 'smtp.sendgrid.net',
-  port: 465,        // SSL
-  secure: true,     // true para 465
+  port: 587,
+  secure: false,          // false para 587
   auth: {
-    user: 'apikey', // siempre la palabra literal "apikey"
-    pass: process.env.EMAIL_PASS, // tu clave completa SG.xxx
+    user: 'apikey',
+    pass: process.env.EMAIL_PASS,
   },
 });
 
@@ -422,6 +422,7 @@ exports.obtenerFacturaXML = async (req, res, next) => {
 };
 
 exports.enviarFacturaCorreo = async (req, res, next) => {
+    console.log('✉️  EMAIL_PASS:', process.env.EMAIL_PASS);
     try {
         const { idFactura, emailCliente } = req.body;
 
