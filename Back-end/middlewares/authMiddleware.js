@@ -70,15 +70,9 @@ exports.verificarRolGestor = (req, res, next) => {
     next();
 };
 
-/**
- * Middleware de Autorización de Perfil: Permite ver un perfil si:
- * 1. Es el perfil del propio usuario 
- * 2. El usuario autenticado es un gestor 
- */
 exports.verificarAccesoPerfil = (req, res, next) => {
     // ID del usuario autenticado (del token, gracias a verificarAuth)
     const userIdFromToken = req.usuario._id.toString(); 
-    // ID del perfil que se intenta ver (de la URL)
     const userIdFromParams = req.params.idUsuario;
             
     console.log('🔍 Verificando acceso a perfil:', { 
