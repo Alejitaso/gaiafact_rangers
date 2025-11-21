@@ -1,5 +1,4 @@
 require('dotenv').config();
-console.log('🚀 Cargando rutas de API...');
 const express = require("express")
 const router = express.Router()
 
@@ -7,7 +6,7 @@ const usuarioController = require("../controllers/usuarioController.js");
 const { verificarAuth, verificarRolGestor, verificarAccesoPerfil } = require('../middlewares/authMiddleware.js');
 const productoController = require('../controllers/productoController.js');
 const facturaController = require('../controllers/facturaController.js');
-const authController = require("../controllers/authcontroller.js"); 
+const authController = require("../controllers/authController.js"); 
 const imagenesController = require('../controllers/imagenesController.js');
 const notificacionController = require('../controllers/notificacionController.js')
 const securityNetworkMiddleware = require("../middlewares/securityNetworkMiddleware");
