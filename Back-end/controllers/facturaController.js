@@ -6,11 +6,11 @@ const QRCode = require('qrcode');
 const nodemailer = require('nodemailer');
 
 //Configuración del Transportador de Correo
-const configurarTransportador = nodemailer.createTransport({
-  service: "SendGrid",
+const configurarTransportador = () => nodemailer.createTransport({
+  service: 'SendGrid',
   auth: {
-    user: "apikey",             
-    pass: process.env.EMAIL_PASS, 
+    user: 'apikey',
+    pass: process.env.EMAIL_PASS,
   },
 });
 
@@ -305,7 +305,7 @@ exports.mostrarFacturas = async (req, res, next) => {
         const facturas = await Factura.find(filtro).sort({ fecha_emision: -1 });
         
         res.json(facturas);
-        
+
     } catch (error) {
         console.log(error);
         res.status(500).json({ mensaje: 'Error al mostrar las facturas' });
@@ -831,3 +831,5 @@ exports.buscarFactura = async (req, res, next) => {
         res.status(500).json({ mensaje: 'Error al buscar la factura' });
     }
 };
+
+exports.configurarTransportador = configurarTransportador;
