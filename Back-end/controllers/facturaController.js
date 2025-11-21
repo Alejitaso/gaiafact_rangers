@@ -1,18 +1,18 @@
+// controllers/facturaController.js
+const Producto = require('../models/producto.js');
 const Factura = require('../models/factura.js');
 const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
 const nodemailer = require('nodemailer');
 
 //Configuración del Transportador de Correo
-const configurarTransportador = () => {
-    return nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-        }
-    });
-};
+const configurarTransportador = nodemailer.createTransport({
+  service: "SendGrid",
+  auth: {
+    user: "apikey",             
+    pass: process.env.EMAIL_PASS, 
+  },
+});
 
 const generarPDFFactura = async (datosFactura) => {
     return new Promise(async (resolve, reject) => {
@@ -113,15 +113,24 @@ const generarPDFFactura = async (datosFactura) => {
             yPosition += 15;
 
             // ========== TOTALES ==========
-            const iva = 0;
-            const totalFinal = datosFactura.total;
+            const subtotal = datosFactura.productos_factura.reduce((sum, item) => {
+                return sum + (item.precio * item.cantidad);
+            }, 0);
+
+            const iva = subtotal * 0.19; // 19% IVA
+            const totalFinal = subtotal + iva;
+
+            // Guardar valores en la factura
+            datosFactura.subtotal = subtotal;
+            datosFactura.iva = iva;
+            datosFactura.total = totalFinal;
 
             doc.fontSize(10).fillColor(colorTexto)
                .text('Subtotal:', 380, yPosition, { align: 'right', width: 80 })
                .text(`$${subtotalGeneral.toLocaleString('es-CO')}`, 460, yPosition, { align: 'right', width: 85 });
 
             yPosition += 20;
-            doc.text('IVA (0%):', 380, yPosition, { align: 'right', width: 80 })
+            doc.text('IVA (19%):', 380, yPosition, { align: 'right', width: 80 })
                .text(`$${iva.toLocaleString('es-CO')}`, 460, yPosition, { align: 'right', width: 85 });
 
             yPosition += 25;
@@ -212,7 +221,6 @@ const puedeVerTodasLasFacturas = (tipoUsuario) => {
 exports.generarFactura = async (req, res, next) => {
     try {
         const datosFactura = req.body;
-        console.log('📄 Datos recibidos:', datosFactura);
 
         // Validar datos necesarios
         if (!datosFactura.usuario || !datosFactura.usuario.nombre || !datosFactura.usuario.apellido) {
@@ -225,6 +233,25 @@ exports.generarFactura = async (req, res, next) => {
             return res.status(400).json({ 
                 mensaje: 'Debe incluir al menos un producto en la factura' 
             });
+        }
+
+        // ✅ DESCUENTO DE STOCK
+        for (const item of datosFactura.productos_factura) {
+            const producto = await Producto.findOne({ nombre: item.producto });
+
+            if (!producto) {
+                return res.status(404).json({ mensaje: `Producto "${item.producto}" no encontrado` });
+            }
+
+            if (producto.cantidad < item.cantidad) {
+                return res.status(400).json({ 
+                    mensaje: `Stock insuficiente para "${item.producto}". Disponible: ${producto.cantidad}, solicitado: ${item.cantidad}` 
+                });
+            }
+
+            // Descontar stock
+            producto.cantidad -= item.cantidad;
+            await producto.save();
         }
 
         // Crear la instancia de la factura
@@ -241,7 +268,7 @@ exports.generarFactura = async (req, res, next) => {
         // Guardar en la base de datos
         await nuevaFactura.save();
 
-        console.log('✅ Factura guardada con PDF y XML');
+        console.log('✅ Factura guardada con PDF y XML, stock actualizado');
 
         res.status(201).json({
             mensaje: 'Factura generada y guardada correctamente',

@@ -6,7 +6,7 @@ const Inicio = () => {
     const carouselRef = useRef(null);
     const intervalRef = useRef(null);
 
-    const [images, setImages] = useState([]); 
+    const [images, setImages] = useState([]);
     const [currentRotation, setCurrentRotation] = useState(0);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
@@ -17,9 +17,9 @@ const Inicio = () => {
             const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/imagenes/carousel`);
 
             if (res.data.exito && res.data.imagenes) {
-            const urls = res.data.imagenes.map(img => `${process.env.REACT_APP_API_URL}${img}`);
-            setImages(urls);
-            console.log('🖼️ Imágenes cargadas:', urls);
+                const urls = res.data.imagenes.map(img => `http://localhost:4000${img}`);
+                setImages(urls);
+                console.log('🖼️ Imágenes cargadas:', urls);
             } else {
             console.warn('⚠️ No se encontraron imágenes');
             }
@@ -32,12 +32,15 @@ const Inicio = () => {
     const angleStep = numItems > 0 ? 360 / numItems : 0;
 
     const updateCarousel = (rotation) => {
-        if (!carouselRef.current) return;
+        if (!carouselRef.current || numItems === 0) return;
+        
         const carouselItems = carouselRef.current.querySelectorAll(`.${styles.curvedCarouselItem}`);
         carouselRef.current.style.transform = `rotateX(-15deg) rotateY(${rotation}deg)`;
 
         carouselItems.forEach((item, index) => {
             const itemAngle = index * angleStep;
+            
+            // Calcular ángulo relativo (corregido)
             let relativeAngle = (itemAngle + rotation) % 360;
             if (relativeAngle > 180) relativeAngle -= 360;
             if (relativeAngle < -180) relativeAngle += 360;
@@ -57,41 +60,67 @@ const Inicio = () => {
     };
 
     const showNextItem = () => {
-        const newRotation = currentRotation - angleStep;
-        setCurrentRotation(newRotation);
-        updateCarousel(newRotation);
+        if (angleStep === 0) return;
+        
+        setCurrentRotation(prevRotation => {
+            const newRotation = prevRotation - angleStep;
+            console.log(`🔄 Rotando: ${prevRotation.toFixed(2)}° → ${newRotation.toFixed(2)}°`);
+            return newRotation;
+        });
     };
 
     const startAutoSlide = () => {
-        if (intervalRef.current) clearInterval(intervalRef.current);
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
         intervalRef.current = setInterval(showNextItem, 3000);
+        console.log('▶️ Auto-slide iniciado');
     };
 
     const stopAutoSlide = () => {
-        if (intervalRef.current) clearInterval(intervalRef.current);
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+        }
+        console.log('⏸️ Auto-slide detenido');
     };
 
     const handleMouseEnter = () => {
         setIsHovered(true);
-        stopAutoSlide();
     };
 
     const handleMouseLeave = () => {
         setIsHovered(false);
-        startAutoSlide();
     };
 
+    // Cargar imágenes al montar el componente
     useEffect(() => {
-        cargarImagenes(); 
+        cargarImagenes();
+        
+        return () => {
+            stopAutoSlide();
+        };
     }, []);
 
+    // Actualizar carrusel cuando cambia la rotación
     useEffect(() => {
-        if (images.length > 0) {
-            updateCarousel(0);
-            if (!isHovered) startAutoSlide();
+        updateCarousel(currentRotation);
+    }, [currentRotation, numItems]);
+
+    // Controlar auto-slide basado en hover y disponibilidad de imágenes
+    useEffect(() => {
+        if (images.length > 0 && angleStep > 0) {
+            if (!isHovered) {
+                startAutoSlide();
+            } else {
+                stopAutoSlide();
+            }
         }
-        return () => stopAutoSlide();
-    }, [images, isHovered]);
+
+        return () => {
+            stopAutoSlide();
+        };
+    }, [isHovered, images.length, angleStep]);
 
     return (
         <Fragment>
@@ -117,7 +146,7 @@ const Inicio = () => {
                             </div>
                         ))
                     ) : (
-                        <p>Cargando imágenes...</p>
+                        <p style={{ color: 'white', textAlign: 'center' }}>Cargando imágenes...</p>
                     )}
                 </div>
             </div>

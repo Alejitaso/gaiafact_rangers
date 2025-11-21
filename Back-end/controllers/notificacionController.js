@@ -209,10 +209,10 @@ const procesarEnvioFactura = async (idFactura, cliente) => {
     
     //Configura el transportador de Nodemailer (conexión al servidor de correo saliente).
     const transporter = nodemailer.createTransport({
-        service: 'gmail', 
+        service: "SendGrid",
         auth: {
-            user: process.env.EMAIL_USER, 
-            pass: process.env.EMAIL_PASS
+            user: "apikey",              
+            pass: process.env.EMAIL_PASS,
         }
     });
     

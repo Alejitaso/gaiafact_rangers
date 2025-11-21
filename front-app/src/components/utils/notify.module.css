@@ -1,13 +1,15 @@
-/* colores globales */
-:root {
-    --color-uno: #254454;
-    --color-dos: #F0F4F8;
-    --color-tres: #276177;
-    --color-cuatro: #D1DCE6;
-    --color-cinco: #8E9BE8;
-    --color-seis: #C7BEDB;
-    --color-siete: #F61507;
-    --color-ocho: #406f81;
+
+/* ✅ Accesibilidad: ocultar visualmente pero mantener para lectores */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ========== CONTENEDOR PRINCIPAL ========== */
@@ -434,4 +436,77 @@
 
 .fontSize18 {
     font-size: 18px;
+}
+/* =========================================================
+   RESPONSIVE EXCLUSIVO PARA CELULARES – FIX VISUAL
+   ========================================================= */
+@media (max-width: 480px) {
+  /* Contenedor principal: quita márgenes laterales y reduce padding */
+  .mainContainer {
+    max-width: 100%;
+    margin: 0;
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: none;
+    margin-top: 10%;
+  }
+
+  /* Header más pequeño */
+  .header {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  /* Formulario: inputs y botones más grandes y cómodos */
+  .formSection {
+    padding: 15px;
+  }
+
+  .input {
+    font-size: 16px; /* evita zoom en iOS */
+    padding: 10px;
+  }
+
+  .searchButton {
+    font-size: 16px;
+    padding: 12px;
+  }
+
+  /* Tarjetas: una columna y padding reducido */
+  .previewSection {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .previewCard {
+    padding: 15px;
+  }
+
+  /* Tabla: oculta columnas menos críticas y reduce tamaños */
+  .productosTable {
+    font-size: 13px;
+  }
+
+  .tableHeader,
+  .tableCell {
+    padding: 6px;
+  }
+
+  /* Botones: ancho completo y apilados */
+  .buttonGroup {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .button {
+    width: 100%;
+    justify-content: center;
+    font-size: 15px;
+    padding: 12px;
+  }
+
+  /* Ajuste de títulos */
+  .previewTitle {
+    font-size: 16px;
+  }
 }

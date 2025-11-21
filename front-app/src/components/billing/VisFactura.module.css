@@ -1,3 +1,16 @@
+/* Clase para lectores de pantalla */
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
 /* Contenedor principal */
 .visFactura {
     width: 90%;
@@ -27,9 +40,9 @@
     position: relative;
 }
 
-/* ========================================
-   BARRA DE BÚSQUEDA Y FILTROS
-   ======================================== */
+/* ======================================== */
+/* BARRA DE BÚSQUEDA Y FILTROS */
+/* ======================================== */
 
 .barraBusquedaCompleta {
     display: flex;
@@ -84,7 +97,8 @@
 }
 
 .filtroBusquedaSelect:focus {
-    outline: none;
+    outline: 3px solid var(--color-cinco);
+    outline-offset: 2px;
     box-shadow: 0 0 0 3px rgba(39, 97, 119, 0.2);
     background-color: var(--color-dos);
 }
@@ -115,7 +129,8 @@
 }
 
 .barraBusquedaInput:focus {
-    outline: none;
+    outline: 3px solid var(--color-cinco);
+    outline-offset: 2px;
     border-color: var(--color-uno);
     box-shadow: 0 0 0 3px rgba(39, 97, 119, 0.2);
 }
@@ -132,9 +147,9 @@
     pointer-events: none;
 }
 
-/* ========================================
-   INFORMACIÓN Y ESTADO
-   ======================================== */
+/* ======================================== */
+/* INFORMACIÓN Y ESTADO */
+/* ======================================== */
 
 .infoFacturas {
     display: flex;
@@ -185,9 +200,15 @@
     }
 }
 
-/* ========================================
-   TABLA DE FACTURAS
-   ======================================== */
+/* ======================================== */
+/* TABLA DE FACTURAS */
+/* ======================================== */
+
+.tableContainer {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
 
 .inventoryTable {
     width: 100%;
@@ -230,9 +251,14 @@
     background-color: rgba(39, 97, 119, 0.1);
 }
 
-/* ========================================
-   BOTONES DE ACCIÓN
-   ======================================== */
+.inventoryTable tbody tr:focus-within {
+    outline: 2px solid var(--color-cinco);
+    outline-offset: -2px;
+}
+
+/* ======================================== */
+/* BOTONES DE ACCIÓN */
+/* ======================================== */
 
 .btnDescargar {
     padding: 8px 14px;
@@ -250,19 +276,29 @@
     font-family: 'Segoe UI', 'Roboto', sans-serif;
 }
 
-.btnDescargar:hover {
+.btnDescargar:hover:not(:disabled) {
     background-color: #1e4d5f;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(39, 97, 119, 0.3);
 }
 
-.btnDescargar:active {
+.btnDescargar:focus {
+    outline: 3px solid var(--color-cinco);
+    outline-offset: 2px;
+}
+
+.btnDescargar:active:not(:disabled) {
     transform: translateY(0);
 }
 
-/* ========================================
-   CALENDARIO
-   ======================================== */
+.btnDescargar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ======================================== */
+/* CALENDARIO */
+/* ======================================== */
 
 .btnCalendario {
     width: 100%;
@@ -288,7 +324,8 @@
 }
 
 .btnCalendario:focus {
-    outline: none;
+    outline: 3px solid var(--color-cinco);
+    outline-offset: 2px;
     box-shadow: 0 0 0 3px rgba(39, 97, 119, 0.2);
 }
 
@@ -309,6 +346,12 @@
 
 .btnLimpiar:hover {
     color: #ff6b6b;
+}
+
+.btnLimpiar:focus {
+    outline: 2px solid var(--color-cinco);
+    outline-offset: 2px;
+    border-radius: 4px;
 }
 
 .calendario {
@@ -341,11 +384,16 @@
     border-radius: 4px;
     cursor: pointer;
     font-size: 12px;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .calendarioEncabezado button:hover {
     background-color: #1e4d5f;
+}
+
+.calendarioEncabezado button:focus {
+    outline: 2px solid var(--color-cinco);
+    outline-offset: 2px;
 }
 
 .selectMes,
@@ -358,6 +406,12 @@
     color: var(--color-uno);
     font-size: 12px;
     cursor: pointer;
+}
+
+.selectMes:focus,
+.selectAnio:focus {
+    outline: 2px solid var(--color-cinco);
+    outline-offset: 1px;
 }
 
 .tablaCalendario {
@@ -398,35 +452,112 @@
     border-color: var(--color-tres);
 }
 
+.btnDia:focus {
+    outline: 2px solid var(--color-cinco);
+    outline-offset: 1px;
+}
+
 .btnDia:active {
     background-color: #1e4d5f;
 }
 
+/* ======================================== */
+/* MEJORAS DE ACCESIBILIDAD */
+/* ======================================== */
+
+/* Alto contraste */
+@media (prefers-contrast: high) {
+    .filtroBusquedaSelect,
+    .barraBusquedaInput,
+    .btnCalendario {
+        border-width: 3px;
+    }
+    
+    .filtroBusquedaSelect:focus,
+    .barraBusquedaInput:focus,
+    .btnCalendario:focus,
+    .btnDescargar:focus {
+        outline-width: 4px;
+    }
+    
+    .inventoryTable tbody tr:focus-within {
+        outline-width: 3px;
+    }
+}
+
+/* Reducir movimiento */
+@media (prefers-reduced-motion: reduce) {
+    .filtroBusquedaSelect,
+    .barraBusquedaInput,
+    .btnDescargar,
+    .btnCalendario,
+    .btnDia,
+    .inventoryTable tbody tr {
+        transition: none;
+    }
+    
+    .btnDescargar:hover {
+        transform: none;
+    }
+    
+    @keyframes spin {
+        from, to {
+            transform: rotate(0deg);
+        }
+    }
+}
+
+/* ======================================== */
+/* RESPONSIVE DESIGN */
+/* ======================================== */
+
 @media (max-width: 1024px) {
+    .visFactura {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .visForm {
+        width: 95%;
+        padding: 25px;
+    }
+
     .barraBusquedaCompleta {
-        gap: 8px;
+        gap: 10px;
     }
 
     .filtroBusqueda {
-        min-width: 120px;
+        min-width: 140px;
     }
 
     .barraBusqueda {
-        min-width: 150px;
+        min-width: 180px;
+    }
+
+    .inventoryTableTh,
+    .inventoryTableTd {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .btnDescargar {
+        padding: 7px 12px;
+        font-size: 13px;
     }
 }
 
 @media (max-width: 768px) {
     .visFactura {
-        width: 95%;
-        margin: 20px auto;
-        padding: 15px;
+        width: 98%;
+        margin: 15px auto;
+        padding: 10px;
     }
 
     .visForm {
-        width: 95%;
-        padding: 20px;
+        width: 100%;
+        padding: 15px;
         gap: 15px;
+        box-sizing: border-box;
     }
 
     .barraBusquedaCompleta {
@@ -441,46 +572,165 @@
         min-width: auto;
     }
 
+    .filtroBusquedaSelect,
+    .barraBusquedaInput,
+    .btnCalendario {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    /* Tabla con scroll horizontal */
+    .tableContainer {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 8px;
+    }
+
+    .inventoryTable {
+        min-width: 600px;
+    }
+
     .inventoryTableTh,
     .inventoryTableTd {
-        padding: 8px;
-        font-size: 12px;
+        padding: 10px 8px;
+        font-size: 13px;
+        white-space: nowrap;
     }
 
     .btnDescargar {
-        padding: 6px 10px;
-        font-size: 12px;
+        padding: 8px 12px;
+        font-size: 13px;
+        white-space: nowrap;
     }
 
     .infoFacturas {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
+        padding: 12px 0;
+    }
+
+    .calendario {
+        width: calc(100vw - 60px);
+        max-width: 320px;
+        left: 50%;
+        transform: translateX(-50%);
     }
 }
 
+/* ======================================== */
+/* RESPONSIVE EXTRA: MÓVILES PEQUEÑOS */
+/* ======================================== */
+
+/* ====== RESPONSIVE FINAL: MÓVILES PEQUEÑOS ====== */
 @media (max-width: 480px) {
-    .visFactura {
-        width: 100%;
-        padding: 10px;
-    }
+  .visForm {
+    padding: 12px;
+    gap: 10px;
+  }
 
-    .visForm {
-        width: 100%;
-        padding: 15px;
-    }
+  .barraBusquedaCompleta {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
 
-    .inventoryTable {
-        font-size: 12px;
-    }
+  .filtroBusqueda,
+  .barraBusqueda {
+    width: 100%;
+    min-width: auto;
+  }
 
-    .inventoryTableTh,
-    .inventoryTableTd {
-        padding: 6px;
-        font-size: 11px;
-    }
+  .inventoryTable {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    font-size: 12px;
+  }
 
-    .btnDescargar {
-        padding: 5px 8px;
-        font-size: 11px;
-    }
+  .inventoryTable th,
+  .inventoryTable td {
+    padding: 6px 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .btnDescargar {
+    font-size: 11px;
+    padding: 4px 6px;
+    gap: 4px;
+  }
+
+  .calendario {
+    width: calc(100vw - 40px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px;
+  }
+
+  .infoFacturas {
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+  }
+}
+
+/* ====== MÓVILES MUY PEQUEÑOS (< 360px) ====== */
+@media (max-width: 360px) {
+  .visFactura {
+    padding: 5px;
+    margin: 5px auto;
+  }
+
+  .visForm {
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .inventoryTable {
+    font-size: 10px;
+    min-width: 550px;
+  }
+
+  .inventoryTable th,
+  .inventoryTable td {
+    padding: 4px 2px;
+    font-size: 10px;
+    max-width: 100px;
+  }
+
+  .btnDescargar {
+    font-size: 10px;
+    padding: 3px 5px;
+  }
+
+  .barraBusquedaInput {
+    font-size: 14px;
+    padding: 8px 10px 8px 36px;
+  }
+
+  .calendario {
+    width: calc(100vw - 30px);
+    padding: 6px;
+    border-radius: 6px;
+  }
+
+  .selectMes,
+  .selectAnio {
+    font-size: 11px;
+    padding: 5px 3px;
+  }
+
+  .btnDia {
+    font-size: 11px;
+    padding: 3px 1px;
+  }
+
+  .infoFacturas {
+    font-size: 12px;
+    gap: 6px;
+  }
 }

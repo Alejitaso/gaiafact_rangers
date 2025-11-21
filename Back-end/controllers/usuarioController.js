@@ -3,11 +3,11 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail', 
-    auth: {
-        user: process.env.EMAIL_USER, 
-        pass: process.env.EMAIL_PASS
-    }
+  service: "SendGrid",
+  auth: {
+    user: "apikey",             
+    pass: process.env.EMAIL_PASS, 
+  },
 });
 
 // Agrega un nuevo usuario (Solución: Correo temporalmente deshabilitado)
@@ -23,7 +23,7 @@ exports.nuevoUsuario = async (req, res) => {
         }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         // 3. Crea el enlace de verificación
-        const verificationLink = `http://localhost:3000?token=${token}`;
+        const verificationLink = `${process.env.FRONTEND_URL}?token=${token}`;
 
         // 4. Define las opciones del correo
         const mailOptions = {
@@ -154,7 +154,6 @@ exports.mostrarUsuario = async (req, res) => {
 
 // Buscar usuario por documento
 exports.buscarPorDocumento = async (req, res) => {
-    console.log('🔔 LLEGÓ a buscarPorDocumento');
   try {
     const usuario = await Usuario.findOne({
       numero_documento: req.params.documento, 
