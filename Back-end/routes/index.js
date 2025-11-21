@@ -16,14 +16,14 @@ const validarRolRegistro = require('../middlewares/validarRolRegistro.js');
 module.exports = function(){
 
     /* ====================== USUARIOS ====================== */
+    console.log('📌 Registrando ruta: /Usuario/documento/:documento');
+    router.get('/Usuario/documento/:documento', verificarAuth, usuarioController.buscarPorDocumento);
 
     router.post('/Usuario',
         verificarAuth,               
         validarRolRegistro,         
         usuarioController.nuevoUsuario
     );
-
-    router.get('/Usuario/documento/:documento', verificarAuth, usuarioController.buscarPorDocumento);
 
     router.get('/Usuario/:idUsuario', verificarAuth, verificarAccesoPerfil, usuarioController.mostrarUsuario);
 
