@@ -64,6 +64,7 @@ app.post("/api/auth/recover", authcontroller.recoverPassword);
 app.post("/api/auth/reset-password", authcontroller.resetPassword);
 
 // Rutas principales
+console.log('📦 Montando rutas en /api');
 app.use("/api", routes());
 
 // Servir imágenes
