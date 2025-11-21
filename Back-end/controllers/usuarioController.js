@@ -154,6 +154,7 @@ exports.mostrarUsuario = async (req, res) => {
 
 // Buscar usuario por documento
 exports.buscarPorDocumento = async (req, res) => {
+    console.log('🔔 LLEGÓ a buscarPorDocumento');
   try {
     const usuario = await Usuario.findOne({
       numero_documento: req.params.documento, 
