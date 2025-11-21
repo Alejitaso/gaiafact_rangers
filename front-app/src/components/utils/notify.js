@@ -38,7 +38,7 @@ function NotificacionesMejorado() {
       // Buscar datos del cliente
       if (factura.usuario?.numero_documento) {
         try {
-          const resCliente = await clienteAxios.get(`/Usuario/documento/${factura.usuario.numero_documento}`);
+          const resCliente = await clienteAxios.get(`api/Usuario/documento/${factura.usuario.numero_documento}`);
           setClienteData(resCliente.data.usuario);
         } catch (err) {
           console.warn('Cliente no encontrado en base de datos, usando datos de factura');

@@ -16,8 +16,7 @@ const validarRolRegistro = require('../middlewares/validarRolRegistro.js');
 module.exports = function(){
 
     /* ====================== USUARIOS ====================== */
-   console.log('📌 Registrando ruta: /api/usuario/documento/:documento');
-    router.get('/usuario/documento/:documento', verificarAuth, usuarioController.buscarPorDocumento);
+    router.get('/Usuario/documento/:documento', verificarAuth, usuarioController.buscarPorDocumento);
 
     router.post('/Usuario',
         verificarAuth,               
