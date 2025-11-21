@@ -285,36 +285,36 @@ exports.generarFactura = async (req, res, next) => {
     }
 };
 
-// ========== MODIFICADO: mostrarFactura con control de acceso ==========
-exports.mostrarFactura = async (req, res, next) => {
+// ========== MODIFICADO: mostrarFacturas con control de acceso ==========
+exports.mostrarFacturas = async (req, res, next) => {
     try {
+        // req.usuario viene del middleware verificarAuth
         const usuario = req.usuario;
 
         if (!usuario) {
             return res.status(401).json({ mensaje: 'Usuario no autenticado' });
         }
 
-        const factura = await Factura.findById(req.params.idFactura);
-        
-        if (!factura) {
-            return res.status(404).json({ mensaje: 'No existe esa factura' });
-        }
+        let filtro = {};
 
-        // Verificar permisos: si no es admin/superadmin/usuario, solo puede ver sus propias facturas
+        // Si NO es admin, superadmin o usuario, solo ve sus propias facturas
         if (!puedeVerTodasLasFacturas(usuario.tipo_usuario)) {
-            if (factura.usuario.numero_documento !== usuario.numero_documento) {
-                return res.status(403).json({ 
-                    mensaje: 'No tienes permiso para ver esta factura' 
-                });
-            }
+            filtro = { 'usuario.numero_documento': usuario.numero_documento };
         }
 
-        res.json(factura);
+        const facturas = await Factura.find(filtro).sort({ fecha_emision: -1 });
+        
+        res.json({
+            facturas,
+            total: facturas.length,
+            tipo_usuario: usuario.tipo_usuario
+        });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ mensaje: 'Error al mostrar la factura' });
+        res.status(500).json({ mensaje: 'Error al mostrar las facturas' });
     }
 };
+
 
 //Permite actualizar una factura buscando por ID. Retorna el documento actualizado
 exports.actualizarFactura = async (req, res, next) => {
