@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import clienteAxios from '../../config/axios';
 import Swal from 'sweetalert2';
 import styles from './registro.module.css';
+import { Link } from "react-router-dom";
 
 const validarEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -56,7 +57,7 @@ function RegistroUsuario() {
     } else if (name === 'numero_documento') {
         newValue = value.replace(/[^a-zA-Z0-9]/g, ''); 
     } else if (name === 'correo_electronico') {
-        newValue = value.replace(/[^a-zA-Z0-9@._-]/g, '');
+      newValue = value.replace(/[^a-zA-Z0-9@._-]/g, '');
     }
 
     setUsuario({

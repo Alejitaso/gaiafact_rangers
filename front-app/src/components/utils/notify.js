@@ -4,6 +4,7 @@ import clienteAxios from '../../config/axios';
 import styles from './notify.module.css';
 
 function NotificacionesMejorado() {
+   // ESTADOS DEL COMPONENTE
   const [numeroFactura, setNumeroFactura] = useState('');
   const [facturaData, setFacturaData] = useState(null);
   const [clienteData, setClienteData] = useState(null);
@@ -34,7 +35,7 @@ function NotificacionesMejorado() {
       anunciar('Error: por favor ingrese un número de factura');
       return;
     }
-
+    //estado de carga
     setBuscando(true);
     setError('');
     setFacturaData(null);
@@ -80,6 +81,7 @@ function NotificacionesMejorado() {
         anunciar(`Factura encontrada. Cliente: ${cliente.nombre} ${cliente.apellido}`);
       }
     } catch (error) {
+      //manejo de errores en la busqueda
       console.error('Error al buscar factura:', error);
       setError(error.response?.data?.mensaje || 'Factura no encontrada');
       anunciar('Error: factura no encontrada');
@@ -159,6 +161,7 @@ function NotificacionesMejorado() {
       setClienteData(null);
       inputRef.current?.focus();
     } catch (error) {
+      //error al enviar correo 
       console.error('Error al enviar correo:', error);
       anunciar('Error al enviar el correo');
       Swal.fire({
@@ -171,7 +174,7 @@ function NotificacionesMejorado() {
       setEnviando(false);
     }
   };
-
+// peticion para cancelar y reiniciar el formulario
   const cancelarAccion = () => {
     Swal.fire({
       title: '¿Cancelar?',
@@ -184,6 +187,7 @@ function NotificacionesMejorado() {
       cancelButtonColor: '#276177',
     }).then((result) => {
       if (result.isConfirmed) {
+        //reset de todos los estados
         setNumeroFactura('');
         setFacturaData(null);
         setClienteData(null);
@@ -193,7 +197,7 @@ function NotificacionesMejorado() {
       }
     });
   };
-
+//formateadores (precio y fecha)
   const formatearPrecio = (precio) => {
     return precio.toLocaleString('es-CO', {
       minimumFractionDigits: 0,
@@ -208,7 +212,7 @@ function NotificacionesMejorado() {
       day: 'numeric',
     });
   };
-
+//render del componente 
   return (
     <Fragment>
       {/* ✅ Región de anuncios en vivo */}

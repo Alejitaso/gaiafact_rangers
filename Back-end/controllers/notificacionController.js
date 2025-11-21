@@ -7,22 +7,16 @@ const fs = require('fs');
 const path = require('path');
 const QRCode = require('qrcode');
 
-// Asegurar que el directorio temporal exista
+// Asegura que el directorio temporal exista. Crea la carpeta '../temp' si no está presente.
 const TEMP_DIR = path.join(__dirname, '../temp');
 if (!fs.existsSync(TEMP_DIR)){
-    // Usamos 'recursive: true' para crear directorios anidados si fuera necesario
     fs.mkdirSync(TEMP_DIR, { recursive: true }); 
 }
 
-// ==========================================================
-// 🌟 FUNCIONES AUXILIARES DE FORMATO Y GENERACIÓN 
-// ==========================================================
-
-// Funciones de formateo
+// Funciones auxiliares de formateo y generacion
 const formatearPrecio = (valor) => valor ? `$${parseFloat(valor).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}` : '$0.00';
 const formatearFecha = (fecha) => fecha ? new Date(fecha).toLocaleDateString('es-CO') : 'N/A';
 
-// Función auxiliar para generar el PDF (CORRECCIÓN CLAVE DE I/O)
 const generarPDFFactura = async (datosFactura) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -31,7 +25,7 @@ const generarPDFFactura = async (datosFactura) => {
                 margin: 40,
                 bufferPages: true
             });
-
+            // Configura la recolección de los datos binarios del PDF en un Buffer.
             const buffers = [];
             doc.on('data', buffers.push.bind(buffers));
             doc.on('end', () => {
@@ -40,13 +34,13 @@ const generarPDFFactura = async (datosFactura) => {
             });
             doc.on('error', reject);
 
-            // Colores de tu marca
+            // Definición de la paleta de colores para el diseño del PDF.
             const colorPrimario = '#2C5F6F';
             const colorSecundario = '#A8B8D8';
             const colorTexto = '#2C3E50';
             const colorGris = '#7F8C8D';
 
-            // ========== ENCABEZADO ==========
+            //Dibuja el encabezado de la empresa y la información de la factura
             doc.fontSize(24).fillColor(colorPrimario).text('Athena\'S', 50, 50);
             doc.fontSize(10).fillColor(colorGris)
                .text(' GaiaFact - Sistema de Facturación', 50, 78)
@@ -64,14 +58,12 @@ const generarPDFFactura = async (datosFactura) => {
                    year: 'numeric', month: 'long', day: 'numeric' 
                })}`, 350, 90, { align: 'right' });
 
-            // CUFE en texto más pequeño
             doc.fontSize(7).text(`CUFE: ${datosFactura.codigo_CUFE || 'TEMPORAL-' + datosFactura.numero_factura}`, 
                      300, 110, { align: 'right', width: 245 });
 
-            // Línea divisoria
             doc.moveTo(50, 160).lineTo(545, 160).strokeColor(colorPrimario).lineWidth(2).stroke();
 
-            // ========== INFORMACIÓN DEL CLIENTE ==========
+            //Dibuja la información del cliente.
             doc.fontSize(12).fillColor(colorPrimario).text('INFORMACIÓN DEL CLIENTE', 50, 180);
             
             doc.fontSize(9).fillColor(colorTexto)
@@ -82,10 +74,9 @@ const generarPDFFactura = async (datosFactura) => {
                 doc.text(`Teléfono: ${datosFactura.usuario.telefono}`, 50, 230);
             }
 
-            // ========== TABLA DE PRODUCTOS ==========
+            //Dibuja la cabecera de la tabla de productos.
             const tableTop = 270;
             
-            // Encabezado de tabla con fondo
             doc.rect(50, tableTop - 5, 495, 25).fillColor(colorSecundario).fill();
             
             doc.fontSize(9).fillColor(colorTexto)
@@ -94,7 +85,7 @@ const generarPDFFactura = async (datosFactura) => {
                .text('PRECIO UNIT.', 340, tableTop + 5, { width: 80, align: 'right' })
                .text('SUBTOTAL', 430, tableTop + 5, { width: 100, align: 'right' });
 
-            // Productos
+            //Itera sobre los productos de la factura para dibujarlos en la tabla, calculando subtotales.
             let yPosition = tableTop + 35;
             let subtotalGeneral = 0;
 
@@ -102,7 +93,6 @@ const generarPDFFactura = async (datosFactura) => {
                 const subtotal = item.precio * item.cantidad;
                 subtotalGeneral += subtotal;
 
-                // Fondo alternado para filas
                 if (index % 2 === 0) {
                     doc.rect(50, yPosition - 5, 495, 20).fillColor('#F8F9FA').fill();
                 }
@@ -116,12 +106,11 @@ const generarPDFFactura = async (datosFactura) => {
                 yPosition += 25;
             });
 
-            // Línea antes de totales
+            //Dibuja el resumen de totales (Subtotal, IVA, Total Final).
             yPosition += 10;
             doc.moveTo(50, yPosition).lineTo(545, yPosition).strokeColor(colorGris).lineWidth(1).stroke();
             yPosition += 15;
 
-            // ========== TOTALES ==========
             const iva = 0;
             const totalFinal = datosFactura.total;
 
@@ -139,10 +128,9 @@ const generarPDFFactura = async (datosFactura) => {
                .fontSize(14)
                .text(`$${totalFinal.toLocaleString('es-CO')}`, 460, yPosition, { align: 'right', width: 85 });
 
-            // ========== CÓDIGOS QR ==========
+            //Genera y dibuja el código QR (CUFE/Verificación).
             yPosition += 50;
 
-            // Generar QR Code
             const fecha = new Date(datosFactura.fecha_emision || new Date());
             const fechaFormato = fecha.toLocaleDateString('es-CO');
             const horaFormato = fecha.toLocaleTimeString('es-CO');
@@ -165,14 +153,14 @@ CUFE: ${datosFactura.codigo_CUFE || 'TEMP-' + datosFactura.numero_factura}`;
             doc.image(qrCodeImage, 60, yPosition, { width: 120, height: 120 });
             doc.fontSize(8).fillColor(colorGris).text('Escanea para verificar', 60, yPosition + 125, { width: 120, align: 'center' });
 
-            // Número de factura
+            //Dibuja el número de factura grande.
             doc.fontSize(16).fillColor(colorTexto).font('Helvetica-Bold')
                .text(datosFactura.numero_factura, 250, yPosition + 40, { align: 'center', width: 250 });
             
             doc.fontSize(8).fillColor(colorGris).font('Helvetica')
                .text('Número de Factura', 250, yPosition + 60, { align: 'center', width: 250 });
 
-            // ========== FOOTER ==========
+            //Dibuja el pie de página de la factura.
             yPosition += 150;
             doc.fontSize(8).fillColor(colorGris)
                .text('Esta factura electrónica ha sido generada por el sistema GaiaFact - Athena\'S', 50, yPosition, { 
@@ -217,13 +205,9 @@ const generarCuerpoCorreo = (factura, cliente) => {
     `;
 };
 
-
-// ==========================================================
-// FUNCIÓN ASÍNCRONA DE TRASFONDO (NO BLOQUEA LA RESPUESTA HTTP)
-// ==========================================================
 const procesarEnvioFactura = async (idFactura, cliente) => {
     
-    // 1. CREAR EL TRANSPORTADOR (CONFIGURACIÓN GMAIL)
+    //Configura el transportador de Nodemailer (conexión al servidor de correo saliente).
     const transporter = nodemailer.createTransport({
         service: 'gmail', 
         auth: {
@@ -232,13 +216,13 @@ const procesarEnvioFactura = async (idFactura, cliente) => {
         }
     });
     
-    // **VERIFICACIÓN CRÍTICA**
+    //Verificación crítica de las variables de entorno para el correo.
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
         console.error("[BG TASK FATAL ERROR] EMAIL_USER o EMAIL_PASS no están definidas. El correo NO se enviará.");
         return;
     }
     
-    // VARIABLES NECESARIAS
+    //Definición de variables y ruta temporal para el PDF.
     const nombreEmpresa = process.env.DIAN_NOMBRE_EMPRESA || 'Athena\'s Facturación';
     const remitenteCorreo = process.env.EMAIL_USER; 
     const pdfPath = path.join(TEMP_DIR, `factura_${idFactura}.pdf`); 
@@ -246,25 +230,22 @@ const procesarEnvioFactura = async (idFactura, cliente) => {
     let factura; 
     
     try {
-        // 1. Buscar Factura
+        //Buscar Factura
         factura = await Factura.findById(idFactura);
         if (!factura) {
             console.error(`[BG TASK ERROR] Factura no encontrada: ${idFactura}`);
             return;
         }
         
-        // 2. Generar PDF en Buffer (MEMORIA)
+        //Generar PDF en Buffer (MEMORIA)
         factura.usuario = cliente; 
-        // 🚨 CORRECCIÓN AQUÍ: Capturamos el Buffer devuelto.
         const pdfBuffer = await generarPDFFactura(factura); 
 
-        // 3. Escribir el Buffer al disco de forma ASÍNCRONA y SEGURA.
-        // Usamos fs.promises para garantizar que la escritura esté completa y el archivo cerrado.
+        // Escribir el Buffer al disco de forma ASÍNCRONA y SEGURA.
         await fs.promises.writeFile(pdfPath, pdfBuffer); 
         console.log("[BG TASK DEBUG] PDF generado y escrito en disco correctamente. Iniciando envío de correo.");
 
-
-        // 4. Configurar y enviar correo
+        //Configurar y enviar correo
         const mailOptions = {
             from: `"${nombreEmpresa}" <${remitenteCorreo}>`, 
             to: cliente.correo_electronico,
@@ -273,7 +254,7 @@ const procesarEnvioFactura = async (idFactura, cliente) => {
             attachments: [
                 {
                     filename: `factura_${factura.numero_factura}.pdf`,
-                    path: pdfPath // Nodemailer ahora lee el archivo existente.
+                    path: pdfPath 
                 }
             ]
         };
@@ -283,7 +264,7 @@ const procesarEnvioFactura = async (idFactura, cliente) => {
         console.log(`[BG TASK SUCCESS] Factura ${factura.numero_factura} enviada a ${cliente.correo_electronico} usando GMAIL. Respuesta: ${info.response}`);
 
     } catch (mailError) {
-        // Log detallado del error (ya sea de DB, PDF o Nodemailer)
+        //Captura y loggea errores durante la ejecución de la tarea de fondo.
         const numFactura = factura ? factura.numero_factura : idFactura;
         console.error(`==========================================================`);
         console.error(`[BG TASK ERROR] Falló el proceso de envío para la factura ${numFactura}.`);
@@ -291,7 +272,7 @@ const procesarEnvioFactura = async (idFactura, cliente) => {
         console.error(`==========================================================`);
         
     } finally {
-        // 5. Eliminar archivo temporal SIEMPRE
+        //Se ejecuta SIEMPRE para eliminar el archivo PDF temporal después de usarlo.
         if (fs.existsSync(pdfPath)) {
             try {
                 fs.unlinkSync(pdfPath); 
@@ -302,26 +283,24 @@ const procesarEnvioFactura = async (idFactura, cliente) => {
     }
 };
 
-// ==========================================================
 // ENDPOINT DE CREACIÓN (RESPUESTA RÁPIDA)
-// ==========================================================
 exports.crearNotificacion = async (req, res) => {
     try {
         const { numeroFactura, numeroDocumentoUsuario } = req.body;
 
-        // 1. Buscar la Factura
+        //Buscar la Factura
         const factura = await Factura.findOne({ numero_factura: numeroFactura });
         if (!factura) {
             return res.status(404).json({ mensaje: "Factura no encontrada." });
         }
 
-        // 2. Buscar el Usuario/Cliente 
+        //Buscar el Usuario/Cliente 
         const cliente = await Usuario.findOne({ numero_documento: numeroDocumentoUsuario });
         if (!cliente || !cliente._id || !cliente.correo_electronico) {
             return res.status(404).json({ mensaje: "Cliente no encontrado o no tiene correo registrado." });
         }
 
-        // 3. Crear el registro de Notificación en la BD (Paso rápido)
+        //Crear el registro de Notificación en la BD (Paso rápido)
         const nuevaNotificacion = new Notificacion({
             fecha_enviada: Date.now(),
             factura: factura._id,
@@ -330,19 +309,18 @@ exports.crearNotificacion = async (req, res) => {
 
         await nuevaNotificacion.save();
 
-        // 4. Disparar la tarea pesada en segundo plano SIN esperar el resultado
-        // 🚨 BEST PRACTICE: Añadir .catch() para evitar Unhandled Rejections
+        //Disparar la tarea pesada en segundo plano SIN esperar el resultado
         procesarEnvioFactura(factura._id, cliente)
             .catch(err => {
                 console.error("[BG TASK UNHANDLED REJECTION] Error en la promesa de envío de correo:", err.message || err);
             });
         
-        // 5. RESPUESTA RÁPIDA AL CLIENTE
+        //RESPUESTA RÁPIDA AL CLIENTE
         res.json({ 
             mensaje: `Notificación registrada. El envío del correo de la factura #${numeroFactura} ha comenzado en segundo plano.`, 
             idFactura: factura._id
         });
-
+        //Manejo de errores generales del endpoint (p. ej., fallos de conexión a la BD).
     } catch (error) {
         console.error("Error FATAL en crearNotificacion (Endpoint):", error);
         res.status(500).json({ mensaje: "Error interno del servidor. Verifique los logs del servidor para detalles." });

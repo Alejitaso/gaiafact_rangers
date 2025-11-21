@@ -7,7 +7,7 @@ import styles from './registroProduct.module.css';
 function RegistroProducto() {
     const navigate = useNavigate();
     const location = useLocation();
-
+    // Estado local para capturar los datos del formulario del producto.
     const [producto, setProducto] = useState({
         nombre: '',
         cantidad: '',
@@ -49,7 +49,7 @@ function RegistroProducto() {
             console.warn("No había popups para cerrar");
         }
     };
-
+    // Lógica para comprobar campos y mostrar alertas de error.
     const validarCamposCompletos = () => {
         const { nombre, cantidad, precio, tipo_prenda, descripcion } = producto;
         const nuevosErrores = {};
@@ -102,7 +102,7 @@ function RegistroProducto() {
             willClose: cerrarForzadoSweetAlert
         });
     };
-
+    // Funciones para actualizar el estado, limpiar el formulario y preparar los datos.
     const leerInformacionProducto = (e) => {
         const { name, value } = e.target;
         setProducto({
@@ -148,7 +148,7 @@ function RegistroProducto() {
         tipo_prenda: producto.tipo_prenda,
         descripcion: producto.descripcion.trim()
     });
-
+    // Se encarga de la validación final, la comunicación con el API y el manejo de éxito/falla.
     const registrarProducto = async (e) => {
         e.preventDefault();
 
@@ -190,7 +190,7 @@ function RegistroProducto() {
             mostrarErrorValidacion('Hubo un error', error.response?.data?.mensaje || 'Intente nuevamente');
         }
     };
-
+    // Define el popup de éxito que ofrece opciones de navegación al usuario.
     const mostrarPopupExito = async (productoRegistrado) => {
         cerrarForzadoSweetAlert();
         Swal.fire({
@@ -241,7 +241,7 @@ function RegistroProducto() {
             }
         });
     };
-
+    // Estructura del formulario y renderizado condicional del botón de envío.
     return (
         <Fragment>
             {/* Región de anuncios en vivo para lectores de pantalla */}

@@ -3,25 +3,23 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // o tu servicio de correo
+    service: 'gmail', 
     auth: {
-        user: process.env.EMAIL_USER, // Asegúrate de tener estas variables de entorno
+        user: process.env.EMAIL_USER, 
         pass: process.env.EMAIL_PASS
     }
 });
 
 // Agrega un nuevo usuario (Solución: Correo temporalmente deshabilitado)
 exports.nuevoUsuario = async (req, res) => {
-    // El password del front-end es 'temporal123', lo cual es suficiente para pasar la validación.
     const usuario = new Usuario(req.body);
     
     try {
-        // 1. GUARDA EL USUARIO (Aquí se encripta la contraseña)
         await usuario.save();
 
         // 2. Genera un token
         const token = jwt.sign({
-            userId: usuario._id // ✅ Clave correcta usada en el backend
+            userId: usuario._id 
         }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         // 3. Crea el enlace de verificación
@@ -104,7 +102,6 @@ exports.nuevoUsuario = async (req, res) => {
 
         res.json({ mensaje: 'Se agregó un nuevo usuario. Por favor, verifica tu correo electrónico.' });
     } catch (error) {
-        // Manejo de errores de unicidad (correo/documento ya existen)
         if (error.code === 11000) {
             return res.status(400).json({ 
                 mensaje: 'El correo electrónico o el número de documento ya están registrados.', 
@@ -118,12 +115,8 @@ exports.nuevoUsuario = async (req, res) => {
 };
 
 // Mostrar todos los usuarios (SOLO SUPERADMIN y ADMINISTRADOR)
-// El middleware verificarRolGestor se encarga de la autorización.
 exports.mostrarUsuarios = async (req, res, next) => {
     try {
-        // La autorización de rol (SUPERADMIN/ADMINISTRADOR) la maneja verificarRolGestor
-        // que es ejecutado antes de este controlador en la ruta.
-
         const usuarios = await Usuario.find({});
         res.json(usuarios);
     } catch (error) {
@@ -133,14 +126,10 @@ exports.mostrarUsuarios = async (req, res, next) => {
 };
 
 // Mostrar un usuario específico
-// La autorización (perfil propio o rol Gestor) la maneja verificarAccesoPerfil.
 exports.mostrarUsuario = async (req, res) => {
     const userIdToView = req.params.idUsuario;
     
     try {
-        // ✅ La lógica de autorización REDUNDANTE fue eliminada,
-        // ya que es manejada por el middleware verificarAccesoPerfil.
-        
         // 1. Buscar el usuario
         const usuario = await Usuario.findById(userIdToView).select('-password'); 
 
@@ -156,7 +145,6 @@ exports.mostrarUsuario = async (req, res) => {
 
     } catch (err) {
         console.error("Error al mostrar usuario:", err);
-        // Si el ID no es válido (ej: formato incorrecto de ObjectId), Mongoose lanza un error.
         if (err.kind === 'ObjectId') {
              return res.status(400).json({ success: false, message: "ID de usuario inválido" });
         }
@@ -166,11 +154,10 @@ exports.mostrarUsuario = async (req, res) => {
 
 // Buscar usuario por documento
 exports.buscarPorDocumento = async (req, res) => {
+    console.log('🔔 LLEGÓ a buscarPorDocumento');
   try {
-    const usuario = await Usuario.findOne({ 
-      $or: [
-        { numero_documento: req.params.documento }
-      ]
+    const usuario = await Usuario.findOne({
+      numero_documento: req.params.documento, 
     });
 
     if (!usuario) {

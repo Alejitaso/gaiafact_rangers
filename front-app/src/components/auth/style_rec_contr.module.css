@@ -65,14 +65,14 @@
     text-align: center;
 }
 
+/*Selector de la Línea Decorativa con Sombra*/
 .linea-s{
-    /* Degradado sutil para la barra superior, de tus azules */
     background-image: linear-gradient(to right, var(--color-uno), var(--color-tres));
-    height: 30px; /* Ajuste de altura para ser más visible */
-    display: flex; /* Usar flexbox para centrar contenido si lo hubiera */
+    height: 30px; 
+    display: flex; 
     align-items: center;
-    padding: 0 25px; /* Padding horizontal para el contenido */
-    box-shadow: 0 1px 5px rgba(0,0,0,0.2); /* Sombra sutil */
+    padding: 0 25px; 
+    box-shadow: 0 1px 5px rgba(0,0,0,0.2); 
 }
 
 /* ingresar correo electronico*/

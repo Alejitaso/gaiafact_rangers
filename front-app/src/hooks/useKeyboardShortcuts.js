@@ -1,4 +1,3 @@
-// hooks/useKeyboardShortcuts.js
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -41,22 +40,19 @@ const useKeyboardShortcuts = () => {
         'h': ctrlKey, // Historial
         'j': ctrlKey, // Descargas
         // Búsqueda del navegador (lo permitimos pero con advertencia)
-        // 'f': ctrlKey && !shiftKey, // Buscar en página - COMENTADO porque lo usamos
       };
 
       // Si es un atajo nativo del navegador, no hacer nada
       const keyLower = key.toLowerCase();
       if (atajosNativos[keyLower]) {
-        return; // Dejar que el navegador maneje estos atajos
+        return; 
       }
 
-      // Atajos con Ctrl + Shift (menos comunes, más seguros)
       if (ctrlKey && shiftKey && !altKey && !metaKey) {
         switch (keyLower) {
           case 's':
             event.preventDefault();
             event.stopPropagation();
-            // Lógica para cerrar sesión
             if (window.confirm('¿Deseas cerrar sesión?')) {
               localStorage.removeItem('token');
               sessionStorage.clear();
@@ -69,9 +65,7 @@ const useKeyboardShortcuts = () => {
         return;
       }
 
-      // Atajos solo con Ctrl (verificar que no esté presionado Alt ni Meta/Command)
       if (ctrlKey && !shiftKey && !altKey && !metaKey) {
-        // Para inputs, solo permitir guardar (Ctrl+S)
         if (isTyping && keyLower !== 's') {
           return;
         }
@@ -87,8 +81,6 @@ const useKeyboardShortcuts = () => {
             break;
 
           case 'f':
-            // Advertencia: Este atajo conflictúa con "Buscar en página"
-            // Solo activarlo si NO estamos en un campo de texto
             if (!isTyping) {
               event.preventDefault();
               event.stopPropagation();
@@ -100,13 +92,11 @@ const useKeyboardShortcuts = () => {
           case 'g':
             event.preventDefault();
             event.stopPropagation();
-            // Disparar evento personalizado para guardar factura
             window.dispatchEvent(new CustomEvent('saveInvoice'));
             handled = true;
             break;
 
           case 'c':
-            // Solo cancelar si NO hay texto seleccionado
             const hasSelection = window.getSelection().toString().length > 0;
             if (!hasSelection && !isTyping) {
               event.preventDefault();
@@ -199,13 +189,11 @@ const useKeyboardShortcuts = () => {
           case 'k':
             event.preventDefault();
             event.stopPropagation();
-            // Navegar a contacto o mostrar modal de contacto
             window.dispatchEvent(new CustomEvent('openContact'));
             handled = true;
             break;
 
           case 'z':
-            // Solo deshacer si estamos en contexto de la app, no en inputs
             if (!isTyping) {
               event.preventDefault();
               event.stopPropagation();
@@ -215,7 +203,6 @@ const useKeyboardShortcuts = () => {
             break;
 
           case 'y':
-            // Solo rehacer si estamos en contexto de la app
             if (!isTyping) {
               event.preventDefault();
               event.stopPropagation();
@@ -225,7 +212,6 @@ const useKeyboardShortcuts = () => {
             break;
 
           case 's':
-            // Ctrl+S es guardar - este lo queremos siempre
             event.preventDefault();
             event.stopPropagation();
             window.dispatchEvent(new CustomEvent('saveForm'));
@@ -236,14 +222,12 @@ const useKeyboardShortcuts = () => {
             break;
         }
 
-        // Opcional: Log para debugging
         if (handled && process.env.NODE_ENV === 'development') {
           console.log(`Atajo ejecutado: Ctrl+${key.toUpperCase()}`);
         }
       }
     };
 
-    // Agregar el event listener con capture para mayor control
     window.addEventListener('keydown', handleKeyDown, true);
 
     // Cleanup

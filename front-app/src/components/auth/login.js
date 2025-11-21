@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styles from './style_loguin.module.css';
 
 function Login() {
+  //Declaración de Estados de Formulario y UI
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -18,7 +19,7 @@ function Login() {
   const emailInputRef = useRef(null);
   const announceRef = useRef(null); // ✅ Para anuncios en vivo
 
-  // Carga inicial con transición suave
+  //Lógica de Carga Inicial (Simulación de Pre-Carga)
   useEffect(() => {
     const initialTimer = setTimeout(() => {
       setFadeOut(true);
@@ -40,7 +41,6 @@ function Login() {
     return () => clearTimeout(initialTimer);
   }, []);
 
-  // Configuración del video
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.playbackRate = 1.5;
@@ -64,6 +64,7 @@ function Login() {
     localStorage.setItem("timeLeft", timeLeft);
   }, [attempts, isLocked, timeLeft]);
 
+  //Temporizador de cuenta regresiva para el bloqueo
   useEffect(() => {
     let timer;
     if (isLocked && timeLeft > 0) {
@@ -85,6 +86,7 @@ function Login() {
     return () => clearInterval(timer);
   }, [isLocked, timeLeft]);
 
+  //Función de utilidad para formatear el tiempo restante
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
@@ -116,13 +118,14 @@ function Login() {
 
         setTimeout(() => {
           window.location.href = "/inicio";
-        }, 2000);
+        }, 500);
         
       } else {
         setError(data.message || "Correo o contraseña incorrectos");
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
 
+        // Lógica de bloqueo: si se alcanzan 3 intentos, se bloquea por 5 minutos (300 segundos).
         if (newAttempts >= 3) {
           setIsLocked(true);
           setTimeLeft(60 * 5);
@@ -139,6 +142,8 @@ function Login() {
           }
         }, 500);
       }
+
+      // Manejo de errores de conexión de red.
     } catch (err) {
       setError("Error de conexión con el servidor");
       

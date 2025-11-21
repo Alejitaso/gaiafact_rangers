@@ -1,21 +1,20 @@
-// controllers/authcontroller.js
 const Usuario = require("../models/usuario");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// Usa variable de entorno para seguridad
 const JWT_SECRET = process.env.JWT_SECRET;
 
+//VERIFICAR CORREO ELECTRÓNICO DESDE LINK (TOKEN POR QUERY PARAMS)
 exports.verifyEmail = async (req, res) => {
     const { token } = req.query;
 
     try {
-        // 1. Verifica el token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decoded.userId;
 
+        // Busca el usuario por ID decodificado
         const usuario = await Usuario.findById(userId);
 
         if (!usuario) {
@@ -36,10 +35,11 @@ exports.verifyEmail = async (req, res) => {
     }
 };
 
-// 🟢 Login
+// LOGIN — Autentica usuario y genera token JWT
 exports.login = async (req, res) => {
   const { correo_electronico, password } = req.body;
 
+  // Buscar usuario por correo
   try {
     const user = await Usuario.findOne({ correo_electronico });
     if (!user) {
@@ -49,6 +49,7 @@ exports.login = async (req, res) => {
       });
     }
 
+    // Compara contraseña con método del modelo
     const isMatch = await user.compararPassword(password);
     if (!isMatch) {
       return res.status(401).json({
@@ -57,7 +58,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Crear JWT que incluya tipo_usuario (rol)
+    // Payload del JWT
     const payload = {
       id: user._id,
       correo_electronico: user.correo_electronico,
@@ -66,6 +67,7 @@ exports.login = async (req, res) => {
 
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
 
+    // Responder login exitoso
     return res.json({
       success: true,
       message: "✅ Login exitoso",
@@ -83,11 +85,12 @@ exports.login = async (req, res) => {
   }
 };
 
-// 🟢 Recuperar contraseña
+// RECUPERAR CONTRASEÑA — Genera token y envía correo de recuperación
 exports.recoverPassword = async (req, res) => {
   const { correo_electronico } = req.body;
   console.log("📩 Correo recibido:", correo_electronico);
 
+  // Busca el usuario por correo
   try {
     const user = await Usuario.findOne({ correo_electronico });
     console.log("👤 Usuario encontrado:", user);
@@ -101,10 +104,12 @@ exports.recoverPassword = async (req, res) => {
 
     const token = crypto.randomBytes(20).toString("hex");
 
+    // Guarda token y tiempo de expiración (1 hora)
     user.resetToken = token;
     user.tokenExpiration = Date.now() + 3600000;
     await user.save();
 
+    // Configuración de envío de correo
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -113,8 +118,9 @@ exports.recoverPassword = async (req, res) => {
       },
     });
 
-    const resetLink = `http://localhost:3000/nueva_contra/${token}`;
+    const resetLink = `${process.env.FRONTEND_URL}/nueva_contra/${token}`;
 
+    // Plantilla HTML del correo
     const mailOptions = {
       from: "gaiafactrangers@gmail.com",
       to: correo_electronico,
@@ -198,11 +204,12 @@ exports.recoverPassword = async (req, res) => {
   }
 };
 
-// 🟢 Reset contraseña
+// RESTABLECER CONTRASEÑA — Valida token y asigna nueva contraseña
 exports.resetPassword = async (req, res) => {
   const { token } = req.params;
   const { nuevaPassword } = req.body;
 
+  // Buscar usuario con token válido y no expirado
   try {
     const user = await Usuario.findOne({
       resetToken: token,
@@ -216,13 +223,12 @@ exports.resetPassword = async (req, res) => {
       });
     }
 
-    // 🟢 Solo asigna la contraseña, el hook pre-save la hasheará
     user.password = nuevaPassword;
 
     user.resetToken = null;
     user.tokenExpiration = null;
 
-    await user.save(); // Aquí el hook pre-save hasheará automáticamente
+    await user.save(); 
 
     return res.json({
       success: true,
@@ -233,15 +239,17 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };
-// 🛡 Middleware para proteger rutas con JWT
+// MIDDLEWARE — Verificar token JWT para proteger rutas
 exports.verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1]; 
 
+   // Si no envía token, no permite acceso
   if (!token) {
     return res.status(403).json({ success: false, message: "Token requerido" });
   }
 
+  // Validar token
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
       return res.status(403).json({ success: false, message: "Token inválido o expirado" });
