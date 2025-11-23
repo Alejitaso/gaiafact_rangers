@@ -117,11 +117,6 @@ module.exports = function(){
         facturaController.mostrarFacturas
     );
 
-    router.put('/facturas/:idFactura',
-        verificarAuth,
-        facturaController.actualizarFactura
-    );
-
     router.delete('/facturas/:idFactura',
         verificarAuth,
         facturaController.eliminarFactura
