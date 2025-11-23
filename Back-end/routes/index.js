@@ -117,12 +117,6 @@ module.exports = function(){
         facturaController.mostrarFacturas
     );
 
-    router.delete('/facturas/:idFactura',
-        verificarAuth,
-        facturaController.eliminarFactura
-    );
-
-
     /* ====================== NOTIFICACIONES ====================== */
 
     router.post('/notificaciones/crear',
