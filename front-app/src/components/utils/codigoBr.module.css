@@ -531,3 +531,124 @@
     font-size: 13px !important;
     text-align: center !important;
 }   
+
+/* ========================================
+   RESPONSIVE EXCLUSIVO PARA CELULARES
+   ======================================== */
+@media (max-width: 480px) {
+  /* Contenedor principal */
+  .content {
+    margin-top: 2%;
+    padding: 0 10px;
+  }
+
+  .qr {
+    
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Formulario */
+  .form {
+    padding: 20px 15px;
+    width: 100%;
+    border-radius: 12px;
+    gap: 15px;
+    
+  }
+
+  /* Inputs */
+  .form input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px; /* Evita zoom en iOS */
+    box-sizing: border-box;
+  }
+
+  /* Botones */
+  .botones {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 30px;
+  }
+
+  .botones button {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+  }
+
+  /* Tarjetas de productos */
+  .grupoProducto {
+    min-width: 100%;
+    max-width: 100%;
+    padding: 10px;
+    
+  }
+
+  .codigoPreview {
+    min-width: auto;
+    
+  }
+
+  .codigoPreview img {
+    max-width: 90%;
+    
+  }
+
+  /* Lista de códigos individuales */
+  .listaItems {
+    justify-content: center;
+  }
+
+  .itemTag {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  /* Contador de productos */
+  .infoContador {
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+  }
+
+  /* Botón buscar */
+  .btnBuscar {
+    font-size: 16px;
+    padding: 14px;
+  }
+
+  /* Vista previa vacía */
+  .mensajeVacio {
+    font-size: 14px;
+    padding: 20px;
+  }
+
+  /* Popups de SweetAlert2 */
+  :global(.swal2-popup) {
+    padding: 20px !important;
+    width: 90% !important;
+  }
+
+  :global(.swal2-title) {
+    font-size: 20px !important;
+  }
+
+  :global(.swal2-html-container) {
+    font-size: 14px !important;
+  }
+
+  :global(.swal2-actions) {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  :global(.swal2-confirm),
+  :global(.swal2-cancel) {
+    width: 100%;
+    padding: 12px !important;
+    font-size: 16px !important;
+  }
+}

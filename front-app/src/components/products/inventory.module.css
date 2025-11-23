@@ -295,3 +295,106 @@
     }
 
 }
+
+/* =========================================================
+   RESPONSIVE EXCLUSIVO PARA CELULARES (max-width: 480px)
+   ========================================================= */
+@media (max-width: 480px) {
+  .content {
+    margin-top: 2%;
+    padding: 0 5px;
+  }
+
+  .table_box {
+    padding: 15px 10px;
+    width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .search_bar {
+    position: static;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
+  .search_bar input {
+    width: 100%;
+    font-size: 16px; /* evita zoom en iOS */
+    padding: 10px;
+  }
+
+  .inventory_table {
+    font-size: 12px;
+  }
+
+  .inventory_table th,
+  .inventory_table td {
+    padding: 6px 4px;
+  }
+
+  /* Ocultar columna descripción en móvil */
+  .inventory_table th:nth-child(6),
+  .inventory_table td:nth-child(6) {
+    display: none;
+  }
+
+  .botones {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .boton button {
+    width: 100%;
+    font-size: 15px;
+    padding: 12px;
+  }
+
+  .estadisticas {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .stat_card {
+    min-width: auto;
+  }
+}
+
+/* =========================================================
+   SCROLL HORIZONTAL EN MÓVILES – SIN DEFORMAR DISEÑO
+   ========================================================= */
+/* =========================================================
+   SCROLL HORIZONTAL EN MÓVILES – INVENTARIO
+   ========================================================= */
+@media (max-width: 768px) {
+  .tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* suaviza en iOS */
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .inventory_table {
+    min-width: 600px; /* obliga scroll horizontal */
+    margin: 0;
+    border-radius: 0;
+  }
+}/* =========================================================
+   SCROLL HORIZONTAL EN MÓVILES – INVENTARIO
+   ========================================================= */
+@media (max-width: 768px) {
+  .tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* suaviza en iOS */
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .inventory_table {
+    min-width: 600px; /* obliga scroll horizontal */
+    margin: 0;
+    border-radius: 0;
+  }
+}

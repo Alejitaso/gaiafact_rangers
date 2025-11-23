@@ -1,7 +1,23 @@
-/* Caja de inicio de sesión */
+/* ========================================
+   ACCESIBILIDAD - Clase para lectores de pantalla
+   ======================================== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ========================================
+   CAJA DE LOGIN
+   ======================================== */
 .loginbox {
     background-color: #254454; 
-    
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);  
     padding: 40px; 
@@ -11,124 +27,158 @@
     width: 100%; 
     text-align: center; 
     color: var(--color-dos); 
-    margin: 0 auto;
+    margin: 70px auto 0;
     display: block;
-    margin-top: 70px;
 }
 
-/* Título del formulario de login */
-.loginbox h2 {
+.loginbox h2,
+.loginbox h1 {
     margin-bottom: 30px; 
     color: var(--color-dos); 
 }
 
-/* Enlaces dentro del login-box */
 .loginbox a {
     color: var(--color-cinco);
     text-decoration: none; 
     font-weight: bold; 
 }
 
-/*hipervinculo recuperacion de contraseña*/
+/* ========================================
+   ENLACES
+   ======================================== */
 .link {
-    transition: text-decorration 0.3s ease;
+    transition: text-decoration 0.3s ease;
     cursor: pointer;
 }
 
-/*hoverhipervinculo recuperacion de contraseña*/
 .link:hover {
     text-decoration: underline;
     color: var(--color-cinco);
 }
 
-/* Formulario de login */
+/* ✅ ACCESIBILIDAD: Outline visible para navegación por teclado */
+.link:focus {
+    outline: 2px solid var(--color-cinco);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* ========================================
+   FORMULARIO
+   ======================================== */
 .loginform {
     display: grid; 
-    gap: 15px; 
+    gap: 20px; 
     text-align: left;
 }
 
-/* Etiquetas de los campos de formulario */
 .loginform label {
     font-weight: bold; 
     color: var(--color-dos); 
     font-size: 14px; 
-    margin-bottom: 20px;
+    margin-bottom: 5px;
+    display: block;
 }
 
+/* ========================================
+   INPUTS BASE
+   ======================================== */
+.loginform input[type="email"],
+.loginform input[type="password"],
+.loginform input[type="text"] {
+    padding: 14px 15px;
+    border: 1px solid var(--color-cinco);
+    border-radius: 6px;
+    background-color: var(--color-dos);
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--color-uno);
+    transition: all 0.3s ease;
+    width: 100%;
+    font-size: 16px;
+    box-sizing: border-box;
+}
 
-/* Placeholders */
 .loginform input::placeholder {
     color: var(--color-ocho); 
 }
 
-/* Campo enfocado brillo simulado*/
+/* ✅ ACCESIBILIDAD: Focus visible y mejorado */
 .loginform input[type="email"]:focus,
 .loginform input[type="password"]:focus,
-.contrasegnaContainer input[type="text"]:focus {
+.loginform input[type="text"]:focus {
     border-color: var(--color-tres); 
     box-shadow: 0 0 12px var(--color-cinco); 
     background-color: var(--color-dos); 
-    outline: none;
+    outline: 3px solid var(--color-cinco);
+    outline-offset: 2px;
 }
 
-/* estilo de inputs*/
-
-.loginform input[type="password"], .loginform input[type="text"] {
-    padding: 14px 15px;
-    border: 1px solid var(--color-cinco);
-    border-radius: 6px;
-    background-color: var(--color-dos);
-    margin: 12px 0;
-    font-family: Arial, Helvetica, sans-serif;
-    color: var(--color-uno);
-    transition: all 0.3s ease;
-    width: 280px;
-    margin-left: 70px;
-    font-size: 16px;
+/* ✅ ACCESIBILIDAD: Estado de error */
+.loginform input[aria-invalid="true"] {
+    border-color: var(--color-seis);
+    border-width: 2px;
 }
 
-.contrasegnaContainer{
-    margin-top: -65px;
-    .IconoContrasegna{
-        margin-top: 5.4%;
-    }
+/* ========================================
+   CONTENEDOR DE CONTRASEÑA CON BOTÓN
+   ======================================== */
+.contrasegnaContainer {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
 }
 
-.IconoContrasegna{
+/* Input dentro del contenedor de contraseña */
+.contrasegnaContainer input {
+    padding-right: 50px; /* ✅ Espacio para el botón */
+    padding-left: 15px;
+}
+
+/* ========================================
+   BOTÓN MOSTRAR/OCULTAR CONTRASEÑA
+   ======================================== */
+.IconoContrasegna {
+    position: absolute;
+    right: 10px;
+    top: 40%;
+    transform: translateY(-40%);
+    background: transparent;
+    border: none;
     cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: var(--color-cinco);
     font-size: 20px;
-    position: absolute;
-    margin-left: 69%;
-    transition: color 0.3s ease;
+    transition: color 0.3s ease, opacity 0.3s ease;
+    z-index: 2;
+    line-height: 1;
 }
 
-.loginform input[type="email"]{
-    padding: 14px 15px;
-    border: 1px solid var(--color-cinco);
-    border-radius: 6px;
-    background-color: var(--color-dos);
-    margin: 12px 0;
-    font-family: Arial, Helvetica, sans-serif;
-    color: var(--color-uno);
-    transition: all 0.3s ease;
-    width: 280px;
-    margin-left: 70px;
-    margin-top: -56px;
-    font-size: 16px;
+.IconoContrasegna:hover {
+    opacity: 0.7;
+    color: var(--color-tres);
 }
 
-/* Enlace para recuperación de contraseña */
-.forgotpassword {
-    font-size: 13px; 
-    text-align: left; 
-    margin-top: -8px; 
-    margin-bottom: 8px;
+/* ✅ ACCESIBILIDAD: Focus visible en el botón */
+.IconoContrasegna:focus {
+    outline-offset: 2px;
+    border-radius: 4px;
+    opacity: 1; 
 }
 
-/* Botón de login */
-.loginform button {
+/* ✅ ACCESIBILIDAD: Estado deshabilitado */
+.IconoContrasegna:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* ========================================
+   BOTÓN DE SUBMIT
+   ======================================== */
+.loginform button[type="submit"] {
     background-color: var(--color-dos); 
     border: 2px solid var(--color-tres); 
     color: var(--color-tres); 
@@ -137,44 +187,63 @@
     font-weight: bold;
     border-radius: 8px; 
     cursor: pointer; 
-    margin-top: 10%;
-    width: 50%; 
+    margin-top: 20px;
+    width: 100%; 
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease; 
-    margin-left: 25%; 
 }
 
-/* Efecto hover en el botón */
-.loginform button:hover {
+.loginform button[type="submit"]:hover:not(:disabled) {
     background-color: var(--color-ocho); 
     color: var(--color-dos); 
+    transform: translateY(-2px);
 }
 
-/* Mensaje de error visible al fallar el login */
+/* ✅ ACCESIBILIDAD: Focus en botón */
+.loginform button[type="submit"]:focus {
+    outline: 3px solid var(--color-cinco);
+    outline-offset: 2px;
+}
+
+/* ✅ ACCESIBILIDAD: Estado deshabilitado */
+.loginform button[type="submit"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: var(--color-ocho);
+}
+
+/* ========================================
+   MENSAJES DE ERROR Y ALERTAS
+   ======================================== */
 #error-message {
-    margin-top: 20px; 
-    font-size: 19px; 
-    color: var(--color-seis); 
+    margin-top: 15px; 
+    font-size: 16px; 
+    color: var(--color-seis);
+    padding: 10px;
+    border-radius: 6px;
+    background-color: rgba(255, 0, 0, 0.1);
 }
 
-/* Contador de bloqueo */
 #countdown {
     font-weight: bold; 
     color: var(--color-seis); 
 }
 
-/* Espaciado para ícono de usuario */
+/* ========================================
+   ÍCONOS DECORATIVOS
+   ======================================== */
 .logog {
-    padding-top:10px;
+    padding-top: 10px;
     padding-bottom: 25px;
 }
 
-/* Espaciado de íconos pequeños */
 .logitos {
     margin-left: 10px;
     margin-top: 10px;     
 }
 
-/* Línea decorativa del footer */
+/* ========================================
+   FOOTER
+   ======================================== */
 .linea {
     background-image: linear-gradient(to right, var(--color-tres), var(--color-cinco));
     height: 3px;
@@ -184,7 +253,6 @@
     opacity: 0.8;
 }
 
-/* Sección de derechos de autor */
 .copyright {
     text-align: center;
     height: 60px;
@@ -194,7 +262,6 @@
     padding: 10px 0;
 }
 
-/* Estilo de texto del copyright */
 .copyright h2 {
     color: var(--color-uno);
     margin: 0;
@@ -203,12 +270,13 @@
     text-shadow: 0.5px 0.5px 1px rgba(255,255,255,0.2);
 }
 
-/* Altura inicial del footer */
 .footer {
     height: 0;
 }
 
-/* Información de contacto del sidebar */
+/* ========================================
+   INFORMACIÓN DE CONTACTO
+   ======================================== */
 .contact-info {
     padding: 15px 25px; 
     color: var(--color-dos); 
@@ -219,64 +287,150 @@
     transition: opacity 0.4s ease-in-out, max-height 0.4s ease-in-out; 
 }
 
-/* Cuando el contacto está expandido */
 .contact-info.expanded {
     opacity: 1; 
     max-height: 200px; 
 }
 
-/* Espaciado entre líneas de texto de contacto */
 .contact-info p {
     margin: 5px 0;
 }
 
-/* Enlaces dentro de contacto */
 .contact-info a {
     color: var(--color-cuatro); 
     text-decoration: none;
 }
 
-/* Hover en enlaces de contacto */
 .contact-info a:hover {
     text-decoration: underline;
 }
 
+/* ✅ ACCESIBILIDAD: Focus en enlaces de contacto */
+.contact-info a:focus {
+    outline: 2px solid var(--color-cuatro);
+    outline-offset: 2px;
+}
+
+/* ========================================
+   RESPONSIVE - MÓVILES
+   ======================================== */
 @media (max-width: 767px) {
-    .loginform input[type="email"],
-    .loginform input[type="password"] {
-        width: 90%;
-        margin-left: 0;
-        margin-top: 0;
+    .loginbox {
+        padding: 20px;
+        margin-top: 20px;
     }
 
     .loginform {
-        gap: 10px;
+        gap: 15px;
     }
 
-    .loginform button {
+    .loginform input[type="email"],
+    .loginform input[type="password"],
+    .loginform input[type="text"] {
         width: 100%;
-        margin-left: 0;
+        font-size: 16px; /* ✅ Evita zoom automático en iOS */
+    }
+
+    .loginform button[type="submit"] {
+        width: 100%;
         margin-top: 15px;
+        padding: 14px 20px;
     }
 
-    .logitos {
-        margin-left: 0;
-        margin-top: 5px;
+    .IconoContrasegna {
+        padding: 10px;
+        font-size: 18px;
     }
 
-    .loginbox {
-        padding: 20px;
-    }
-
-    .content {
-        padding: 0;
-        width: 100%;
-        margin-top: 10%;
+    .logog {
+        padding-bottom: 15px;
     }
 }
 
+/* ========================================
+   ALTO CONTRASTE - Para usuarios con baja visión
+   ======================================== */
+@media (prefers-contrast: high) {
+    .loginform input {
+        border-width: 2px;
+    }
+    
+    .loginform button[type="submit"] {
+        border-width: 3px;
+    }
+}
 
+/* ========================================
+   MODO REDUCIR MOVIMIENTO
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
 
+/* =========================================================
+   FIX: LOGIN NO SE SALE DE LA PANTALLA EN MÓVILES
+   ========================================================= */
+@media (max-width: 768px) {
+  .loginbox {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 20px 15px;
+    border-radius: 0;
+    box-sizing: border-box;
+  }
 
+  .loginform input[type="email"],
+  .loginform input[type="password"],
+  .loginform input[type="text"] {
+    width: 100%;
+    font-size: 16px; /* evita zoom en iOS */
+    box-sizing: border-box;
+  }
 
+  .loginform button[type="submit"] {
+    width: 100%;
+    font-size: 16px;
+    padding: 14px 20px;
+    box-sizing: border-box;
+  }
 
+  .IconoContrasegna {
+    padding: 10px;
+    font-size: 18px;
+  }
+
+  .logog {
+    padding-bottom: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .loginbox {
+    padding: 25px 20px;
+    margin-top: 10%;
+    border-radius: 12px;
+  }
+
+  .loginbox h1 {
+    font-size: 1.5rem;
+    word-break: break-word;
+  }
+
+  .loginform label {
+    font-size: 14px;
+  }
+
+  .loginform input::placeholder {
+    font-size: 14px;
+  }
+
+  .loginform button[type="submit"] {
+    font-size: 14px;
+    padding: 12px;
+  }
+}
