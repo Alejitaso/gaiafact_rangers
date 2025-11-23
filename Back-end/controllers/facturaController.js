@@ -10,11 +10,11 @@ console.log('📦 Variables de entorno disponibles:', Object.keys(process.env));
 // -----------------------------------------------------------
 // 1)  CONFIG DE SENDGRID – FUENTE ÚNICA: SENDGRID_API_KEY
 // -----------------------------------------------------------
-const apiKey = process.env.SENDGRID_API_KEY;
+const apiKey = process.env.EMAIL_PASS;   // usamos la que YA existe
 if (!apiKey) {
-  console.error('❌ FATAL: SENDGRID_API_KEY no está definida. El servidor NO puede enviar correos.');
-  process.exit(1);               // No arrancamos sin la key
-}
+  console.error('❌ FATAL: EMAIL_PASS no está definida. El servidor NO puede enviar correos.');
+  process.exit(1);
+  }
 sgMail.setApiKey(apiKey);
 console.log('✅ SendGrid configurado con API key (longitud):', apiKey.length);
 
