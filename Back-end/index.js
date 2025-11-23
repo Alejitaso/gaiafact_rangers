@@ -30,15 +30,31 @@ const app = express();
 // =========================
 // 🚨 CORS CORREGIDO
 // =========================
+// index.js - Línea donde está app.use(cors(...))
+
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL,                    
-    "http://localhost:3000",                     
-    /\.railway\.app$/                            
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
+  origin: function (origin, callback) {
+    // Permitir peticiones sin origin (como Postman o apps móviles)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      process.env.FRONTEND_URL,
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:4200'
+    ];
+    
+    // Verificar si el origin está en la lista O si termina en .railway.app
+    if (allowedOrigins.includes(origin) || origin.endsWith('.railway.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 200
 }));
 
 // Middlewares
