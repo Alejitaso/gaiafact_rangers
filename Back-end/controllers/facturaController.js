@@ -5,6 +5,8 @@ const PDFDocument = require('pdfkit');
 const QRCode      = require('qrcode');
 const sgMail      = require('@sendgrid/mail');   // API HTTP oficial
 
+console.log('📦 Variables de entorno disponibles:', Object.keys(process.env));
+
 // -----------------------------------------------------------
 // 1)  CONFIG DE SENDGRID – FUENTE ÚNICA: SENDGRID_API_KEY
 // -----------------------------------------------------------
