@@ -176,18 +176,20 @@ exports.enviarFacturaPorCorreo = async (req, res, next) => {
       html,
       attachments: [
         {
-          content: factura.pdf_factura.toString('base64'),
-          filename: `factura-${factura.numero_factura}.pdf`,
-          type: 'application/pdf',
-          disposition: 'attachment'
+            content: factura.pdf_factura.toString('base64'),
+            filename: `factura-${factura.numero_factura}.pdf`,
+            type: 'application/pdf',
+            disposition: 'attachment',
+            encoding: 'base64' // ← línea nueva
         },
         {
-          content: factura.xml_factura.toString('base64'),
-          filename: `factura-${factura.numero_factura}.xml`,
-          type: 'application/xml',
-          disposition: 'attachment'
+            content: factura.xml_factura.toString('base64'),
+            filename: `factura-${factura.numero_factura}.xml`,
+            type: 'application/xml',
+            disposition: 'attachment',
+            encoding: 'base64' // ← línea nueva
         }
-      ]
+        ]
     };
 
     console.log('📬 Payload a SendGrid:', JSON.stringify({ from: msg.from, to: msg.to, subject: msg.subject, attachmentsCount: msg.attachments?.length }, null, 2));
