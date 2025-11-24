@@ -148,29 +148,283 @@ exports.enviarFacturaPorCorreo = async (req, res, next) => {
     const totalFormateado = factura.total.toLocaleString('es-CO');
 
     const html = `
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <style>body{font-family:Segoe UI;background:#f4f4f4;margin:0}.container{max-width:600px;margin:20px auto;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,.1)}.header{background:linear-gradient(135deg,#254454 0%,#276177 100%);color:#fff;padding:30px;text-align:center}.content{padding:30px}.footer{background:#254454;color:#f0f4f8;padding:20px;text-align:center;font-size:13px}</style>
-</head>
-<body>
-  <div class="container">
-    <div class="header"><h1>Athena'S</h1><p>GaiaFact - Sistema de Facturación</p></div>
-    <div class="content">
-      <p>Hola <strong>${nombreCliente}</strong>,</p>
-      <p>Adjuntamos tu factura electrónica en formato PDF y XML.</p>
-      <p><strong>Número:</strong> ${factura.numero_factura}<br>
-         <strong>Fecha:</strong> ${fechaFormateada}<br>
-         <strong>Total:</strong> $${totalFormateado} COP</p>
-    </div>
-    <div class="footer">
-      <p><strong>Athena'S - GaiaFact</strong></p>
-      <p>📍 Calle 11 #22-04 | 📞 3023650911 | 🆔 NIT: 876.543.219-5</p>
-    </div>
-  </div>
-</body>
-</html>`;
+    <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Factura Athena'S</title>
+                <style>
+                    body {
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        background-color: #f4f4f4;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        background-color: #ffffff;
+                        border-radius: 10px;
+                        overflow: hidden;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                    }
+                    .header {
+                        background: linear-gradient(135deg, #254454 0%, #276177 100%);
+                        color: #ffffff;
+                        padding: 30px;
+                        text-align: center;
+                    }
+
+                    .header .logo {
+                        width: 90px; /* Reducimos el tamaño para que quepa bien al lado del texto */
+                        height: auto; 
+                        margin-right: 10px; 
+                        /* ¡Clave! Permite que el elemento se coloque junto a otros */
+                        display: inline-block; 
+                        /* Alinea la imagen con el centro vertical del texto */
+                        vertical-align: middle;
+                    }
+
+                    .header h1 {
+                        display: inline-block;
+                        margin: 0;
+                        font-size: 32px;
+                        font-weight: bold;
+                        vertical-align: middle;
+                    }
+                    .header p {
+                        margin: 5px 0 0 0;
+                        font-size: 14px;
+                        opacity: 0.9;
+                    }
+                    .content {
+                        padding: 30px;
+                    }
+                    .greeting {
+                        font-size: 18px;
+                        color: #254454;
+                        margin-bottom: 20px;
+                    }
+                    .info-box {
+                        background-color: #F0F4F8;
+                        border-left: 4px solid #276177;
+                        padding: 20px;
+                        margin: 20px 0;
+                        border-radius: 5px;
+                    }
+                    .info-row {
+                        display: flex;
+                        justify-content: space-between;
+                        padding: 8px 0;
+                        border-bottom: 1px solid #D1DCE6;
+                    }
+                    .info-row:last-child {
+                        border-bottom: none;
+                    }
+                    .info-label {
+                        font-weight: 600;
+                        color: #276177;
+                    }
+                    .info-value {
+                        color: #254454;
+                        text-align: right;
+                    }
+                    .total-row {
+                        background-color: #276177;
+                        color: white;
+                        padding: 15px 20px;
+                        margin: 20px -20px -20px -20px;
+                        border-radius: 0 0 5px 5px;
+                        display: flex;
+                        justify-content: space-between;
+                        font-size: 18px;
+                        font-weight: bold;
+                    }
+                    .products-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 20px 0;
+                    }
+                    .products-table th {
+                        background-color: #276177;
+                        color: white;
+                        padding: 12px;
+                        text-align: left;
+                    }
+                    .products-table td {
+                        padding: 12px;
+                        border-bottom: 1px solid #D1DCE6;
+                    }
+                    .products-table tr:last-child td {
+                        border-bottom: none;
+                    }
+                    .message {
+                        color: #666;
+                        font-size: 14px;
+                        line-height: 1.6;
+                        margin: 20px 0;
+                    }
+                    .footer {
+                        background-color: #254454;
+                        color: #F0F4F8;
+                        padding: 20px;
+                        text-align: center;
+                        font-size: 13px;
+                    }
+                    .footer p {
+                        margin: 5px 0;
+                    }
+                    .footer a {
+                        color: #8E9BE8;
+                        text-decoration: none;
+                    }
+                    
+                    .footer .logo-gaia {
+                    width: 35px; /* Tamaño pequeño, adecuado para el footer */
+                    height: auto;
+                    vertical-align: middle; /* Alinea verticalmente con el texto si está en línea */
+                    margin-right: 5px; /* Espacio a la derecha si está antes del texto */
+                    display: inline-block; /* Permite que la imagen y el texto estén en la misma línea */
+                    }
+
+                    .attachment-info {
+                        background-color: #fff3cd;
+                        border: 1px solid #ffc107;
+                        padding: 15px;
+                        border-radius: 5px;
+                        margin: 20px 0;
+                        text-align: center;
+                    }
+                    .attachment-info strong {
+                        color: #856404;
+                    }
+                    @media only screen and (max-width: 600px) {
+                        .container {
+                            margin: 10px;
+                        }
+                        .content {
+                            padding: 20px;
+                        }
+                        .products-table {
+                            font-size: 12px;
+                        }
+                        .products-table th,
+                        .products-table td {
+                            padding: 8px;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <img 
+                            src="https://drive.google.com/uc?export=view&id=1W9hegx7_xrNjxl4bN6939vas_DFwV2s4" 
+                            alt="Logo de athenas" 
+                            class="logo"
+                        >
+                        <h1>Athena'S</h1>
+                        <p>GaiaFact - Sistema de Facturación Electrónica</p>
+                    </div>
+                    
+                    <div class="content">
+                        <p class="greeting">
+                            Hola <strong>${nombreCliente}</strong>,
+                        </p>
+                        
+                        <p class="message">
+                            Gracias por tu compra. Adjuntamos tu factura electrónica en formato PDF y XML.
+                        </p>
+
+                        <div class="info-box">
+                            <div class="info-row">
+                                <span class="info-label">📄 Número de Factura:</span>
+                                <span class="info-value"><strong>${factura.numero_factura}</strong></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">📅 Fecha de emisión:</span>
+                                <span class="info-value">${fechaFormateada}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">📦 Productos:</span>
+                                <span class="info-value">${factura.productos_factura.length} item(s)</span>
+                            </div>
+                            ${factura.codigo_CUFE ? `
+                            <div class="info-row">
+                                <span class="info-label">🔐 CUFE:</span>
+                                <span class="info-value" style="font-size: 11px; word-break: break-all;">${factura.codigo_CUFE}</span>
+                            </div>
+                            ` : ''}
+                            <div class="total-row">
+                                <span>💰 TOTAL:</span>
+                                <span>$${totalFormateado} COP</span>
+                            </div>
+                        </div>
+
+                        <h3 style="color: #254454; border-bottom: 2px solid #276177; padding-bottom: 10px; margin-top: 30px;">
+                            📋 Detalle de productos
+                        </h3>
+                        
+                        <table class="products-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th style="text-align: center;">Cant.</th>
+                                    <th style="text-align: right;">Precio Unit.</th>
+                                    <th style="text-align: right;">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${factura.productos_factura.map(prod => `
+                                    <tr>
+                                        <td>${prod.producto}</td>
+                                        <td style="text-align: center;">${prod.cantidad}</td>
+                                        <td style="text-align: right;">$${prod.precio.toLocaleString('es-CO')}</td>
+                                        <td style="text-align: right;">$${(prod.precio * prod.cantidad).toLocaleString('es-CO')}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+
+                        <div class="attachment-info">
+                            <strong>📎 Archivos adjuntos:</strong><br>
+                            • factura-${factura.numero_factura}.pdf<br>
+                            • factura-${factura.numero_factura}.xml
+                        </div>
+
+                        <p class="message">
+                            Esta factura es un documento válido para efectos tributarios. 
+                            Por favor, consérvala para tus registros contables.
+                        </p>
+
+                        <p class="message">
+                            Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos 
+                            respondiendo a este correo o llamando al <strong>3023650911</strong>.
+                        </p>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>
+                        <img 
+                        src="https://drive.google.com/uc?export=view&id=1YTQhGVEM1pTeurD1bF8Zf4qvNd3Ky03-" 
+                        alt="Logo GaiaFact" 
+                        class="logo-gaia"
+                        >
+                        <strong>Athena'S - GaiaFact</strong></p>
+                        <p>📍 Calle 11 #22-04</p>
+                        <p>📞 Tel: 3023650911</p>
+                        <p>🆔 NIT: 876.543.219-5</p>
+                        <p>📧 <a href="mailto:gaiafactrangers@gmail.com">gaiafactrangers@gmail.com</a></p>
+                        <p style="margin-top: 15px; font-size: 11px; opacity: 0.8;">
+                            Este correo fue generado automáticamente por el sistema GaiaFact.<br>
+                            Por favor, no responder directamente a este mensaje.
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
 
     const msg = {
       to: [{ email: emailCliente }],
