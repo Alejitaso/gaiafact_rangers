@@ -140,6 +140,9 @@ exports.enviarFacturaPorCorreo = async (req, res, next) => {
     if (!factura.pdf_factura || !factura.xml_factura)
       return res.status(400).json({ mensaje: 'Falta PDF o XML' });
 
+    console.log('Tamaño XML en bytes:', factura.xml_factura.length);
+    console.log('Tamaño XML en base64:', Buffer.from(factura.xml_factura).toString('base64').length);
+
     const nombreCliente = `${factura.usuario.nombre} ${factura.usuario.apellido}`;
     const fechaFormateada = new Date(factura.fecha_emision).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
     const totalFormateado = factura.total.toLocaleString('es-CO');
@@ -174,25 +177,27 @@ exports.enviarFacturaPorCorreo = async (req, res, next) => {
       from: { email: process.env.EMAIL_FROM || 'gaiafactrangers@gmail.com', name: 'Athena\'S - GaiaFact' },
       subject: `📄 Factura ${factura.numero_factura} - Athena'S`,
       html,
-      attachments: [
+    attachments: [
         {
             content: factura.pdf_factura.toString('base64'),
             filename: `factura-${factura.numero_factura}.pdf`,
             type: 'application/pdf',
-            disposition: 'attachment',
-            encoding: 'base64' // ← línea nueva
+            disposition: 'attachment'
         },
         {
-            content: factura.xml_factura.toString('base64'),
+            content: Buffer.from(factura.xml_factura).toString('base64'),
             filename: `factura-${factura.numero_factura}.xml`,
             type: 'application/xml',
-            disposition: 'attachment',
-            encoding: 'base64' // ← línea nueva
+            disposition: 'attachment'
         }
         ]
     };
 
-    console.log('📬 Payload a SendGrid:', JSON.stringify({ from: msg.from, to: msg.to, subject: msg.subject, attachmentsCount: msg.attachments?.length }, null, 2));
+    console.log('Attachments a enviar:', msg.attachments.map(a => ({
+    filename: a.filename,
+    type: a.type,
+    contentLength: a.content.length
+    })));
 
     await sgMail.send(msg);
     console.log(`✅ Factura ${factura.numero_factura} enviada a ${emailCliente}`);
