@@ -241,6 +241,7 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };
+
 // MIDDLEWARE — Verificar token JWT para proteger rutas
 exports.verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
@@ -260,4 +261,49 @@ exports.verifyToken = (req, res, next) => {
     req.user = user; 
     next();
   });
+};
+
+// ====== ENVÍO DE CORREOS CON SENDGRID (misma lógica que facturaController) ======
+const sgMailAuth = require('@sendgrid/mail');
+
+const apiKeyAuth = process.env.EMAIL_PASS;
+if (!apiKeyAuth) {
+  console.error('❌ FATAL: EMAIL_PASS no está definida. El servidor NO puede enviar correos.');
+  process.exit(1);
+}
+sgMailAuth.setApiKey(apiKeyAuth);
+
+/**
+ * Envío genérico de correos (reutilizable)
+ * Ruta: POST /auth/enviar-correo
+ * Body: { emailCliente, asunto, html }
+ */
+exports.enviarCorreoGenerico = async (req, res) => {
+  const { emailCliente, asunto, html } = req.body;
+
+  if (!emailCliente || !asunto || !html) {
+    return res.status(400).json({ mensaje: 'Faltan emailCliente, asunto o html' });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(emailCliente)) {
+    return res.status(400).json({ mensaje: 'Correo inválido' });
+  }
+
+  try {
+    const msg = {
+      to: [{ email: emailCliente }],
+      from: { email: process.env.EMAIL_FROM || 'gaiafactrangers@gmail.com', name: 'Athena\'S - GaiaFact' },
+      subject: asunto,
+      html
+    };
+
+    await sgMailAuth.send(msg);
+    console.log(`✅ Correo enviado a ${emailCliente}`);
+    res.json({ mensaje: 'Correo enviado exitosamente' });
+  } catch (error) {
+    console.error('❌ Error en enviarCorreoGenerico:', error);
+    console.error('❌ SendGrid error completo:', error.response?.body || error.message);
+    res.status(500).json({ mensaje: 'Error al enviar correo', error: error.message });
+  }
 };
