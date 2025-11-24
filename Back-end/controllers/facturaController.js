@@ -190,6 +190,8 @@ exports.enviarFacturaPorCorreo = async (req, res, next) => {
       ]
     };
 
+    console.log('📬 Payload a SendGrid:', JSON.stringify({ from: msg.from, to: msg.to, subject: msg.subject, attachmentsCount: msg.attachments?.length }, null, 2));
+    
     await sgMail.send(msg);
     console.log(`✅ Factura ${factura.numero_factura} enviada a ${emailCliente}`);
     res.json({ mensaje: 'Factura enviada por correo', destinatario: emailCliente, numeroFactura: factura.numero_factura });
