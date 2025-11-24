@@ -197,6 +197,7 @@ exports.enviarFacturaPorCorreo = async (req, res, next) => {
     res.json({ mensaje: 'Factura enviada por correo', destinatario: emailCliente, numeroFactura: factura.numero_factura });
   } catch (e) {
     console.error('❌ enviarFacturaPorCorreo:', e);
+    console.error('❌ SendGrid error completo:', e.response?.body || e.message);
     let msg = 'Error al enviar correo';
     if (e.code === 403) msg = 'Autenticación fallida – revisá SENDGRID_API_KEY';
     if (e.code === 400) msg = 'Datos inválidos – revisá que el remitente esté verificado';
