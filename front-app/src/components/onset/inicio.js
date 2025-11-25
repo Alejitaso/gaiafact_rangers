@@ -17,7 +17,7 @@ const Inicio = () => {
             const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/imagenes/carousel`);
 
             if (res.data.exito && res.data.imagenes) {
-                const urls = res.data.imagenes.map(img => `http://localhost:4000${img}`);
+                const urls = res.data.imagenes.map(img => `${process.env.REACT_APP_API_URL}${img}`);
                 setImages(urls);
                 console.log('🖼️ Imágenes cargadas:', urls);
             } else {
