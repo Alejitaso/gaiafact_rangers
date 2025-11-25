@@ -3,6 +3,8 @@ const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -11,12 +13,10 @@ exports.verifyEmail = async (req, res) => {
     const { token } = req.query;
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET);
         const userId = decoded.userId;
 
-        // Busca el usuario por ID decodificado
         const usuario = await Usuario.findById(userId);
-
         if (!usuario) {
             return res.status(404).send('Usuario no encontrado.');
         }
@@ -29,7 +29,6 @@ exports.verifyEmail = async (req, res) => {
         await usuario.save();
 
         res.status(200).send('¡Correo verificado con éxito! Puedes cerrar esta ventana.');
-        
     } catch (error) {
         res.status(400).send('El enlace de verificación es inválido o ha expirado.');
     }
@@ -37,64 +36,60 @@ exports.verifyEmail = async (req, res) => {
 
 // LOGIN — Autentica usuario y genera token JWT
 exports.login = async (req, res) => {
-  const { correo_electronico, password } = req.body;
+    const { correo_electronico, password } = req.body;
 
-  // Buscar usuario por correo
-  try {
-    const user = await Usuario.findOne({ correo_electronico });
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "Correo o contraseña incorrectos",
-      });
+    try {
+        const user = await Usuario.findOne({ correo_electronico });
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "Correo o contraseña incorrectos",
+            });
+        }
+
+        const isMatch = await user.compararPassword(password);
+        if (!isMatch) {
+            return res.status(401).json({
+                success: false,
+                message: "Correo o contraseña incorrectos",
+            });
+        }
+
+        const payload = {
+            id: user._id,
+            correo_electronico: user.correo_electronico,
+            tipo_usuario: user.tipo_usuario,
+        };
+
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+
+        return res.json({
+            success: true,
+            message: "✅ Login exitoso",
+            usuario: {
+                id: user._id,
+                nombre: user.nombre,
+                correo_electronico: user.correo_electronico,
+                tipo_usuario: user.tipo_usuario,
+            },
+            token,
+        });
+    } catch (err) {
+        console.error("❌ Error en login:", err);
+        res.status(500).json({ success: false, message: "Error en el servidor" });
     }
-
-    // Compara contraseña con método del modelo
-    const isMatch = await user.compararPassword(password);
-    if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        message: "Correo o contraseña incorrectos",
-      });
-    }
-
-    // Payload del JWT
-    const payload = {
-      id: user._id,
-      correo_electronico: user.correo_electronico,
-      tipo_usuario: user.tipo_usuario, 
-    };
-
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
-
-    // Responder login exitoso
-    return res.json({
-      success: true,
-      message: "✅ Login exitoso",
-      usuario: {
-        id: user._id,
-        nombre: user.nombre,
-        correo_electronico: user.correo_electronico,
-        tipo_usuario: user.tipo_usuario,
-      },
-      token, 
-    });
-  } catch (err) {
-    console.error("❌ Error en login:", err);
-    res.status(500).json({ success: false, message: "Error en el servidor" });
-  }
 };
+
+// RECUPERAR CONTRASEÑA — Genera token y envía correo de recuperación
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // RECUPERAR CONTRASEÑA — Genera token y envía correo de recuperación
 exports.recoverPassword = async (req, res) => {
   const { correo_electronico } = req.body;
-  console.log("📩 Correo recibido:", correo_electronico);
 
-  // Busca el usuario por correo
   try {
     const user = await Usuario.findOne({ correo_electronico });
-    console.log("👤 Usuario encontrado:", user);
-
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -104,28 +99,15 @@ exports.recoverPassword = async (req, res) => {
 
     const token = crypto.randomBytes(20).toString("hex");
 
-    // Guarda token y tiempo de expiración (1 hora)
     user.resetToken = token;
-    user.tokenExpiration = Date.now() + 3600000;
+    user.tokenExpiration = Date.now() + 3600000; // 1 hora
     await user.save();
-
-    // Configuración de envío de correo
-    const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,   
-      port: process.env.EMAIL_PORT || 2525,
-      secure: false,                 
-      auth: {
-        user: process.env.EMAIL_USER, 
-        pass: process.env.EMAIL_PASS  
-      }
-    });
 
     const resetLink = `${process.env.FRONTEND_URL}/nueva_contra/${token}`;
 
-    // Plantilla HTML del correo
-    const mailOptions = {
-      from: "gaiafactrangers@gmail.com",
+    const msg = {
       to: correo_electronico,
+      from: process.env.FROM_EMAIL, // debe estar verificado en SendGrid
       subject: "Recuperación de contraseña",
       html: `
         <!DOCTYPE html>
@@ -136,7 +118,6 @@ exports.recoverPassword = async (req, res) => {
             <title>Reestablecer tu contraseña</title>
         </head>
         <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
-
             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4;">
                 <tr>
                     <td align="center" style="padding: 20px;">
@@ -159,7 +140,7 @@ exports.recoverPassword = async (req, res) => {
                             <tr>
                                 <td style="padding: 20px; color: #555555; font-size: 16px; line-height: 1.6;">
                                     <h2>Hola,</h2>
-                                    <p>Este es tu correo para restablecer tu contraseña, si no solicitaste este mensaje, porfavor ignoralo, de lo contrario da click en el siguiente enlace para rentablecer tu contraseña. (válido 1 hora)</p>
+                                    <p>Este es tu correo para restablecer tu contraseña, si no solicitaste este mensaje, porfavor ignoralo, de lo contrario da click en el siguiente enlace para restablecer tu contraseña. (válido 1 hora)</p>
                                 </td>
                             </tr>
                             <tr>
@@ -188,13 +169,12 @@ exports.recoverPassword = async (req, res) => {
                     </td>
                 </tr>
             </table>
-
         </body>
         </html>
-    `,
+      `,
     };
 
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
 
     return res.json({
       success: true,
@@ -208,102 +188,53 @@ exports.recoverPassword = async (req, res) => {
 
 // RESTABLECER CONTRASEÑA — Valida token y asigna nueva contraseña
 exports.resetPassword = async (req, res) => {
-  const { token } = req.params;
-  const { nuevaPassword } = req.body;
+    const { token } = req.params;
+    const { nuevaPassword } = req.body;
 
-  // Buscar usuario con token válido y no expirado
-  try {
-    const user = await Usuario.findOne({
-      resetToken: token,
-      tokenExpiration: { $gt: Date.now() },
-    });
+    try {
+        const user = await Usuario.findOne({
+            resetToken: token,
+            tokenExpiration: { $gt: Date.now() },
+        });
 
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "Token inválido o expirado",
-      });
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "Token inválido o expirado",
+            });
+        }
+
+        user.password = nuevaPassword;
+        user.resetToken = null;
+        user.tokenExpiration = null;
+
+        await user.save();
+
+        return res.json({
+            success: true,
+            message: "Contraseña actualizada exitosamente",
+        });
+    } catch (err) {
+        console.error("❌ Error en reestablecer contraseña:", err);
+        res.status(500).json({ success: false, message: "Error en el servidor" });
     }
-
-    user.password = nuevaPassword;
-
-    user.resetToken = null;
-    user.tokenExpiration = null;
-
-    await user.save(); 
-
-    return res.json({
-      success: true,
-      message: "Contraseña actualizada exitosamente",
-    });
-  } catch (err) {
-    console.error("❌ Error en reestablecer contraseña:", err);
-    res.status(500).json({ success: false, message: "Error en el servidor" });
-  }
 };
 
 // MIDDLEWARE — Verificar token JWT para proteger rutas
 exports.verifyToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; 
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
 
-   // Si no envía token, no permite acceso
-  if (!token) {
-    return res.status(403).json({ success: false, message: "Token requerido" });
-  }
-
-  // Validar token
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ success: false, message: "Token inválido o expirado" });
+    if (!token) {
+        return res.status(403).json({ success: false, message: "Token requerido" });
     }
 
-    req.user = user; 
-    next();
-  });
-};
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) {
+            return res.status(403).json({ success: false, message: "Token inválido o expirado" });
+        }
 
-// ====== ENVÍO DE CORREOS CON SENDGRID (misma lógica que facturaController) ======
-const sgMailAuth = require('@sendgrid/mail');
-
-const apiKeyAuth = process.env.EMAIL_PASS;
-if (!apiKeyAuth) {
-  console.error('❌ FATAL: EMAIL_PASS no está definida. El servidor NO puede enviar correos.');
-  process.exit(1);
-}
-sgMailAuth.setApiKey(apiKeyAuth);
-
-/**
- * Envío genérico de correos (reutilizable)
- * Ruta: POST /auth/enviar-correo
- * Body: { emailCliente, asunto, html }
- */
-exports.enviarCorreoGenerico = async (req, res) => {
-  const { emailCliente, asunto, html } = req.body;
-
-  if (!emailCliente || !asunto || !html) {
-    return res.status(400).json({ mensaje: 'Faltan emailCliente, asunto o html' });
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(emailCliente)) {
-    return res.status(400).json({ mensaje: 'Correo inválido' });
-  }
-
-  try {
-    const msg = {
-      to: [{ email: emailCliente }],
-      from: { email: process.env.EMAIL_FROM || 'gaiafactrangers@gmail.com', name: 'Athena\'S - GaiaFact' },
-      subject: asunto,
-      html
-    };
-
-    await sgMailAuth.send(msg);
-    console.log(`✅ Correo enviado a ${emailCliente}`);
-    res.json({ mensaje: 'Correo enviado exitosamente' });
-  } catch (error) {
-    console.error('❌ Error en enviarCorreoGenerico:', error);
-    console.error('❌ SendGrid error completo:', error.response?.body || error.message);
-    res.status(500).json({ mensaje: 'Error al enviar correo', error: error.message });
-  }
+        req.user = user;
+        next();
+    });
 };

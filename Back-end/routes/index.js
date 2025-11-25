@@ -130,7 +130,6 @@ module.exports = function(){
     router.post("/auth/login", authController.login);
     router.post("/auth/recover", authController.recoverPassword);
     router.get('/auth/verify-email', authController.verifyEmail);
-    router.post('/enviar-correo', authController.enviarCorreoGenerico);
     router.post('/auth/reset/:token', authController.resetPassword);
 
     return router;
