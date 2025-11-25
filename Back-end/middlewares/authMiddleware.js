@@ -1,5 +1,28 @@
 const jwt = require('jsonwebtoken');
 const Usuario = require('../models/usuario');
+const Log = require('../models/log');
+
+
+exports.audit = (accion) => (req, res, next) => {
+  const originalSend = res.json.bind(res);
+
+  res.json = function (data) {
+    // ✅ solo registra si la respuesta fue exitosa (2xx)
+    if (res.statusCode < 400) {
+      Log.create({
+        usuarioId: req.user?.id || null,
+        accion,
+        ruta: req.originalUrl,
+        metodo: req.method,
+        resultado: 'éxito',
+        fecha: new Date()
+      }).catch(console.error);
+    }
+    originalSend(data);
+  };
+
+  next();
+};
 
 /**
  * Middleware de Autenticación: Verifica la validez del token JWT en el encabezado

@@ -1,7 +1,10 @@
 require('dotenv').config();
 
 const express = require("express")
+const rateLimit = require('express-rate-limit')
 const router=express.Router()
+
+const { audit } = require('../middlewares/auditMiddleware');
 
 const usuarioController= require("../controllers/usuarioController.js");
 const { verificarAuth, verificarRolGestor, verificarAccesoPerfil } = require('../middlewares/authMiddleware.js');
@@ -11,6 +14,14 @@ const authController = require("../controllers/authcontroller.js");
 const imagenesController = require('../controllers/imagenesController.js');
 const notificacionController = require('../controllers/notificacionController.js')
 
+const loginLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minuto
+  max: 5, // máximo 5 intentos por IP
+  message: { success: false, message: "Demasiados intentos. Intenta de nuevo más tarde." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 module.exports=function(){
     //registro nuevo cliente
     router.post('/Usuario',usuarioController.nuevoUsuario)
@@ -18,15 +29,15 @@ module.exports=function(){
     router.get('/Usuario/documento/:documento',verificarAuth,usuarioController.buscarPorDocumento)
 
     // CONSULTAR CLIENTE POR ID: Requiere ser el propio usuario O un gestor
-    router.get('/Usuario/:idUsuario', verificarAuth, verificarAccesoPerfil, usuarioController.mostrarUsuario)
+    router.get('/Usuario/:idUsuario', verificarAuth, verificarAccesoPerfil, audit('actualizarUsuario'), usuarioController.mostrarUsuario)
 
     // CONSULTAR TODOS LOS USUARIOS (LISTADO): Requiere ser un gestor
     router.get('/Usuario', verificarAuth, verificarRolGestor, usuarioController.mostrarUsuarios)
     
     //actualizar cliente
     router.put('/Usuario/:idUsuario',verificarAuth,usuarioController.actualizarUsuario)
-    //eliminar cliente
-    router.delete('/Usuario/:idUsuario',verificarAuth,usuarioController.eliminarUsuario)
+
+
 
 
     /* Productos */
@@ -52,7 +63,17 @@ module.exports=function(){
     router.get('/facturas/:idFactura/pdf', facturaController.obtenerFacturaPDF);
     router.get('/facturas/:idFactura/xml', facturaController.obtenerFacturaXML);
     // genera nueva factura
-    router.post('/facturas', facturaController.generarFactura);
+    router.post('/facturas', (req, res, next) => {
+        const { error } = facturaSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({
+            mensaje: 'Datos de factura inválidos',
+            detalles: error.details.map(d => d.message)
+            });
+        }
+        next(); // ✅ sigue con tu controlador normal
+    }, audit('crearFactura'), facturaController.generarFactura);
+
     // mostrar las facturas
     router.get('/facturas', facturaController.mostrarFacturas);
     // muestra factura por ID
@@ -77,7 +98,7 @@ module.exports=function(){
     router.post('/enviar-correo', facturaController.enviarFacturaCorreo);
 
     // Rutas de autenticación
-    router.post("/auth/login", authController.login);
+    router.post("/auth/login", loginLimiter, authController.login);
     router.post("/auth/recover", authController.recoverPassword);
     router.get('/auth/verify-email', authController.verifyEmail);
     router.post('/auth/reset/:token', authController.resetPassword);
