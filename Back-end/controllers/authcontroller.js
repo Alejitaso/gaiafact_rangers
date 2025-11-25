@@ -81,10 +81,6 @@ exports.login = async (req, res) => {
 };
 
 // RECUPERAR CONTRASEÑA — Genera token y envía correo de recuperación
-const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
-// RECUPERAR CONTRASEÑA — Genera token y envía correo de recuperación
 exports.recoverPassword = async (req, res) => {
   const { correo_electronico } = req.body;
 
