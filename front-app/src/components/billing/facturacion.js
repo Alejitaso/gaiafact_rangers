@@ -464,7 +464,7 @@ const Facturacion = () => {
                 return sum + (producto.precio * producto.cantidad);
             }, 0);
 
-            const iva = subtotal * 0.19; // 19% IVA 
+            const iva = subtotal * 0.19; 
             const total = subtotal + iva;
 
             const datosFactura = {
@@ -487,6 +487,7 @@ const Facturacion = () => {
                 }))
             };
 
+            console.log('productosFactura mapeado:', productosFactura.map(p => ({ producto_id: p._id, cantidad: p.cantidad, precio: p.precio })));
             const res = await clienteAxios.post('/api/facturas', datosFactura);
             
             setMensajeEstado('Factura generada exitosamente');
