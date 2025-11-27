@@ -416,7 +416,7 @@ const Facturacion = () => {
             setMensajeEstado(`Cantidad actualizada: ${producto.nombre}, total ${productoExistente.cantidad + cantidad} unidades`);
         } else {
             const nuevoProducto = {
-                id: producto._id,
+                _id: producto._id,
                 nombre: producto.nombre,
                 precio: producto.precio,
                 cantidad: cantidad,
