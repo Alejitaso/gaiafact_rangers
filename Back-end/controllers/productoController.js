@@ -119,7 +119,7 @@ exports.nuevoProducto = async(req, res, next) => {
     }catch(error){
         // Si hay un error (ej. validación, o la base de datos no está disponible)
         console.error('Error al procesar el producto:', error);
-        res.status(500).json({mensaje: 'Error al procesar el producto', error: error.message});
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
         next();
     }
 };
@@ -137,7 +137,7 @@ exports.obtenerCodigoBarrasPDF = async (req, res, next) => {
             url: `https://barcodeapi.org/api/128/${producto.codigo_barras_datos}`
         });
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error', error: error.message });
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
     }
 };
 

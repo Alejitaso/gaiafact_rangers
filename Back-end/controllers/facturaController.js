@@ -238,7 +238,7 @@ exports.generarFactura = async (req, res, next) => {
         }
 
         for (const item of datosFactura.productos_factura) {
-            const producto = await Producto.findById(item.id); 
+            const producto = await Producto.findOne({ nombre: item.producto }); 
             if (!producto) return res.status(404).json({ mensaje: `Producto con ID ${item.id} no encontrado` });
 
             if (producto.cantidad < item.cantidad) {
@@ -315,10 +315,7 @@ exports.generarFactura = async (req, res, next) => {
 
     } catch (error) {
         console.error('❌ Error al generar la factura:', error);
-        res.status(500).json({ 
-            mensaje: 'Error al generar la factura', 
-            error: error.message 
-        });
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
     }
 
 };
@@ -329,7 +326,7 @@ exports.mostrarFacturas = async (req, res, next) => {
         res.json(facturas);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ mensaje: 'Error al mostrar las facturas' });
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
     }
 };
 
@@ -342,7 +339,7 @@ exports.mostrarFactura = async (req, res, next) => {
         res.json(factura);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ mensaje: 'Error al mostrar la factura' });
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
     }
 };
 
@@ -356,7 +353,7 @@ exports.actualizarFactura = async (req, res, next) => {
         res.json(factura);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ mensaje: 'Error al actualizar la factura' });
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
     }
 };
 
@@ -366,7 +363,7 @@ exports.eliminarFactura = async (req, res, next) => {
         res.json({ mensaje: 'La factura ha sido eliminada' });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ mensaje: 'Error al eliminar la factura' });
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
     }
 };
 
@@ -390,7 +387,7 @@ exports.obtenerFacturaPDF = async (req, res, next) => {
         }
     } catch (error) {
         console.error('Error al obtener PDF:', error);
-        res.status(500).json({ mensaje: 'Error al obtener la factura en PDF', error: error.message });
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
     }
 };
 
@@ -413,7 +410,7 @@ exports.obtenerFacturaXML = async (req, res, next) => {
         }
     } catch (error) {
         console.log(error);
-        res.status(500).json({ mensaje: 'Error al obtener la factura en XML' });
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
     }
 };
 
@@ -799,10 +796,7 @@ exports.enviarFacturaCorreo = async (req, res, next) => {
             mensajeError = `Error del servidor de correo: ${error.response}`;
         }
         
-        res.status(500).json({ 
-            mensaje: mensajeError,
-            error: error.message 
-        });
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
     }
 };
 
@@ -815,7 +809,7 @@ exports.buscarFactura = async (req, res, next) => {
         res.json(factura);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ mensaje: 'Error al buscar la factura' });
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
     }
 };
 

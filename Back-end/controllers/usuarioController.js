@@ -113,7 +113,7 @@ exports.nuevoUsuario = async (req, res) => {
         }
         
         // Si no es unicidad, es un error 500 real.
-        res.status(500).json({ mensaje: 'Hubo un error interno al registrar el usuario', error: error.message });
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
     }
 };
 
@@ -128,7 +128,7 @@ exports.mostrarUsuarios = async (req, res, next) => {
         res.json(usuarios);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ mensaje: 'Error al obtener usuarios', error: error.message });
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
     }
 };
 
@@ -187,10 +187,7 @@ exports.buscarPorDocumento = async (req, res) => {
 
   } catch (error) {
     console.error("❌ Error al buscar usuario:", error);
-    return res.status(500).json({ 
-      mensaje: 'Error al buscar usuario', 
-      error: error.message 
-    });
+    return res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
   }
 };
 

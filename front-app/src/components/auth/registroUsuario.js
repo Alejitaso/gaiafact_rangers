@@ -31,7 +31,7 @@ function RegistroUsuario() {
     telefono: '',
     estado: 'Activo',
     tipo_usuario: '',
-    password: 'temporal123'
+    password: ''
   });
 
   // Anunciar cambios de estado
@@ -58,6 +58,11 @@ function RegistroUsuario() {
     } else if (name === 'correo_electronico') {
         newValue = value.replace(/[^a-zA-Z0-9@._-]/g, '');
     }
+
+    setUsuario(prev => ({
+      ...prev,
+      password: prev.numero_documento
+    }));
 
     setUsuario({
       ...usuario,
@@ -158,7 +163,7 @@ function RegistroUsuario() {
         telefono: '',
         estado: 'Activo',
         tipo_usuario: '',
-        password: 'temporal123'
+        password: ''
       });
       
       // Regresar foco al primer campo
