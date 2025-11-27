@@ -482,7 +482,6 @@ const Facturacion = () => {
                 },
                 productos_factura: productosFactura.map(p => ({
                     producto_id: p._id,
-                    producto: p.nombre,
                     cantidad: p.cantidad,
                     precio: p.precio
                 }))
