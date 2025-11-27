@@ -44,8 +44,9 @@
   font-size: 1.1rem;
 }
 
-.campo input {
-  width: calc(100% - 20px); 
+.campo input,
+.campo select {
+  width: calc(100% - 20px); /* 🔹 deja 1cm aprox. de espacio */
   padding: 15px;
   border: none;
   border-radius: 10px;
@@ -54,14 +55,39 @@
   font-size: 16px;
   transition: all 0.3s ease;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
-.campo input:focus {
+.campo select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23333'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 1.5em;
+    padding-right: 35px; 
+}
+
+.campo input:focus,
+.campo select:focus {
   outline: none;
   box-shadow: 0 0 20px rgba(142, 155, 232, 0.6);
   transform: translateY(-2px);
 }
 
+.displayValue {
+    width: calc(100% - 20px);
+    padding: 15px;
+    border: 1px solid transparent; 
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.15); 
+    color: var(--color-dos); 
+    font-size: 16px;
+    margin: 0;
+    box-sizing: border-box;
+    display: block; 
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
 /* === Botón centrado === */
 .botones-container {
   display: flex;
@@ -137,10 +163,17 @@
     padding: 20px 10px;
   }
 
-  .campo input {
+  .campo input,
+  .campo select {
     width: 100%;
     font-size: 16px; /* evita zoom en iOS */
+    box-sizing: border-box;
   }
+
+  .displayValue {
+        width: 100%;
+        box-sizing: border-box;
+    }
 
   .botones-container {
     flex-direction: column;
@@ -171,11 +204,17 @@
     padding: 20px 10px;
   }
 
-  .campo input {
+  .campo input,
+  .campo select {
     width: 100%;
     font-size: 16px; /* evita zoom en iOS */
     box-sizing: border-box;
   }
+
+  .displayValue {
+        width: 100%;
+        box-sizing: border-box;
+    }
 
   .botones-container {
     flex-direction: column;
@@ -208,7 +247,8 @@
     font-size: 1rem;
   }
 
-  .campo input {
+  .campo input,
+  .campo select {
     font-size: 14px;
     padding: 12px;
   }

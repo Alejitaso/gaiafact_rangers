@@ -67,7 +67,7 @@ const ListadoUsuarios = () => {
             </div>
         );
     }
-    // Muestra la lista de usuarios en formato de tabla.
+
     return (
         <div className={styles['listado-container']} role="main" aria-label="Listado de usuarios">
             {/* ✅ Anuncios en vivo */}

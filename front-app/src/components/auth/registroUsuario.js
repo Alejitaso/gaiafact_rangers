@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import clienteAxios from '../../config/axios';
 import Swal from 'sweetalert2';
 import styles from './registro.module.css';
-import { Link } from "react-router-dom";
 
 const validarEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -45,59 +44,138 @@ function RegistroUsuario() {
     }
   }, [errores]);
 
-  const manejarCambio = (e) => {
-    const { name, value } = e.target;
-    let newValue = value;
+ const manejarCambio = (e) => {
+  const { name, value } = e.target;
+  let newValue = value;
 
-    // Filtrado en vivo según el campo
-    if (name === 'nombre' || name === 'apellido') {
-        newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
-    } else if (name === 'telefono') {
-        newValue = value.replace(/[^0-9]/g, '');
-    } else if (name === 'numero_documento') {
-        newValue = value.replace(/[^a-zA-Z0-9]/g, ''); 
-    } else if (name === 'correo_electronico') {
-      newValue = value.replace(/[^a-zA-Z0-9@._-]/g, '');
-    }
+  // Filtrado en vivo según el campo
+  if (name === 'nombre' || name === 'apellido') {
+      newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+  } 
+  else if (name === 'telefono') {
+      let v = value.replace(/[^0-9]/g, "").slice(0, 10);
 
-    setUsuario({
-      ...usuario,
-      [name]: newValue
+      if (/^(\d)\1{9}$/.test(v)) {
+        setErrores({
+          ...errores,
+          telefono: "No puedes ingresar 10 números iguales consecutivos"
+        });
+      } else {
+        if (errores.telefono) {
+          setErrores({ ...errores, telefono: null });
+        }
+      }
+
+      newValue = v;
+  } 
+  else if (name === 'numero_documento') {
+      const tipo = usuario.tipo_documento;
+
+      if (tipo === "Pasaporte") {
+        let v = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+
+        // Primeras 3 posiciones deben ser SOLO letras
+        if (v.length <= 3) {
+          v = v.replace(/[^A-Z]/g, "");
+        } 
+        // De la 4 en adelante solo números
+        else {
+          let primeras3 = v.slice(0, 3).replace(/[^A-Z]/g, "");
+          let resto = v.slice(3).replace(/[^0-9]/g, "");
+          v = primeras3 + resto;
+        }
+
+        newValue = v.slice(0, 12);
+      } 
+      else if (
+          tipo === "Cedula de ciudadania" ||
+          tipo === "Cedula extranjeria" ||
+          tipo === "Nit"
+      ) {
+        let v = value.replace(/[^0-9]/g, "").slice(0, 10);
+
+        if (/^(\d)\1{9}$/.test(v)) {
+          setErrores({
+            ...errores,
+            numero_documento: "No puedes ingresar 10 números iguales consecutivos"
+          });
+        } else {
+          if (errores.numero_documento) {
+            setErrores({ ...errores, numero_documento: null });
+          }
+        }
+
+        newValue = v;
+      } 
+      else {
+        newValue = value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 12);
+      }
+  }
+  else if (name === "correo_electronico") {
+    newValue = value.replace(/[^a-zA-Z0-9@._-]/g, "");
+  }
+
+  setUsuario({
+    ...usuario,
+    [name]: newValue
+  });
+
+  // Limpiar error del campo cuando el usuario escribe
+  if (errores[name]) {
+    setErrores({
+      ...errores,
+      [name]: null
     });
-
-    // Limpiar error del campo cuando el usuario escribe
-    if (errores[name]) {
-      setErrores({
-        ...errores,
-        [name]: null
-      });
-    }
-  };
+  }
+};
 
   const validarFormulario = () => {
     const { nombre, apellido, correo_electronico, tipo_documento, numero_documento, telefono, tipo_usuario } = usuario;
     const nuevosErrores = {};
 
     if (!nombre || !validarSoloLetras(nombre)) {
-      nuevosErrores.nombre = 'El nombre es requerido y debe contener solo letras';
+      nuevosErrores.nombre = "El nombre es requerido y solo debe contener letras";
     }
+
     if (!apellido || !validarSoloLetras(apellido)) {
-      nuevosErrores.apellido = 'El apellido es requerido y debe contener solo letras';
+      nuevosErrores.apellido = "El apellido es requerido y solo debe contener letras";
     }
+
     if (!correo_electronico || !validarEmail(correo_electronico)) {
-      nuevosErrores.correo_electronico = 'Ingresa un correo electrónico válido';
+      nuevosErrores.correo_electronico = "Ingresa un correo válido";
     }
+
     if (!tipo_documento) {
-      nuevosErrores.tipo_documento = 'Selecciona un tipo de documento';
+      nuevosErrores.tipo_documento = "Selecciona un tipo de documento";
     }
+
     if (!numero_documento) {
-      nuevosErrores.numero_documento = 'El número de documento es requerido';
+      nuevosErrores.numero_documento = "El número de documento es requerido";
+    } else {
+      if (tipo_documento === "Pasaporte") {
+        if (!/^[A-Z]{3}[0-9]{1,9}$/.test(numero_documento)) {
+          nuevosErrores.numero_documento =
+            "El pasaporte debe iniciar con 3 letras y continuar solo con números";
+        }
+      }
+
+      if (
+        tipo_documento === "Cedula de ciudadania" ||
+        tipo_documento === "Cedula extranjeria" ||
+        tipo_documento === "Nit"
+      ) {
+        if (!/^[0-9]{10}$/.test(numero_documento)) {
+          nuevosErrores.numero_documento = "Debe tener exactamente 10 números";
+        }
+      }
     }
-    if (!telefono || telefono.length < 7) {
-      nuevosErrores.telefono = 'Ingresa un teléfono válido (mínimo 7 dígitos)';
+
+    if (!telefono || !/^[0-9]{10}$/.test(telefono)) {
+      nuevosErrores.telefono = "El teléfono debe tener 10 dígitos";
     }
+
     if (!tipo_usuario) {
-      nuevosErrores.tipo_usuario = 'Selecciona un tipo de usuario';
+      nuevosErrores.tipo_usuario = "Selecciona un tipo de usuario";
     }
 
     setErrores(nuevosErrores);
@@ -108,7 +186,6 @@ function RegistroUsuario() {
     e.preventDefault();
     
     if (!validarFormulario()) {
-      // Enfocar el primer campo con error
       const primerError = Object.keys(errores)[0];
       const elemento = document.getElementById(primerError);
       if (elemento) {
@@ -141,7 +218,6 @@ function RegistroUsuario() {
             popup.setAttribute('aria-live', 'assertive');
             popup.setAttribute('aria-modal', 'true');
             
-            // Mejorar accesibilidad del botón de confirmación
             const confirmButton = Swal.getConfirmButton();
             if (confirmButton) {
               confirmButton.focus();
