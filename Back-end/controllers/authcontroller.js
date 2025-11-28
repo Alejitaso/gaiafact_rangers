@@ -55,6 +55,13 @@ exports.login = async (req, res) => {
             });
         }
 
+        if (user.estado === 'Inactivo') {
+            return res.status(403).json({
+                success: false,
+                message: "Tu cuenta ha sido desactivada. Por favor, contacta al administrador del sistema.",
+            });
+        }
+
         const payload = {
             id: user._id,
             correo_electronico: user.correo_electronico,
