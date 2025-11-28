@@ -66,10 +66,10 @@ module.exports = function () {
   router.get('/facturas/:idFactura', verificarAuth, audit('verFactura'), facturaController.mostrarFacturas);
   router.get('/facturas/pdf/:idFactura', verificarAuth, audit('descargarFacturaPDF'), facturaController.obtenerFacturaPDF);
   router.get('/facturas/xml/:idFactura', verificarAuth, audit('descargarFacturaXML'), facturaController.obtenerFacturaXML);
-  router.post('/facturas/enviar-correo', verificarAuth, audit('enviarFacturaCorreo'), facturaController.enviarFacturaCorreo);
+  router.post('/facturas/enviar-correo', verificarAuth, audit('enviarFacturaCorreo'), facturaController.enviarFacturaPorCorreo);
   router.get('/facturas/buscar-factura/:numeroFactura', verificarAuth, audit('buscarFacturaPorNumero'), facturaController.buscarFactura);
   router.get('/buscar/:numeroFactura', verificarAuth, audit('buscarFactura'), facturaController.buscarFactura);
-  router.post('/enviar-correo', verificarAuth, audit('enviarFacturaCorreoDirecto'), facturaController.enviarFacturaCorreo);
+  router.post('/enviar-correo', verificarAuth, audit('enviarFacturaCorreoDirecto'), facturaController.enviarFacturaPorCorreo);
 
   /* ─────────────── AUTENTICACIÓN ─────────────── */   
   router.post("/auth/login", verificarAuth, loginLimiter, audit('inicioSesion'), authController.login);
