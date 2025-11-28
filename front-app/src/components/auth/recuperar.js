@@ -11,6 +11,7 @@ function RecoverPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Verifica si el campo de correo electrónico está vacío.
     if (!correo_electronico) {
       setError("Por favor ingresa un correo válido");
       return;
@@ -20,14 +21,19 @@ function RecoverPassword() {
     setError(null);
 
     try {
-      const res = await fetch("http://localhost:4000/api/auth/recover", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ correo_electronico })
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/auth/recover`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ correo_electronico })
+        }
+      );
+
 
       const data = await res.json();
 
+      //Bloque de Manejo de Respuesta Exitosa
       if (data.success) {
         // ✅ SweetAlert2 con configuración de accesibilidad
         await Swal.fire({
@@ -103,6 +109,7 @@ function RecoverPassword() {
   };
 
   return (
+    // Contenedor principal con estilos.
     <div className={styles.recoveryform}>
       {/* ✅ Región para anuncios en vivo */}
       <div 
@@ -149,6 +156,7 @@ function RecoverPassword() {
           </p>
         )}
 
+        {/* Contenedor para el botón de envío con estilos específicos */}
         <div className={styles.boton}>
           <button 
             type="submit"

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import styles from './style_new_contr.module.css';
 
+// Define el componente principal NewPassword
 function NewPassword() {
   const { token } = useParams();
   const [newPassword, setNewPassword] = useState("");
@@ -10,6 +11,7 @@ function NewPassword() {
   const [success, setSuccess] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  //Bloque de Manejador de Envío
   const handleSubmit = async (e) => {                     
     e.preventDefault();
 
@@ -30,7 +32,7 @@ function NewPassword() {
     setSuccess(null);
 
     try {
-      const res = await fetch(`http://localhost:4000/api/auth/reset/${token}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/reset/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nuevaPassword: newPassword })
@@ -38,6 +40,8 @@ function NewPassword() {
 
       const data = await res.json();
 
+      // Bloque de Manejo de Respuesta de la API
+      // Si la respuesta del servidor indica éxito.
       if (data.success) {
         setSuccess("Contraseña actualizada correctamente. Redirigiendo...");
         setError(null);
@@ -60,6 +64,7 @@ function NewPassword() {
     }
   };
 
+  // Retorna la estructura JS que define la interfaz de usuario del componente
   return (
     <div className={styles.formcontainer}>
       {/* ✅ Región para anuncios en vivo */}
