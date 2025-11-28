@@ -26,6 +26,7 @@ const Facturacion = () => {
     const [apellidos, setApellidos] = useState('');
     const [telefono, setTelefono] = useState('');
     const [correo, setCorreo] = useState('');
+    const [metodoPago, setMetodoPago] = useState('');
     
     // Estados para el manejo de clientes
     const [buscandoCliente, setBuscandoCliente] = useState(false);

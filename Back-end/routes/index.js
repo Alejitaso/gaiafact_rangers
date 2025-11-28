@@ -63,7 +63,7 @@ module.exports = function () {
   }, audit('crearFactura'), facturaController.generarFactura);
 
   router.get('/facturas', verificarAuth, audit('listarFacturas'), facturaController.mostrarFacturas);
-  router.get('/facturas/:idFactura', verificarAuth, audit('verFactura'), facturaController.mostrarFactura);
+  router.get('/facturas/:idFactura', verificarAuth, audit('verFactura'), facturaController.mostrarFacturas);
   router.get('/facturas/pdf/:idFactura', verificarAuth, audit('descargarFacturaPDF'), facturaController.obtenerFacturaPDF);
   router.get('/facturas/xml/:idFactura', verificarAuth, audit('descargarFacturaXML'), facturaController.obtenerFacturaXML);
   router.post('/facturas/enviar-correo', verificarAuth, audit('enviarFacturaCorreo'), facturaController.enviarFacturaCorreo);
