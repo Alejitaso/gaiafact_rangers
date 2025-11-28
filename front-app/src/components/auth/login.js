@@ -106,7 +106,7 @@ function Login() {
 
       const data = await res.json();
 
-      if (data.success) {
+       if (data.success) {
         setError(null);
         setAttempts(0);
         localStorage.removeItem("attempts");
@@ -117,17 +117,31 @@ function Login() {
         setTimeout(() => {
           window.location.href = "/inicio";
         }, 2000);
-        
-      } else {
-        setError(data.message || "Correo o contraseña incorrectos");
-        const newAttempts = attempts + 1;
-        setAttempts(newAttempts);
+      } 
+      else {
 
-        if (newAttempts >= 3) {
-          setIsLocked(true);
-          setTimeLeft(60 * 5);
-          localStorage.setItem("isLocked", "true");
-          localStorage.setItem("timeLeft", 60 * 5);
+        // --- Nueva lógica 403 (usuario inactivo/bloqueado admin)
+        let errorMessage = data.message || "Correo o contraseña incorrectos";
+        let displayMessage = errorMessage;
+
+        if (res.status === 403) {
+          displayMessage = "Tu cuenta está inactiva o ha sido bloqueada. Por favor, contacta a soporte.";
+
+          // ❗ NO cuenta como intento fallido
+          setError(displayMessage);
+        } else {
+          // ❗ Cuenta como intento fallido (ej: 401)
+          const newAttempts = attempts + 1;
+          setAttempts(newAttempts);
+
+          if (newAttempts >= 3) {
+            setIsLocked(true);
+            setTimeLeft(300);
+            localStorage.setItem("isLocked", "true");
+            localStorage.setItem("timeLeft", 300);
+          }
+
+          setError(displayMessage);
         }
         
         setTimeout(() => {

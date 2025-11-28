@@ -57,6 +57,13 @@ exports.login = async (req, res) => {
       });
     }
 
+    if (user.estado === 'Inactivo') {
+        return res.status(403).json({
+            success: false,
+            message: "Tu cuenta ha sido desactivada. Por favor, contacta al administrador del sistema.",
+        });
+    }
+
     // Crear JWT que incluya tipo_usuario (rol)
     const payload = {
       id: user._id,
