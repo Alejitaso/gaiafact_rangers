@@ -52,7 +52,7 @@ module.exports = function () {
   router.post('/facturas', (req, res, next) => {
   console.log('📩 LLEGÓ a ruta /api/facturas');
   next();
-  }, generarFactura);
+}, facturaController.generarFactura);
   
   router.post('/facturas', verificarAuth, async (req, res, next) => {
     try {
