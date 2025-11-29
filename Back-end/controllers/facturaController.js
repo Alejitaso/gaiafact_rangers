@@ -239,6 +239,13 @@ exports.generarFactura = async (req, res, next) => {
 
         // Validar datos necesarios
         if (!datosFactura.usuario || !datosFactura.usuario.nombre || !datosFactura.usuario.apellido) {
+            console.log('❌ Validación fallida:', {
+            usuario: req.body.usuario,
+            productos: req.body.productos_factura,
+            total: req.body.total,
+            numero_factura: req.body.numero_factura
+            });
+            
             return res.status(400).json({ 
                 mensaje: 'Faltan datos del usuario (nombre y apellido son obligatorios)' 
             });
