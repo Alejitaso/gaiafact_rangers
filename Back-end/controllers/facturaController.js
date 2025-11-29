@@ -234,45 +234,101 @@ const puedeVerTodasLasFacturas = (tipoUsuario) => {
 // -----------------------------------------------------------
 
 exports.generarFactura = async (req, res, next) => {
-  try {
-    const datos = req.body;
-    if (!datos.usuario?.nombre || !datos.usuario?.apellido)
-      return res.status(400).json({ mensaje: 'Faltan datos del usuario' });
-    if (!datos.productos_factura?.length)
-      return res.status(400).json({ mensaje: 'Sin productos' });
+    try {
+        const datosFactura = req.body;
 
-    // Descuento de stock
-    for (const item of datos.productos_factura) {
-      const prod = await Producto.findById(item.producto_id);
-      if (!prod) return res.status(404).json({ mensaje: `Producto no encontrado: ${item.producto}` });
-      if (prod.stock < item.cantidad) return res.status(400).json({ mensaje: `Stock insuficiente: ${item.producto}` });
-      prod.stock -= item.cantidad;
-      await prod.save();
+        // Validar datos necesarios
+        if (!datosFactura.usuario || !datosFactura.usuario.nombre || !datosFactura.usuario.apellido) {
+            return res.status(400).json({ 
+                mensaje: 'Faltan datos del usuario (nombre y apellido son obligatorios)' 
+            });
+        }
+
+        if (!datosFactura.productos_factura || datosFactura.productos_factura.length === 0) {
+            return res.status(400).json({ 
+                mensaje: 'Debe incluir al menos un producto en la factura' 
+            });
+        }
+
+        for (const item of datosFactura.productos_factura) {
+            const producto = await Producto.findOne({ nombre: item.producto }); 
+            if (!producto) return res.status(404).json({ mensaje: `Producto con ID ${item.id} no encontrado` });
+
+            if (producto.cantidad < item.cantidad) {
+                return res.status(400).json({ mensaje: `Stock insuficiente para "${producto.nombre}"` });
+            }
+
+            item.precio = producto.precio;
+            item.subtotal = producto.precio * item.cantidad;
+
+            producto.cantidad -= item.cantidad;
+            await producto.save();
+        }
+
+        for (const item of datosFactura.productos_factura) {
+            const producto = await Producto.findOne({ nombre: item.producto });
+
+            if (!producto) {
+                return res.status(404).json({ mensaje: `Producto "${item.producto}" no encontrado` });
+            }
+
+            if (producto.cantidad < item.cantidad) {
+                return res.status(400).json({ 
+                    mensaje: `Stock insuficiente para "${item.producto}". Disponible: ${producto.cantidad}, solicitado: ${item.cantidad}` 
+                });
+            }
+
+            // Descontar stock
+            producto.cantidad -= item.cantidad;
+            await producto.save();
+        }
+
+        // Crear la instancia de la factura
+        const nuevaFactura = new Factura(datosFactura);
+
+        // Generar el PDF y el XML
+        const pdfBuffer = await generarPDFFactura(nuevaFactura);
+        const xmlString = generarXMLFactura(nuevaFactura);
+
+        // Guardar el PDF y XML en la factura
+        nuevaFactura.pdf_factura = pdfBuffer;
+        nuevaFactura.xml_factura = xmlString;
+
+
+        // Guardar en la base de datos
+        await nuevaFactura.save();
+
+         try {
+        await exports.enviarFacturaCorreo(
+            {
+            body: {
+                idFactura: nuevaFactura._id,
+                emailCliente: nuevaFactura.usuario.correo_electronico
+            }
+            },
+            {
+            json: () => {},
+            status: () => ({ json: () => {} })
+            }
+            
+        );  
+        console.log(`📧 Correo enviado automáticamente a ${nuevaFactura.usuario.correo_electronico}`);
+        } catch (error) {
+        console.warn("⚠️ No se pudo enviar el correo automáticamente:", error.message);
+        }
+
+        console.log('✅ Factura guardada con PDF y XML, stock actualizado');
+
+        res.status(201).json({
+            mensaje: 'Factura generada y guardada correctamente',
+            numeroFactura: nuevaFactura.numero_factura,
+            facturaId: nuevaFactura._id
+        });
+
+    } catch (error) {
+        console.error('❌ Error al generar la factura:', error);
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
     }
-
-    const pdfBuffer = await generarPDFFactura(datos);
-    const xmlBuffer = generarXMLFactura(datos);
-
-    const factura = new Factura({
-      numero_factura: datos.numero_factura,
-      fecha_emision: new Date(),
-      usuario: datos.usuario,
-      productos_factura: datos.productos_factura,
-      subtotal: datos.subtotal,
-      iva: datos.iva,
-      total: datos.total,
-      codigo_CUFE: datos.codigo_CUFE || `TEMP-${datos.numero_factura}`,
-      pdf_factura: pdfBuffer,
-      xml_factura: Buffer.from(xmlBuffer, 'utf-8'),
-      rango_numeracion_actual: datos.rango_numeracion_actual || 'TEMP-2025'
-    });
-    await factura.save();
-
-    res.status(201).json({ mensaje: 'Factura generada y guardada', factura });
-  } catch (e) {
-    console.error('❌ generarFactura:', e);
-    res.status(500).json({ mensaje: 'Error interno al generar factura' });
-  }
 };
 
 exports.mostrarFacturas = async (req, res, next) => {
@@ -328,17 +384,39 @@ exports.obtenerFacturaXML = async (req, res, next) => {
 exports.enviarFacturaPorCorreo = async (req, res, next) => {
   try {
     const { idFactura, emailCliente } = req.body;
-    if (!idFactura || !emailCliente)
-      return res.status(400).json({ mensaje: 'Faltan datos' });
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(emailCliente))
-      return res.status(400).json({ mensaje: 'Correo inválido' });
+        // Validaciones
+        if (!idFactura || !emailCliente) {
+            return res.status(400).json({ 
+                mensaje: 'Faltan datos: ID de factura y correo son obligatorios' 
+            });
+        }
 
-    const factura = await Factura.findById(idFactura);
-    if (!factura) return res.status(404).json({ mensaje: 'Factura no encontrada' });
-    if (!factura.pdf_factura || !factura.xml_factura)
-      return res.status(400).json({ mensaje: 'Falta PDF o XML' });
+        // Validar formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailCliente)) {
+            return res.status(400).json({ 
+                mensaje: 'El formato del correo electrónico no es válido' 
+            });
+        }
+
+        // Buscar la factura
+        const factura = await Factura.findById(idFactura);
+
+        if (!factura) {
+            return res.status(404).json({ mensaje: 'No existe esa factura' });
+        }
+
+        // Obtener PDF y XML directamente de la factura
+        const pdfBuffer = factura.pdf_factura;
+        const xmlBuffer = factura.xml_factura;
+
+        // Verificar que existan
+        if (!pdfBuffer || !xmlBuffer) {
+            return res.status(400).json({ 
+                mensaje: 'La factura no tiene PDF o XML generado. Genere la factura primero.' 
+            });
+        }
 
     console.log('Tamaño XML en bytes:', factura.xml_factura.length);
     console.log('Tamaño XML en base64:', Buffer.from(factura.xml_factura).toString('base64').length);
@@ -348,7 +426,7 @@ exports.enviarFacturaPorCorreo = async (req, res, next) => {
     const totalFormateado = factura.total.toLocaleString('es-CO');
 
     const html = `
-    <!DOCTYPE html>
+            <!DOCTYPE html>
             <html lang="es">
             <head>
                 <meta charset="UTF-8">
@@ -556,6 +634,10 @@ exports.enviarFacturaPorCorreo = async (req, res, next) => {
                                 <span class="info-value" style="font-size: 11px; word-break: break-all;">${factura.codigo_CUFE}</span>
                             </div>
                             ` : ''}
+                            <div class="info-row">
+                                <span class="info-label">💳 Método de pago:</span>
+                                <span class="info-value">${factura.metodo_pago}</span>
+                            </div>
                             <div class="total-row">
                                 <span>💰 TOTAL:</span>
                                 <span>$${totalFormateado} COP</span>

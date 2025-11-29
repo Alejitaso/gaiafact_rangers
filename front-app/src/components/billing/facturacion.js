@@ -26,6 +26,7 @@ const Facturacion = () => {
     const [apellidos, setApellidos] = useState('');
     const [telefono, setTelefono] = useState('');
     const [correo, setCorreo] = useState('');
+    const [metodoPago, setMetodoPago] = useState('');
     
     // Estados para el manejo de clientes
     const [buscandoCliente, setBuscandoCliente] = useState(false);
@@ -548,6 +549,10 @@ const Facturacion = () => {
     };
 
     const abrirPopup = () => {
+         if (!metodoPago) {
+                mostrarError('Método de pago requerido', 'Seleccione un método de pago antes de agregar productos');
+                return;
+            }
         setShowPopup(true);
         setActiveTab('barcode');
         setBarcodeInput('');
@@ -757,13 +762,34 @@ const Facturacion = () => {
                     )}
                 </section>
                 
-                <div className={styles.botonAnadir}>
-                    <button 
-                        onClick={abrirPopup}
-                        aria-label="Agregar producto a la factura"
-                        className="fa-solid fa-plus"
-                    ></button>
-                </div>
+                <div className={styles.accionesProductos}>
+            <div className={styles.selectorMetodoPago}>
+                <label htmlFor="metodo-pago" className="sr-only">Método de pago</label>
+                <select
+                id="metodo-pago"
+                value={metodoPago}
+                onChange={(e) => setMetodoPago(e.target.value)}
+                aria-required="true"
+                className={styles.metodoPagoSelect}
+                >
+                <option value="">Método de pago</option>
+                <option value="Efectivo">Efectivo</option>
+                <option value="Tarjeta débito">Tarjeta débito</option>
+                <option value="Tarjeta crédito">Tarjeta crédito</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Nequi">Nequi</option>
+                <option value="Daviplata">Daviplata</option>
+                </select>
+            </div>
+
+            <div className={styles.botonAnadir}>
+                <button 
+                onClick={abrirPopup}
+                aria-label="Agregar producto a la factura"
+                className="fa-solid fa-plus"
+                ></button>
+            </div>
+            </div>
                 
                 <section aria-labelledby="productos-table-title">
                     <h2 id="productos-table-title" className="sr-only">Productos en la Factura</h2>
@@ -1090,5 +1116,4 @@ const Facturacion = () => {
         </Fragment>
     );
 };
-
 export default Facturacion;

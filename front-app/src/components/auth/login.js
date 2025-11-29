@@ -121,16 +121,29 @@ function Login() {
         }, 500);
         
       } else {
-        setError(data.message || "Correo o contraseña incorrectos");
-        const newAttempts = attempts + 1;
-        setAttempts(newAttempts);
 
-        // Lógica de bloqueo: si se alcanzan 3 intentos, se bloquea por 5 minutos (300 segundos).
-        if (newAttempts >= 3) {
-          setIsLocked(true);
-          setTimeLeft(60 * 5);
-          localStorage.setItem("isLocked", "true");
-          localStorage.setItem("timeLeft", 60 * 5);
+        // --- Nueva lógica 403 (usuario inactivo/bloqueado admin)
+        let errorMessage = data.message || "Correo o contraseña incorrectos";
+        let displayMessage = errorMessage;
+
+        if (res.status === 403) {
+          displayMessage = "Tu cuenta está inactiva o ha sido bloqueada. Por favor, contacta a soporte.";
+
+          // ❗ NO cuenta como intento fallido
+          setError(displayMessage);
+        } else {
+          // ❗ Cuenta como intento fallido (ej: 401)
+          const newAttempts = attempts + 1;
+          setAttempts(newAttempts);
+
+          if (newAttempts >= 3) {
+            setIsLocked(true);
+            setTimeLeft(300);
+            localStorage.setItem("isLocked", "true");
+            localStorage.setItem("timeLeft", 300);
+          }
+
+          setError(displayMessage);
         }
         
         setTimeout(() => {
@@ -142,7 +155,6 @@ function Login() {
           }
         }, 500);
       }
-
       // Manejo de errores de conexión de red.
     } catch (err) {
       setError("Error de conexión con el servidor");
