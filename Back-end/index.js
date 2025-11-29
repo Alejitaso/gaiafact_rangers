@@ -62,6 +62,10 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 app.use(express.json({ limit: '50mb' }));
+app.use((req, res, next) => {
+  console.log('📡 LLEGÓ petición:', req.method, req.url, 'Content-Length:', req.headers['content-length']);
+  next();
+});
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Ruta de prueba

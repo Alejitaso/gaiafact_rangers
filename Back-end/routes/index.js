@@ -49,6 +49,11 @@ module.exports = function () {
   router.get('/facturas/:idFactura/pdf', verificarAuth, audit('descargarFacturaPDF'), facturaController.obtenerFacturaPDF);
   router.get('/facturas/:idFactura/xml', verificarAuth, audit('descargarFacturaXML'), facturaController.obtenerFacturaXML);
 
+  router.post('/facturas', (req, res, next) => {
+  console.log('📩 LLEGÓ a ruta /api/facturas');
+  next();
+  }, generarFactura);
+  
   router.post('/facturas', verificarAuth, async (req, res, next) => {
     try {
       const factura = new Factura(req.body);
