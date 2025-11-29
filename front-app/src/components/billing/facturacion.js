@@ -482,13 +482,13 @@ const Facturacion = () => {
                     telefono: telefono
                 },
                 productos_factura: productosFactura.map(p => ({
-                    producto_id: p.id,
+                    producto_id: p._id,               
+                    producto: p.nombre,
                     cantidad: p.cantidad,
                     precio: p.precio
                 }))
             };
 
-            console.log('productosFactura mapeado:', productosFactura.map(p => ({ producto_id: p._id, cantidad: p.cantidad, precio: p.precio })));
             const res = await clienteAxios.post('/api/facturas', datosFactura);
             
             setMensajeEstado('Factura generada exitosamente');
