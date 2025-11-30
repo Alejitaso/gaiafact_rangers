@@ -233,104 +233,102 @@ const puedeVerTodasLasFacturas = (tipoUsuario) => {
 // 3)  CONTROLADORES
 // -----------------------------------------------------------
 
-exports.generarFactura = async (req, res, next) => {
+exports.generarFactura = async (req, res) => {
     try {
         const datosFactura = req.body;
 
-        // Validar datos necesarios
+        // ---------------- VALIDACIONES ----------------
         if (!datosFactura.usuario || !datosFactura.usuario.nombre || !datosFactura.usuario.apellido) {
-            console.log('❌ Validación fallida:', {
-            usuario: req.body.usuario,
-            productos: req.body.productos_factura,
-            total: req.body.total,
-            numero_factura: req.body.numero_factura
-            });
-            
-            return res.status(400).json({ 
-                mensaje: 'Faltan datos del usuario (nombre y apellido son obligatorios)' 
-            });
+            return res.status(400).json({ mensaje: 'Faltan datos del usuario (nombre y apellido son obligatorios)' });
         }
 
         if (!datosFactura.productos_factura || datosFactura.productos_factura.length === 0) {
-            return res.status(400).json({ 
-                mensaje: 'Debe incluir al menos un producto en la factura' 
-            });
+            return res.status(400).json({ mensaje: 'Debe incluir al menos un producto en la factura' });
         }
 
+        // ---------------- PROCESAR PRODUCTOS ----------------
         for (const item of datosFactura.productos_factura) {
-            const producto = await Producto.findOne({ nombre: item.producto }); 
-            if (!producto) return res.status(404).json({ mensaje: `Producto con ID ${item.id} no encontrado` });
 
-            if (producto.cantidad < item.cantidad) {
-                return res.status(400).json({ mensaje: `Stock insuficiente para "${producto.nombre}"` });
+            if (!item.producto_id) {
+                return res.status(400).json({ mensaje: "Cada producto debe tener producto_id" });
             }
 
-            item.precio = producto.precio;
-            item.subtotal = producto.precio * item.cantidad;
-
-            producto.cantidad -= item.cantidad;
-            await producto.save();
-        }
-
-        for (const item of datosFactura.productos_factura) {
-            const producto = await Producto.findOne({ nombre: item.producto });
-
+            // Buscar por ID, no por nombre
+            const producto = await Producto.findById(item.producto_id);
             if (!producto) {
-                return res.status(404).json({ mensaje: `Producto "${item.producto}" no encontrado` });
+                return res.status(404).json({ mensaje: `Producto no encontrado: ${item.producto}` });
             }
 
             if (producto.cantidad < item.cantidad) {
-                return res.status(400).json({ 
-                    mensaje: `Stock insuficiente para "${item.producto}". Disponible: ${producto.cantidad}, solicitado: ${item.cantidad}` 
+                return res.status(400).json({
+                    mensaje: `No hay suficiente stock de ${producto.nombre}. Stock actual: ${producto.cantidad}`
                 });
             }
 
-            // Descontar stock
+            // Calcular subtotal
+            item.precio = producto.precio;
+            item.subtotal = producto.precio * item.cantidad;
+
+            // Descontar stock solo una vez (esto antes se hacía 2 veces)
             producto.cantidad -= item.cantidad;
             await producto.save();
         }
 
-        // Crear la instancia de la factura
+        // ---------------- CALCULAR TOTALES ----------------
+        const subtotal = datosFactura.productos_factura.reduce((s, item) => s + item.subtotal, 0);
+        const iva = subtotal * 0.19;
+        const total = subtotal + iva;
+
+        datosFactura.subtotal = subtotal;
+        datosFactura.iva = iva;
+        datosFactura.total = total;
+
+        // ---------------- CREAR FACTURA ----------------
         const nuevaFactura = new Factura(datosFactura);
 
-        // Generar el PDF y el XML
-        const pdfBuffer = await generarPDFFactura(nuevaFactura);
-        const xmlString = generarXMLFactura(nuevaFactura);
-
-        // Guardar el PDF y XML en la factura
+        // ---------------- GENERAR PDF ----------------
+        const pdfBuffer = await generarFacturaPDF(nuevaFactura); // <- ya lo tenías
         nuevaFactura.pdf_factura = pdfBuffer;
+
+        // ---------------- GENERAR XML ----------------
+        const xmlString = await generarFacturaXML(nuevaFactura); // <- ya lo tenías
         nuevaFactura.xml_factura = xmlString;
 
-
-        // Guardar en la base de datos
+        // Guardar en BD con PDF & XML
         await nuevaFactura.save();
 
-         try {
-        await exports.enviarFacturaCorreo(
-            {
-            body: {
-                idFactura: nuevaFactura._id,
-                emailCliente: nuevaFactura.usuario.correo_electronico
-            }
-            },
-            {
-            json: () => {},
-            status: () => ({ json: () => {} })
-            }
-            
-        );  
-        console.log(`📧 Correo enviado automáticamente a ${nuevaFactura.usuario.correo_electronico}`);
+
+        // ---------------- ENVIAR CORREO ----------------
+        try {
+            await exports.enviarFacturaCorreo(
+                {
+                    body: {
+                        idFactura: nuevaFactura._id,
+                        emailCliente: nuevaFactura.usuario.correo_electronico
+                    }
+                },
+                {
+                    json: () => { },
+                    status: () => ({ json: () => { } })
+                }
+            );
+
+            console.log(`📧 Correo enviado automáticamente a ${nuevaFactura.usuario.correo_electronico}`);
+
         } catch (error) {
-        console.warn("⚠️ No se pudo enviar el correo automáticamente:", error.message);
+            console.warn("⚠️ No se pudo enviar el correo automáticamente:", error.message);
         }
 
         console.log('✅ Factura guardada con PDF y XML, stock actualizado');
 
+
+        // ---------------- RESPUESTA FINAL ----------------
         res.status(201).json({
             mensaje: 'Factura generada y guardada correctamente',
             numeroFactura: nuevaFactura.numero_factura,
             facturaId: nuevaFactura._id
         });
+
 
     } catch (error) {
         console.error('❌ Error al generar la factura:', error);
