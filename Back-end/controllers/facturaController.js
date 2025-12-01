@@ -234,6 +234,9 @@ const puedeVerTodasLasFacturas = (tipoUsuario) => {
 // -----------------------------------------------------------
 
 exports.generarFactura = async (req, res) => {
+    
+    console.log("📦 BODY RECIBIDO EN EL BACKEND:", JSON.stringify(req.body, null, 2));
+
     try {
         const datosFactura = req.body;
 
