@@ -275,16 +275,26 @@ exports.generarFactura = async (req, res) => {
         // ---------------- PROCESAR PRODUCTOS (DESCONTAR STOCK) ----------------
         for (const item of datosFactura.productos_factura) {
 
-            const producto = await Producto.findById(item.producto_id);
-            if (!producto) {
-                return res.status(404).json({ mensaje: `Producto no encontrado: ${item.producto}` });
+            // Validación de producto_id
+            if (!item.producto_id) {
+                console.log("❌ producto_id ausente en item:", item);
+                return res.status(400).json({ mensaje: "Cada producto debe tener producto_id" });
             }
 
-            if (producto.cantidad < item.cantidad) {
+            // 🔍 CÓDIGO DIAGNÓSTICO ----> PEGAR AQUÍ
+            console.log("🔍 ID recibido del frontend:", item.producto_id);
+
+            const producto = await Producto.findById(item.producto_id);
+
+            if (!producto) {
+                console.log("❌ Producto no encontrado en la BD con ID:", item.producto_id);
+
                 return res.status(400).json({
-                    mensaje: `No hay suficiente stock de ${producto.nombre}. Stock actual: ${producto.cantidad}`
+                    mensaje: `El producto "${item.producto}" con ID ${item.producto_id} NO existe en la base de datos conectada.`
                 });
             }
+
+            console.log("✔ Producto encontrado:", producto.nombre);
 
             // Calcular subtotal
             item.precio = producto.precio;
@@ -294,6 +304,7 @@ exports.generarFactura = async (req, res) => {
             producto.cantidad -= item.cantidad;
             await producto.save();
         }
+
 
         // ---------------- CALCULAR TOTALES ----------------
         const subtotal = datosFactura.productos_factura.reduce((s, item) => s + item.subtotal, 0);
