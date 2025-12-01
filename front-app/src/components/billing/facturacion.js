@@ -493,6 +493,7 @@ const Facturacion = () => {
                 subtotal,
                 iva,
                 total,
+                metodo_pago: metodoPago,
                 numero_factura: 'F' + Math.floor(Math.random() * 100000),
                 usuario: {
                     nombre: nombres,
