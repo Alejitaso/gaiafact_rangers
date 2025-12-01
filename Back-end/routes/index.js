@@ -48,20 +48,7 @@ module.exports = function () {
   /* ─────────────── FACTURAS ─────────────── */
   router.get('/facturas/:idFactura/pdf', verificarAuth, audit('descargarFacturaPDF'), facturaController.obtenerFacturaPDF);
   router.get('/facturas/:idFactura/xml', verificarAuth, audit('descargarFacturaXML'), facturaController.obtenerFacturaXML);
-  
-  router.post('/facturas', verificarAuth, async (req, res, next) => {
-    try {
-      const factura = new Factura(req.body);
-      await factura.validate();
-      next();
-    } catch (err) {
-      return res.status(400).json({
-        mensaje: 'Datos de factura inválidos',
-        detalles: Object.values(err.errors).map(e => e.message)
-      });
-    }
-  }, audit('crearFactura'), facturaController.generarFactura);
-
+  router.post('/facturas', verificarAuth, audit('crearFactura'), facturaController.generarFactura);
   router.get('/facturas', verificarAuth, audit('listarFacturas'), facturaController.mostrarFacturas);
   router.get('/facturas/:idFactura', verificarAuth, audit('verFactura'), facturaController.mostrarFacturas);
   router.get('/facturas/pdf/:idFactura', verificarAuth, audit('descargarFacturaPDF'), facturaController.obtenerFacturaPDF);
