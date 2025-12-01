@@ -238,22 +238,43 @@ exports.generarFactura = async (req, res) => {
         const datosFactura = req.body;
 
         // ---------------- VALIDACIONES ----------------
-        if (!datosFactura.usuario || !datosFactura.usuario.nombre || !datosFactura.usuario.apellido) {
-            return res.status(400).json({ mensaje: 'Faltan datos del usuario (nombre y apellido son obligatorios)' });
+
+        // Validar usuario
+        if (!datosFactura.usuario || 
+            !datosFactura.usuario.nombre || 
+            !datosFactura.usuario.apellido) {
+
+            return res.status(400).json({ 
+                mensaje: 'Faltan datos del usuario (nombre y apellido son obligatorios)' 
+            });
         }
 
-        if (!datosFactura.productos_factura || datosFactura.productos_factura.length === 0) {
-            return res.status(400).json({ mensaje: 'Debe incluir al menos un producto en la factura' });
+        // ❗ CORREO OBLIGATORIO
+        if (!datosFactura.usuario.correo_electronico || datosFactura.usuario.correo_electronico.trim() === "") {
+            return res.status(400).json({
+                mensaje: 'El correo electrónico es obligatorio para generar la factura'
+            });
         }
 
-        // ---------------- PROCESAR PRODUCTOS ----------------
+        // ---------------- VALIDAR Y LIMPIAR PRODUCTOS ----------------
+
+        // Filtrar productos inválidos: null, undefined o sin producto_id
+        const productosLimpios = (datosFactura.productos_factura || []).filter(
+            p => p && p.producto_id && p.cantidad > 0
+        );
+
+        if (productosLimpios.length === 0) {
+            return res.status(400).json({
+                mensaje: "Debe incluir al menos un producto válido para generar la factura"
+            });
+        }
+
+        // Reemplazar la lista original por la lista limpia
+        datosFactura.productos_factura = productosLimpios;
+
+        // ---------------- PROCESAR PRODUCTOS (DESCONTAR STOCK) ----------------
         for (const item of datosFactura.productos_factura) {
 
-            if (!item.producto_id) {
-                return res.status(400).json({ mensaje: "Cada producto debe tener producto_id" });
-            }
-
-            // Buscar por ID, no por nombre
             const producto = await Producto.findById(item.producto_id);
             if (!producto) {
                 return res.status(404).json({ mensaje: `Producto no encontrado: ${item.producto}` });
@@ -269,7 +290,7 @@ exports.generarFactura = async (req, res) => {
             item.precio = producto.precio;
             item.subtotal = producto.precio * item.cantidad;
 
-            // Descontar stock solo una vez (esto antes se hacía 2 veces)
+            // Descontar stock solo una vez
             producto.cantidad -= item.cantidad;
             await producto.save();
         }
@@ -287,18 +308,17 @@ exports.generarFactura = async (req, res) => {
         const nuevaFactura = new Factura(datosFactura);
 
         // ---------------- GENERAR PDF ----------------
-        const pdfBuffer = await generarFacturaPDF(nuevaFactura); // <- ya lo tenías
+        const pdfBuffer = await generarFacturaPDF(nuevaFactura);
         nuevaFactura.pdf_factura = pdfBuffer;
 
         // ---------------- GENERAR XML ----------------
-        const xmlString = await generarFacturaXML(nuevaFactura); // <- ya lo tenías
+        const xmlString = await generarFacturaXML(nuevaFactura);
         nuevaFactura.xml_factura = xmlString;
 
-        // Guardar en BD con PDF & XML
+        // Guardar en BD
         await nuevaFactura.save();
 
-
-        // ---------------- ENVIAR CORREO ----------------
+        // ---------------- ENVIAR CORREO (OBLIGATORIO) ----------------
         try {
             await exports.enviarFacturaCorreo(
                 {
@@ -308,8 +328,8 @@ exports.generarFactura = async (req, res) => {
                     }
                 },
                 {
-                    json: () => { },
-                    status: () => ({ json: () => { } })
+                    json: () => {},
+                    status: () => ({ json: () => {} })
                 }
             );
 
@@ -319,8 +339,7 @@ exports.generarFactura = async (req, res) => {
             console.warn("⚠️ No se pudo enviar el correo automáticamente:", error.message);
         }
 
-        console.log('✅ Factura guardada con PDF y XML, stock actualizado');
-
+        console.log('✅ Factura generada con PDF y XML, stock actualizado');
 
         // ---------------- RESPUESTA FINAL ----------------
         res.status(201).json({

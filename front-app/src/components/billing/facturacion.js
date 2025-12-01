@@ -439,13 +439,31 @@ const Facturacion = () => {
     };
 
     const generarFactura = async () => {
+        // VALIDACIÓN: Debe haber productos visibles
         if (productosFactura.length === 0) {
             mostrarError('Error', 'Debe agregar al menos un producto a la factura');
             return;
         }
 
+        // VALIDACIÓN: Datos del cliente
         if (!tipoDocumento || !numeroDocumento || !nombres || !apellidos || !telefono) {
             mostrarError('Datos incompletos', 'Complete todos los datos del cliente');
+            return;
+        }
+
+        // VALIDACIÓN: Correo obligatorio (según backend)
+        if (!correo || correo.trim() === "") {
+            mostrarError('Correo obligatorio', 'Debe ingresar un correo electrónico válido');
+            return;
+        }
+
+        // 🔥🔥🔥 VALIDACIÓN CRÍTICA ----> AQUÍ SE ARREGLA EL ERROR 400
+        const productosLimpios = productosFactura.filter(
+            p => p && p.id && p.cantidad > 0
+        );
+
+        if (productosLimpios.length === 0) {
+            mostrarError('Error', 'Hay productos inválidos o sin ID. Elimine y vuelva a agregarlos.');
             return;
         }
 
@@ -453,6 +471,7 @@ const Facturacion = () => {
         setMensajeEstado('Generando factura, por favor espere');
 
         try {
+            // Registrar cliente si no existe
             if (!clienteEncontrado) {
                 const registrado = await registrarNuevoCliente();
                 if (!registrado) {
@@ -461,13 +480,15 @@ const Facturacion = () => {
                 }
             }
 
-            const subtotal = productosFactura.reduce((sum, producto) => {
+            // Calcular valores
+            const subtotal = productosLimpios.reduce((sum, producto) => {
                 return sum + (producto.precio * producto.cantidad);
             }, 0);
 
-            const iva = subtotal * 0.19; 
+            const iva = subtotal * 0.19;
             const total = subtotal + iva;
 
+            // 🔧 Enviar SOLO productos limpios al backend
             const datosFactura = {
                 subtotal,
                 iva,
@@ -481,28 +502,34 @@ const Facturacion = () => {
                     correo_electronico: correo,
                     telefono: telefono
                 },
-                productos_factura: productosFactura.map(p => ({
-                    producto_id: p.id,               
+                productos_factura: productosLimpios.map(p => ({
+                    producto_id: p.id,
                     producto: p.nombre,
                     cantidad: p.cantidad,
                     precio: p.precio
                 }))
             };
 
+            console.log("Factura enviada al backend:", datosFactura);
+
             const res = await clienteAxios.post('/api/facturas', datosFactura);
-            
+
             setMensajeEstado('Factura generada exitosamente');
             Swal.fire('Correcto', 'Factura generada y guardada', 'success');
-            
+
             limpiarFormulario();
 
         } catch (error) {
             console.error('Error al generar la factura:', error.response?.data?.mensaje || error.message);
-            mostrarError('Error de Validación', 'Error al generar la factura. Verifique los datos e intente nuevamente.');
+            mostrarError(
+                'Error de Validación',
+                error.response?.data?.mensaje || 'Error al generar la factura. Verifique los datos.'
+            );
         } finally {
             setGenerandoFactura(false);
         }
     };
+
 
     const limpiarFormulario = () => {
         setTipoDocumento('');
