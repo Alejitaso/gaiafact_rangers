@@ -482,7 +482,8 @@ const Facturacion = () => {
                     telefono: telefono
                 },
                 productos_factura: productosFactura.map(p => ({
-                    producto_id: p.id,
+                    producto_id: p.id,               
+                    producto: p.nombre,
                     cantidad: p.cantidad,
                     precio: p.precio
                 }))
