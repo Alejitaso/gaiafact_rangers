@@ -234,7 +234,7 @@ const puedeVerTodasLasFacturas = (tipoUsuario) => {
 // -----------------------------------------------------------
 
 exports.generarFactura = async (req, res) => {
-    
+
     console.log("📦 BODY RECIBIDO EN EL BACKEND:", JSON.stringify(req.body, null, 2));
 
     try {
@@ -322,12 +322,13 @@ exports.generarFactura = async (req, res) => {
         const nuevaFactura = new Factura(datosFactura);
 
         // ---------------- GENERAR PDF ----------------
-        const pdfBuffer = await generarFacturaPDF(nuevaFactura);
+        const pdfBuffer = await generarPDFFactura(nuevaFactura);
         nuevaFactura.pdf_factura = pdfBuffer;
 
         // ---------------- GENERAR XML ----------------
-        const xmlString = await generarFacturaXML(nuevaFactura);
+        const xmlString = await generarXMLFactura(nuevaFactura);
         nuevaFactura.xml_factura = xmlString;
+
 
         // Guardar en BD
         await nuevaFactura.save();
