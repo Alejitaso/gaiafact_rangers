@@ -3,10 +3,7 @@ const Producto    = require('../models/producto.js');
 const Factura     = require('../models/factura.js');
 const PDFDocument = require('pdfkit');
 const QRCode      = require('qrcode');
-const sgMail      = require('@sendgrid/mail');   // API HTTP oficial
-
-console.log('📦 Variables de entorno disponibles:', Object.keys(process.env));
-
+const sgMail      = require('@sendgrid/mail');   
 // -----------------------------------------------------------
 // 1)  CONFIG DE SENDGRID – FUENTE ÚNICA: SENDGRID_API_KEY
 // -----------------------------------------------------------
@@ -235,8 +232,6 @@ const puedeVerTodasLasFacturas = (tipoUsuario) => {
 
 exports.generarFactura = async (req, res) => {
 
-    console.log("📦 BODY RECIBIDO EN EL BACKEND:", JSON.stringify(req.body, null, 2));
-
     try {
         const datosFactura = req.body;
 
@@ -284,7 +279,6 @@ exports.generarFactura = async (req, res) => {
                 return res.status(400).json({ mensaje: "Cada producto debe tener producto_id" });
             }
 
-            // 🔍 CÓDIGO DIAGNÓSTICO ----> PEGAR AQUÍ
             console.log("🔍 ID recibido del frontend:", item.producto_id);
 
             const producto = await Producto.findById(item.producto_id);
@@ -335,7 +329,7 @@ exports.generarFactura = async (req, res) => {
 
         // ---------------- ENVIAR CORREO (OBLIGATORIO) ----------------
         try {
-            await exports.enviarFacturaCorreo(
+            await exports.enviarFacturaPorCorreo(
                 {
                     body: {
                         idFactura: nuevaFactura._id,
