@@ -291,6 +291,9 @@ function RegistroUsuario() {
         return [];
     }
   };
+  console.log("ROL ACTUAL:", rolActual);
+  console.log("OPCIONES PERMITIDAS:", obtenerOpcionesPermitidas());
+
 
   const handleNavigateToLogin = () => {
     navigate('/');
@@ -532,7 +535,6 @@ function RegistroUsuario() {
               aria-required="true"
             >
               <option value="">Seleccione una opción</option>
-
               {obtenerOpcionesPermitidas().map((opcion) => (
                 <option key={opcion} value={opcion}>
                   {opcion.charAt(0) + opcion.slice(1).toLowerCase()}
