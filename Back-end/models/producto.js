@@ -25,6 +25,12 @@ const productoSchema = new Schema({
   precio: {
     type: Number
   },
+  descuento: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 100
+  },
   codigoProducto: {
     type: Number,
     trim: true,

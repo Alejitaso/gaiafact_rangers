@@ -41,8 +41,17 @@ const facturasSchema = new mongoose.Schema({
         telefono: { type: String }
     },
     productos_factura: {
-        type: Array,
-        required: true
+        type: [{
+           producto: String,
+           cantidad: Number,
+           precio: Number,
+           descuento: { type: Number, default: 0 },
+           subtotal: Number
+       }],
+       required: true
+    },
+    descuento_total: { 
+        type: Number, default: 0 
     },
     total: {
         type: Number,

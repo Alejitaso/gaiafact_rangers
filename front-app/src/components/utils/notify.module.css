@@ -10,6 +10,11 @@
     --color-ocho: #406f81;
 }
 
+.content {
+  gap: 20px;
+  flex-direction: column;
+}
+
 /* ✅ Accesibilidad: ocultar visualmente pero mantener para lectores */
 .sr-only {
   position: absolute;
@@ -30,7 +35,7 @@
     padding: 20px;
     background-color: var(--color-uno);
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
 }
 
 .header {
@@ -365,10 +370,6 @@
 }
 
 @media (max-width: 480px) {
-    .mainContainer {
-        padding: 10px;
-        margin: 10px;
-    }
 
     .header {
         font-size: 20px;
