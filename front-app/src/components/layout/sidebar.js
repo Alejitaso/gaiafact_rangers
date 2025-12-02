@@ -141,7 +141,7 @@ const Sidebar = () => {
             className={`${styles.sidebarLink} ${currentPath === '/vis-factura' ? styles.activeLink : ''}`}
           >
             <i className="fa-solid fa-list-ul"></i>
-            <span className={styles.linkText}>Ver factura</span>
+            <span className={styles.linkText}>Ver facturas</span>
           </a>
         )}
 
