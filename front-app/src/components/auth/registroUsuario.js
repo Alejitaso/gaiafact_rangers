@@ -502,6 +502,7 @@ function RegistroUsuario() {
             <label htmlFor="tipo_usuario">
               Tipo de Usuario <abbr title="requerido" aria-label="campo requerido">*</abbr>
             </label>
+
             <select
               id="tipo_usuario"
               name="tipo_usuario"
@@ -514,17 +515,22 @@ function RegistroUsuario() {
               aria-required="true"
             >
               <option value="">Seleccione una opción</option>
-              <option value="ADMINISTRADOR">Administrador</option>
-              <option value="USUARIO">Usuario</option>
-              <option value="CLIENTE">Cliente</option>
-              <option value="SUPERADMIN">Super Administrador</option>
+
+              {obtenerOpcionesPermitidas().map((opcion) => (
+                <option key={opcion} value={opcion}>
+                  {opcion.charAt(0) + opcion.slice(1).toLowerCase()}
+                </option>
+              ))}
+
             </select>
+
             {errores.tipo_usuario && (
               <span id="tipo-usuario-error" role="alert" className={styles.errorText}>
                 {errores.tipo_usuario}
               </span>
             )}
           </div>
+
 
           {/* BOTÓN DE ENVÍO */}
           <button 

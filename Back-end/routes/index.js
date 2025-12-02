@@ -60,7 +60,7 @@ module.exports = function () {
   router.post("/auth/login", verificarAuth, loginLimiter, audit('inicioSesion'), authController.login);
   router.post("/auth/recover", verificarAuth, audit('recuperarContrasena'), authController.recoverPassword);
   router.get('/auth/verify-email', verificarAuth, audit('verificarCorreo'), authController.verifyEmail);
-  router.post('/auth/reset/:token', verificarAuth, audit('restablecerContrasena'), authController.resetPassword);
+  router.post('/auth/reset/:token', audit('restablecerContrasena'), authController.resetPassword);
 
   /* ─────────────── NOTIFICACIONES ─────────────── */
   router.post('/notificaciones/crear', verificarAuth, audit('crearNotificacion'), notificacionController.crearNotificacion);
