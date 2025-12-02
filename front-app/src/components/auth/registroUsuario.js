@@ -275,7 +275,7 @@ function RegistroUsuario() {
     }
   };
 
-  const rolActual = JSON.parse(localStorage.getItem('usuario'))?.tipo_usuario;
+  const rolActual = JSON.parse(localStorage.getItem('tipo_usuario'))?.tipo_usuario;
   const obtenerOpcionesPermitidas = () => {
     switch (rolActual) {
       case "SUPERADMIN":
