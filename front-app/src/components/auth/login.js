@@ -115,9 +115,10 @@ function Login() {
 
         localStorage.setItem("token", data.token);
         localStorage.setItem("tipo_usuario", data.usuario.tipo_usuario);
+        localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
         setTimeout(() => {
-          window.location.href = "/inicio";
+          window.location.href = "/login";
         }, 500);
         
       } else {
