@@ -165,9 +165,6 @@ const VisFactura = () => {
     };
 
     const seleccionarFecha = (dia) => {
-        // ❌ ORIGINAL (CREA FECHA LOCAL)
-        // const fecha = new Date(anioCalendario, mesCalendario, dia);
-
         // ✅ CORRECCIÓN: Creamos la fecha local y luego ajustamos
         // para obtener el formato YYYY-MM-DD sin el desplazamiento.
         const fechaLocal = new Date(anioCalendario, mesCalendario, dia);
@@ -188,8 +185,6 @@ const VisFactura = () => {
         // Opcional: cerrar calendario
         setMostrarCalendario(false);
     };
-
-    // ... el resto del código
 
     const obtenerDiasDelMes = () => {
         return new Date(anioCalendario, mesCalendario + 1, 0).getDate();

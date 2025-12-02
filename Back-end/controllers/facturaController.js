@@ -382,19 +382,36 @@ exports.mostrarFacturas = async (req, res, next) => {
 };
 
 exports.obtenerFacturaPDF = async (req, res, next) => {
+  console.log("📥 [DESCARGA PDF] Ruta ejecutada. ID recibido:", req.params.idFactura);
+
   try {
-    const factura = await Factura.findById(req.params.id);
-    if (!factura) return res.status(404).json({ mensaje: 'Factura no encontrada' });
-    if (!factura.pdf_factura) return res.status(404).json({ mensaje: 'PDF no encontrado' });
+    // ❗ Tu ruta usa :idFactura, no :id → esto corregido
+    const factura = await Factura.findById(req.params.idFactura);
+
+    console.log("📄 Factura encontrada?:", factura ? "SI" : "NO");
+
+    if (!factura) {
+      console.log("❌ No existe factura con ese ID en la BD");
+      return res.status(404).json({ mensaje: 'Factura no encontrada' });
+    }
+
+    console.log("📄 PDF existe?:", factura.pdf_factura ? "SI" : "NO");
+
+    if (!factura.pdf_factura) {
+      console.log("❌ La factura existe, pero NO tiene PDF almacenado");
+      return res.status(404).json({ mensaje: 'PDF no encontrado' });
+    }
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=factura-${factura.numero_factura}.pdf`);
     res.send(factura.pdf_factura);
+
   } catch (e) {
     console.error('❌ obtenerFacturaPDF:', e);
     res.status(500).json({ mensaje: 'Error al obtener PDF' });
   }
 };
+
 
 exports.obtenerFacturaXML = async (req, res, next) => {
   try {
