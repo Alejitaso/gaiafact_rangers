@@ -814,17 +814,17 @@ exports.enviarFacturaPorCorreo = async (req, res, next) => {
     };
 
     await notificacionController.guardarNotificacion({
-            numero_factura: nuevaFactura.numero_factura,
-            documento_emisor: factura.usuario.numero_documento,
-            documento_receptor: factura.usuario.numero_documento,
-            correo_receptor: factura.usuario.correo_electronico,
-            tipo: "automatico",
+        numero_factura: factura.numero_factura,
+        documento_emisor: factura.usuario.numero_documento,
+        documento_receptor: factura.usuario.numero_documento,
+        correo_receptor: factura.usuario.correo_electronico,
+        tipo: "automatico",
 
-            // Estos 3 campos antes fallaban
-            factura: nuevaFactura._id,
-            cliente: nuevaFactura.usuario._id,
-            fecha_enviada: new Date()
+        factura: factura._id,
+        cliente: factura.usuario._id,
+        fecha_enviada: new Date()
     });
+
 
     await sgMail.send(msg);
     console.log(`✅ Factura ${factura.numero_factura} enviada a ${emailCliente}`);
