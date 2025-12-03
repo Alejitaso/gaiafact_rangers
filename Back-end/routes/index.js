@@ -33,7 +33,7 @@ module.exports = function () {
   router.get('/Usuario', verificarAuth, verificarRolGestor, audit('listarUsuarios'), usuarioController.mostrarUsuarios);
   router.put('/Usuario/:idUsuario', verificarAuth, audit('actualizarUsuario'), usuarioController.actualizarUsuario);
 
-  /* ─────────────── PRODUCTOS ─────────────── */ç
+  /* ─────────────── PRODUCTOS ─────────────── */
   router.post('/productos', verificarAuth, verificarRolGestor, audit('crearProducto'), productoController.nuevoProducto);
   router.get('/productos', verificarAuth, audit('listarProductos'), productoController.mostrarProductos);
   router.get('/productos/:idProducto', verificarAuth, audit('verProducto'), productoController.mostrarProducto);
@@ -67,6 +67,6 @@ module.exports = function () {
   router.get('/notificaciones', verificarAuth, notificacionController.listarNotificaciones);
   /* ─────────────── LOGS (solo ADMIN / SUPERADMIN) ─────────────── */
   router.get('/logs', verificarAuth, verificarRolGestor, logController.obtenerLogs);
-  
+
   return router;
 };
