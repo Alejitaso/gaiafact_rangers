@@ -3,7 +3,10 @@ const Producto    = require('../models/producto.js');
 const Factura     = require('../models/factura.js');
 const PDFDocument = require('pdfkit');
 const QRCode      = require('qrcode');
-const sgMail      = require('@sendgrid/mail');   
+const sgMail      = require('@sendgrid/mail');
+const notificacionController = require('./notificacionController');
+const facturaSchema = require('../Validators/facturaValidator');
+
 // -----------------------------------------------------------
 // 1)  CONFIG DE SENDGRID – FUENTE ÚNICA: SENDGRID_API_KEY
 // -----------------------------------------------------------
@@ -90,6 +93,7 @@ const generarPDFFactura = async (datosFactura) => {
                .text('DESCRIPCIÓN', 60, tableTop + 5, { width: 220 })
                .text('CANT.', 290, tableTop + 5, { width: 40, align: 'center' })
                .text('PRECIO UNIT.', 340, tableTop + 5, { width: 80, align: 'right' })
+               .text('DTO.', 420, tableTop + 5, { width: 40, align: 'center' })
                .text('SUBTOTAL', 430, tableTop + 5, { width: 100, align: 'right' });
 
             // Productos
@@ -97,9 +101,11 @@ const generarPDFFactura = async (datosFactura) => {
             let subtotalGeneral = 0;
 
             datosFactura.productos_factura.forEach((item, index) => {
-                const subtotal = item.precio * item.cantidad;
+                const precioConDescuento = item.precio * (1 - (item.descuento || 0) / 100);
+                const subtotal = precioConDescuento * item.cantidad;
                 subtotalGeneral += subtotal;
 
+                item.subtotal = subtotal;
                 // Fondo alternado para filas
                 if (index % 2 === 0) {
                     doc.rect(50, yPosition - 5, 495, 20).fillColor('#F8F9FA').fill();
@@ -109,6 +115,7 @@ const generarPDFFactura = async (datosFactura) => {
                    .text(item.producto, 60, yPosition, { width: 220 })
                    .text(item.cantidad.toString(), 290, yPosition, { width: 40, align: 'center' })
                    .text(`$${item.precio.toLocaleString('es-CO')}`, 340, yPosition, { width: 80, align: 'right' })
+                   .text(`${item.descuento || 0}%`, 420, yPosition, { width: 40, align: 'center' })
                    .text(`$${subtotal.toLocaleString('es-CO')}`, 430, yPosition, { width: 100, align: 'right' });
 
                 yPosition += 25;
@@ -125,12 +132,13 @@ const generarPDFFactura = async (datosFactura) => {
             }, 0);
 
             const iva = subtotal * 0.19; // 19% IVA
-            const totalFinal = subtotal + iva;
+            const totalFinal = subtotalGeneral + iva;
 
             // Guardar valores en la factura
-            datosFactura.subtotal = subtotal;
+            datosFactura.subtotal = subtotalGeneral;
             datosFactura.iva = iva;
             datosFactura.total = totalFinal;
+            datosFactura.descuento_total = subtotalGeneral - (datosFactura.productos_factura.reduce((sum, p) => sum + (p.precio * p.cantidad), 0));
 
             doc.fontSize(10).fillColor(colorTexto)
                .text('Subtotal:', 380, yPosition, { align: 'right', width: 80 })
@@ -139,6 +147,14 @@ const generarPDFFactura = async (datosFactura) => {
             yPosition += 20;
             doc.text('IVA (19%):', 380, yPosition, { align: 'right', width: 80 })
                .text(`$${iva.toLocaleString('es-CO')}`, 460, yPosition, { align: 'right', width: 85 });
+
+            // ========== DESCUENTO TOTAL ==========
+            if (datosFactura.descuento_total !== 0) {
+            yPosition += 20;
+            doc.fontSize(10).fillColor(colorTexto)
+                .text('Descuento total:', 380, yPosition, { align: 'right', width: 80 })
+                .text(`-$${Math.abs(datosFactura.descuento_total).toLocaleString('es-CO')}`, 460, yPosition, { align: 'right', width: 85 });
+            }
 
             yPosition += 25;
             doc.fontSize(12).fillColor(colorPrimario).font('Helvetica-Bold')
@@ -291,11 +307,18 @@ exports.generarFactura = async (req, res) => {
                 });
             }
 
+            if (!producto) return res.status(404).json({ mensaje: `Producto "${item.producto}" no encontrado` });
+            if (producto.cantidad < item.cantidad) return res.status(400).json({ mensaje: `Stock insuficiente para "${producto.nombre}"` });
+
             console.log("✔ Producto encontrado:", producto.nombre);
+
+            const descuento = Number(item.descuento) || 0;
+            const precioConDescuento = producto.precio * (1 - descuento / 100);
 
             // Calcular subtotal
             item.precio = producto.precio;
-            item.subtotal = producto.precio * item.cantidad;
+            item.descuento = descuento;
+            item.subtotal = precioConDescuento * item.cantidad;
 
             // Descontar stock solo una vez
             producto.cantidad -= item.cantidad;
@@ -341,6 +364,14 @@ exports.generarFactura = async (req, res) => {
                     status: () => ({ json: () => {} })
                 }
             );
+
+            await notificacionController.guardarNotificacion({
+                numero_factura: nuevaFactura.numero_factura,
+                documento_emisor: 'Sistema',
+                documento_receptor: nuevaFactura.usuario.numero_documento,
+                correo_receptor: nuevaFactura.usuario.correo_electronico,
+                tipo: 'automatico',
+            });  
 
             console.log(`📧 Correo enviado automáticamente a ${nuevaFactura.usuario.correo_electronico}`);
 
@@ -702,18 +733,19 @@ exports.enviarFacturaPorCorreo = async (req, res, next) => {
                             <thead>
                                 <tr>
                                     <th>Producto</th>
-                                    <th style="text-align: center;">Cant.</th>
-                                    <th style="text-align: right;">Precio Unit.</th>
-                                    <th style="text-align: right;">Subtotal</th>
-                                </tr>
+                                    <th style="text-align:center">Cant.</th>
+                                    <th style="text-align:right">Precio Unit.</th>
+                                    <th style="text-align:right">Dto. %</th>
+                                    <th style="text-align:right">Subtotal</th>
                             </thead>
                             <tbody>
                                 ${factura.productos_factura.map(prod => `
                                     <tr>
                                         <td>${prod.producto}</td>
-                                        <td style="text-align: center;">${prod.cantidad}</td>
-                                        <td style="text-align: right;">$${prod.precio.toLocaleString('es-CO')}</td>
-                                        <td style="text-align: right;">$${(prod.precio * prod.cantidad).toLocaleString('es-CO')}</td>
+                                        <td style="text-align:center">${prod.cantidad}</td>
+                                        <td style="text-align:right">$${prod.precio.toLocaleString('es-CO')}</td>
+                                        <td style="text-align:right">${prod.descuento || 0} %</td>
+                                        <td style="text-align:right">$${prod.subtotal.toLocaleString('es-CO')}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -758,6 +790,8 @@ exports.enviarFacturaPorCorreo = async (req, res, next) => {
             </html>
         `;
 
+        console.log(`📧 Enviando factura ${factura.numero_factura} a ${emailCliente}...`);
+
     const msg = {
       to: [{ email: emailCliente }],
       from: { email: process.env.EMAIL_FROM || 'gaiafactrangers@gmail.com', name: 'Athena\'S - GaiaFact' },
@@ -779,11 +813,13 @@ exports.enviarFacturaPorCorreo = async (req, res, next) => {
         ]
     };
 
-    console.log('Attachments a enviar:', msg.attachments.map(a => ({
-    filename: a.filename,
-    type: a.type,
-    contentLength: a.content.length
-    })));
+    await notificacionController.guardarNotificacion({
+            numero_factura: factura.numero_factura,
+            documento_emisor: req.usuario?.numero_documento || 'Sistema',
+            documento_receptor: factura.usuario.numero_documento,
+            correo_receptor: emailCliente,
+            tipo: 'manual',
+    });
 
     await sgMail.send(msg);
     console.log(`✅ Factura ${factura.numero_factura} enviada a ${emailCliente}`);

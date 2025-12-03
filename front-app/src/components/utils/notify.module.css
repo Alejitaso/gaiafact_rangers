@@ -1,3 +1,19 @@
+/* colores globales */
+:root {
+    --color-uno: #254454;
+    --color-dos: #F0F4F8;
+    --color-tres: #276177;
+    --color-cuatro: #D1DCE6;
+    --color-cinco: #8E9BE8;
+    --color-seis: #C7BEDB;
+    --color-siete: #F61507;
+    --color-ocho: #406f81;
+}
+
+.content {
+  gap: 20px;
+  flex-direction: column;
+}
 
 /* ✅ Accesibilidad: ocultar visualmente pero mantener para lectores */
 .sr-only {
@@ -19,7 +35,7 @@
     padding: 20px;
     background-color: var(--color-uno);
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
 }
 
 .header {
@@ -34,7 +50,7 @@
     margin-right: 10px;
 }
 
-/* ========== SECCION DE FORMULARIO ========== */
+/* ========== SECCIÃ"N DE FORMULARIO ========== */
 .formSection {
     background-color: var(--color-dos);
     padding: 25px;
@@ -88,7 +104,7 @@
     font-weight: 500;
 }
 
-/* ========== BOTON DE BUSQUEDA ========== */
+/* ========== BOTÃ"N DE BÃšSQUEDA ========== */
 .searchButton {
     width: 100%;
     padding: 12px;
@@ -136,7 +152,7 @@
     100% { transform: rotate(360deg); }
 }
 
-/* ========== SECCION DE PREVISUALIZACION ========== */
+/* ========== SECCIÃ"N DE PREVISUALIZACIÃ"N ========== */
 .previewSection {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -249,7 +265,7 @@
     margin-top: 20px;
 }
 
-/* ========== BOTONES DE ACCION ========== */
+/* ========== BOTONES DE ACCIÃ"N ========== */
 .buttonGroup {
     display: flex;
     gap: 15px;
@@ -354,10 +370,6 @@
 }
 
 @media (max-width: 480px) {
-    .mainContainer {
-        padding: 10px;
-        margin: 10px;
-    }
 
     .header {
         font-size: 20px;

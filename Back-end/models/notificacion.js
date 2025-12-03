@@ -2,6 +2,31 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 //Definición del esquema Mongoose para el modelo de Notificación.
 const notificacionSchema = new Schema({
+    numero_factura: {
+    type: String,
+    required: true,
+  },
+  documento_emisor: {
+    type: String,
+    required: true,
+  },
+  documento_receptor: {
+    type: String,
+    required: true,
+  },
+  correo_receptor: {
+    type: String,
+    required: true,
+  },
+  fecha_envio: {
+    type: Date,
+    default: Date.now,
+  },
+  tipo: {
+    type: String,
+    enum: ['manual', 'automatico'],
+    default: 'manual',
+  },
 //Campo 'fecha_enviada', almacena la fecha en que se envió la notificación. Es obligatorio.
     fecha_enviada: {
         type: Date,

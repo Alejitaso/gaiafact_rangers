@@ -33,13 +33,13 @@ module.exports = function () {
   router.get('/Usuario', verificarAuth, verificarRolGestor, audit('listarUsuarios'), usuarioController.mostrarUsuarios);
   router.put('/Usuario/:idUsuario', verificarAuth, audit('actualizarUsuario'), usuarioController.actualizarUsuario);
 
-  /* ─────────────── PRODUCTOS ─────────────── */
-  router.post('/productos', verificarAuth, verificarRolGestor, productoController.subirArchivo, audit('crearProducto'), productoController.nuevoProducto);
+  /* ─────────────── PRODUCTOS ─────────────── */ç
+  router.post('/productos', verificarAuth, verificarRolGestor, audit('crearProducto'), productoController.nuevoProducto);
   router.get('/productos', verificarAuth, audit('listarProductos'), productoController.mostrarProductos);
   router.get('/productos/:idProducto', verificarAuth, audit('verProducto'), productoController.mostrarProducto);
   router.get('/productos/:idProducto/codigo', verificarAuth, audit('verCodigoBarras'), productoController.obtenerCodigoBarrasPDF);
-  router.put('/productos/:idProducto', verificarAuth, verificarRolGestor, productoController.subirArchivo, audit('actualizarProducto'), productoController.actualizarProducto);
   router.delete('/productos/:idProducto', verificarAuth, verificarRolGestor, audit('eliminarProducto'), productoController.eliminarProducto);
+  router.put('/productos/:idProducto', verificarAuth, verificarRolGestor, audit('actualizarProducto'), productoController.actualizarProducto);
 
   /* ─────────────── IMÁGENES ─────────────── */
   router.post('/imagenes/carousel', verificarAuth, verificarRolGestor, imagenesController.upload.single('imagen'), audit('subirImagenCarousel'), imagenesController.subirImagenCarousel);
@@ -63,10 +63,10 @@ module.exports = function () {
   router.post('/auth/reset/:token', audit('restablecerContrasena'), authController.resetPassword);
 
   /* ─────────────── NOTIFICACIONES ─────────────── */
-  router.post('/notificaciones/crear', verificarAuth, audit('crearNotificacion'), notificacionController.crearNotificacion);
-
+  router.post('/notificaciones/crear', verificarAuth, audit('crearNotificacion'), notificacionController.guardarNotificacion);
+  router.get('/notificaciones', verificarAuth, notificacionController.listarNotificaciones);
   /* ─────────────── LOGS (solo ADMIN / SUPERADMIN) ─────────────── */
-  router.get('/logs', verificarAuth, verificarRolGestor, audit('verLogs'), logController.obtenerLogs);
-
+  router.get('/logs', verificarAuth, verificarRolGestor, logController.obtenerLogs);
+  
   return router;
 };

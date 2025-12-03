@@ -316,6 +316,7 @@ function EditarProducto() {
       tipo_prenda: [producto.tipo_prenda],
       cantidad: Number(producto.cantidad),
       precio: Number(producto.precio),
+      descuento: Number(producto.descuento || 0),
       ...(producto.descuento !== '' ? { descuento: Number(producto.descuento) } : {})
     };
 
