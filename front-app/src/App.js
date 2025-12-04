@@ -78,11 +78,9 @@ function AppContent() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const tipo = (localStorage.getItem("tipo_usuario") || "").toUpperCase();
-    if (token && tipo) {
-      if (location.pathname === "/" || location.pathname === "/login") {
-        window.location.href = "/inicio";
-      }
-    }
+    if (token && tipo && location.pathname === "/") {
+    window.location.href = "/inicio";
+  }
   }, [location.pathname]);
 
   // 🔹 Rutas públicas (sin protección)
@@ -150,7 +148,7 @@ function AppContent() {
               path="*" 
               element={
                 localStorage.getItem("token") ? (
-                  <Navigate to="/inicio" replace />
+                  <Navigate to="/login" replace />
                 ) : (
                   <Navigate to="/login" replace />
                 )

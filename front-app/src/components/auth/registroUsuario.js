@@ -31,7 +31,7 @@ function RegistroUsuario() {
     telefono: '',
     estado: 'Activo',
     tipo_usuario: '',
-    password: ''
+    password: 'temporal123'
   });
 
   // Anunciar cambios de estado
@@ -235,7 +235,7 @@ function RegistroUsuario() {
         telefono: '',
         estado: 'Activo',
         tipo_usuario: '',
-        password: ''
+        password: 'temporal123'
       });
       
       // Regresar foco al primer campo
