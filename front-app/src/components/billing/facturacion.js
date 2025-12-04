@@ -343,6 +343,7 @@ const Facturacion = () => {
                     <h4><i class="fas fa-box"></i> ${producto.nombre}</h4>
                     <p><strong>ID:</strong> ${producto._id.substring(producto._id.length - 6).toUpperCase()}</p>
                     <p><strong>Precio:</strong> $${formatearPrecio(producto.precio)}</p>
+                    <p><strong>Descuento:</strong> ${producto.descuento || 0}%</p>
                     <p><strong>Stock disponible:</strong> ${producto.cantidad} unidades</p>
                     <p><strong>Tipo:</strong> ${producto.tipo_prenda}</p>
                     <div style="margin-top: 15px;">
@@ -422,7 +423,8 @@ const Facturacion = () => {
                 precio: producto.precio,
                 cantidad: cantidad,
                 stock: producto.cantidad,
-                tipo_prenda: producto.tipo_prenda
+                tipo_prenda: producto.tipo_prenda,
+                descuento: producto.descuento || 0
             };
             
             setProductosFactura(prev => [...prev, nuevoProducto]);
@@ -490,7 +492,8 @@ const Facturacion = () => {
                 productos_factura: productosFactura.map(p => ({
                     producto: p.nombre,
                     cantidad: p.cantidad,
-                    precio: p.precio
+                    precio: p.precio,
+                    descuento: p.descuento || 0
                 }))
             };
 
@@ -608,9 +611,10 @@ const Facturacion = () => {
     };
 
     const calcularTotal = () => {
-        return productosFactura.reduce((total, producto) => 
-            total + (producto.precio * producto.cantidad), 0
-        );
+    return productosFactura.reduce((total, p) => {
+        const precioConDescuento = p.precio * (1 - (p.descuento || 0) / 100);
+        return total + (precioConDescuento * p.cantidad);
+    }, 0);
     };
 
     return (
@@ -870,10 +874,15 @@ const Facturacion = () => {
                                                         Stock: {producto.stock}
                                                     </small>
                                                 )}
+                        
+                                                
                                             </td>
                                             <td>${formatearPrecio(producto.precio)}</td>
                                             <td style={{ fontWeight: 'bold' }}>
                                                 ${formatearPrecio(producto.precio * producto.cantidad)}
+                                                {producto.descuento > 0 && (
+                                                    <small style={{ color: 'green' }}>-{producto.descuento}%</small>
+                                                )}
                                             </td>
                                             <td>
                                                 <button 

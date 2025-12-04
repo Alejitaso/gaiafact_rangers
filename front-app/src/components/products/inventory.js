@@ -265,7 +265,10 @@ const descargarCodigoBarras = async (idProducto) => {
                     >
                       <td>{p.codigo_barras_datos || "Sin código"}</td>
                       <td>{p.nombre || "N/A"}</td>
-                      <td>{formatearPrecio(p.precio)}</td>
+                      <td>
+                        {formatearPrecio(p.precio)}
+                        {p.descuento > 0 && (<><br /><small style={{ color: 'green' }}>-{p.descuento}% dto</small></>)}
+                      </td>
                       <td>
                         <span className={(p.cantidad || 0) <= 10 ? styles.stock_bajo : styles.stock_normal}>
                           {p.cantidad || 0}
