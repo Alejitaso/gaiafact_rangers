@@ -1,0 +1,135 @@
+.panel {
+  background-color: var(--color-dos);
+  border: 2px solid var(--color-tres);
+  max-width: 60%;
+  border-radius: 10px;
+  margin: 30px auto;
+  padding: 20px;
+  color: var(--color-uno);
+}
+
+.barraBusqueda {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.barraBusqueda input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--color-tres);
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white;
+  transition: border-color 0.2s;
+}
+
+.barraBusqueda input:focus {
+  outline: none;
+  border-color: var(--color-cinco);
+}
+
+.barraBusqueda i {
+  color: var(--color-tres);
+  font-size: 16px;
+}
+
+.titulo {
+  margin: 0 0 15px 0;
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--color-uno);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filtros {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.filtros input {
+  padding: 8px;
+  border: 1px solid var(--color-tres);
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+  transition: border-color 0.2s;
+}
+
+.filtros input:focus {
+  outline: none;
+  border-color: var(--color-cinco);
+}
+
+.lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.item {
+  background-color: white;
+  border: 1px solid var(--color-cuatro);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+  transition: box-shadow 0.2s;
+}
+
+.item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.fila:last-child {
+  margin-bottom: 0;
+}
+
+.factura {
+  font-weight: bold;
+  color: var(--color-tres);
+}
+
+.fecha {
+  font-size: 13px;
+  color: var(--color-ocho);
+}
+
+.tipo {
+  font-size: 12px;
+  background-color: var(--color-cuatro);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--color-uno);
+}
+
+.vacio {
+  text-align: center;
+  color: var(--color-ocho);
+  font-style: italic;
+  padding: 20px;
+}
+
+/* ✅ RESPONSIVE: en móviles se colapsa debajo */
+@media (max-width: 768px) {
+  .panel {
+    margin-top: 20px;
+  }
+
+  .filtros {
+    grid-template-columns: 1fr;
+  }
+}

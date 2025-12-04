@@ -36,11 +36,11 @@ module.exports = function () {
   router.get('/Usuario/verificar', usuarioController.verificarCuenta);
 
   /* ─────────────── PRODUCTOS ─────────────── */
-  router.post('/productos', verificarAuth, verificarRolGestor, productoController.subirArchivo, audit('crearProducto'), productoController.nuevoProducto);
+  router.post('/productos', verificarAuth, verificarRolGestor, audit('crearProducto'), productoController.nuevoProducto);
   router.get('/productos', verificarAuth, audit('listarProductos'), productoController.mostrarProductos);
   router.get('/productos/:idProducto', verificarAuth, audit('verProducto'), productoController.mostrarProducto);
   router.get('/productos/:idProducto/codigo', verificarAuth, audit('verCodigoBarras'), productoController.obtenerCodigoBarrasPDF);
-  router.put('/productos/:idProducto', verificarAuth, verificarRolGestor, productoController.subirArchivo, audit('actualizarProducto'), productoController.actualizarProducto);
+  router.put('/productos/:idProducto', verificarAuth, verificarRolGestor, audit('actualizarProducto'), productoController.actualizarProducto);
   router.delete('/productos/:idProducto', verificarAuth, verificarRolGestor, audit('eliminarProducto'), productoController.eliminarProducto);
 
   /* ─────────────── IMÁGENES ─────────────── */
@@ -66,8 +66,6 @@ module.exports = function () {
 
   router.get('/facturas', verificarAuth, audit('listarFacturas'), facturaController.mostrarFacturas);
   router.get('/facturas/:idFactura', verificarAuth, audit('verFactura'), facturaController.mostrarFactura);
-  router.put('/facturas/:idFactura', verificarAuth, verificarRolGestor, audit('actualizarFactura'), facturaController.actualizarFactura);
-  router.delete('/facturas/:idFactura', verificarAuth, verificarRolGestor, audit('eliminarFactura'), facturaController.eliminarFactura);
   router.get('/facturas/pdf/:idFactura', verificarAuth, audit('descargarFacturaPDF'), facturaController.obtenerFacturaPDF);
   router.get('/facturas/xml/:idFactura', verificarAuth, audit('descargarFacturaXML'), facturaController.obtenerFacturaXML);
   router.post('/facturas/enviar-correo', verificarAuth, audit('enviarFacturaCorreo'), facturaController.enviarFacturaCorreo);
@@ -84,10 +82,11 @@ module.exports = function () {
   router.get("/verificar/:token", verificarCuenta);
 
   /* ─────────────── NOTIFICACIONES ─────────────── */
-  router.post('/notificaciones/crear', verificarAuth, audit('crearNotificacion'), notificacionController.crearNotificacion);
+  router.post('/notificaciones/crear', verificarAuth, audit('crearNotificacion'), notificacionController.guardarNotificacion);
+  router.get('/notificaciones', verificarAuth, notificacionController.listarNotificaciones);
 
   /* ─────────────── LOGS (solo ADMIN / SUPERADMIN) ─────────────── */
-  router.get('/logs', verificarAuth, verificarRolGestor, audit('verLogs'), logController.obtenerLogs);
+  router.get('/logs', verificarAuth, verificarRolGestor, logController.obtenerLogs);
 
   return router;
 };
