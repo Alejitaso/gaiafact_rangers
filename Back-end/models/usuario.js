@@ -3,7 +3,6 @@ const bcrypt = require("bcryptjs");
 const Schema = mongoose.Schema;
 
 const usuarioSchema = new Schema({
-<<<<<<< HEAD
     nombre:{
         type:String,
         required: true,
@@ -65,62 +64,6 @@ const usuarioSchema = new Schema({
     default: null,
     },
     tokenExpiration: {
-=======
-    nombre:{
-        type:String,
-        required: true,
-        trim: true,
-    },
-    apellido: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    tipo_documento: {
-        type: String,
-        required: true,
-        enum: ['Cedula de ciudadania', 'Cedula extranjeria', 'Nit', 'Pasaporte']
-    }, 
-    numero_documento:{
-        type:String,
-        required: true,
-        unique:true,
-        trim:true,
-    },
-    correo_electronico:{
-        type:String,
-        required: true, 
-        unique:true,
-        lowercase:true,
-        trim:true,
-    },
-    password:{
-        type:String,
-        required: true,
-        trim:true,
-    },
-    isVerified: {
-        type: Boolean,
-        default: false
-    },
-    telefono:{
-        type: String,
-        required: true,
-        trim:true,
-    },
-    estado:{
-        type: String,
-        required: true,
-        enum: ['Activo', 'Inactivo']
-    },
-    tipo_usuario:{
-        type: String,
-        required:true,
-        enum: ['ADMINISTRADOR','CLIENTE', 'USUARIO', 'SUPERADMIN' ]
-    },
-    // Campo para la fecha de registro, que recibe el valor del frontend
-    fecha_registro: {
->>>>>>> bd39e7cdb96d2cd09506ef45ad160cb7caaf5862
         type: Date,
         required: true,
     },
