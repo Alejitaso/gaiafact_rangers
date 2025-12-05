@@ -166,11 +166,11 @@ function AppContent() {
           </div>
         </div>
       </div>
-      
+      <Footer />
       {/* Los botones fixed van FUERA del wrapper que tiene filtros */}
       <div className="fixed-utils">
         {!ocultarSidebar && <KeyboardShortcutsHelp />}
-        <ColorBlindToggle key="colorblind" />
+        {!ocultarSidebar &&  <ColorBlindToggle key="colorblind" />}
       </div>
     </Fragment>
   );
