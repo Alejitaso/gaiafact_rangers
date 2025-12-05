@@ -23,7 +23,6 @@ const ListadoUsuarios = () => {
     const navigate = useNavigate();
     const [usuarios, setUsuarios] = useState([]);
     const [loading, setLoading] = useState(true);
-
     const [searchTerm, setSearchTerm] = useState('');
 
     // ✅ Accesibilidad
@@ -166,12 +165,14 @@ const ListadoUsuarios = () => {
             <div className={styles['tabla-wrapper']} role="region" aria-label="Tabla de usuarios" tabIndex={0}>
                 <table className={styles['tabla-usuarios']} role="table">
                     <thead>
-                        <tr role="row">
-                            <th scope="col">Nombre Completo</th>
-                            <th scope="col">Correo Electrónico</th>
-                            <th scope="col">Rol</th>
-                            <th scope="col">Estado</th>
-                            <th scope="col">Acciones</th>
+                        <tr>
+                            <th>Nombre Completo</th>
+                            <th>Documento</th>
+                            <th>Correo Electrónico</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Fecha Registro</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
