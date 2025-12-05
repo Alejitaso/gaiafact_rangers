@@ -1,0 +1,28 @@
+/* colorblind-themes.css */
+
+/* PROTANOPIA: evitar rojo/verde, usar azul/amarillo/violeta */
+body.colorblind-protanopia {
+  --color-uno: #1f3a5f;
+  --color-tres: #2a5a8a;
+  --color-cinco: #f4d35e;
+  --color-siete: #ff6b6b;
+  --color-ocho: #4a7bb7;
+}
+
+/* DEUTERANOPIA: similar a protanopia, pero más énfasis en azul/amarillo */
+body.colorblind-deuteranopia {
+  --color-uno: #003366;   /* azul oscuro frío */
+  --color-tres: #0066cc;  /* azul medio */
+  --color-cinco: #ffeb3b; /* amarillo puro */
+  --color-siete: #e91e63; /* magenta (nunca verde/rojo) */
+  --color-ocho: #42a5f5;  /* azul claro */
+}
+
+/* TRITANOPIA: evitar azul/amarillo, usar rojo/verde/violeta */
+body.colorblind-tritanopia {
+  --color-uno: #5e1d5e;
+  --color-tres: #8e44ad;
+  --color-cinco: #e74c3c;
+  --color-siete: #3498db;
+  --color-ocho: #9b59b6;
+}

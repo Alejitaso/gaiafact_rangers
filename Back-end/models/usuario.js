@@ -68,10 +68,12 @@ const usuarioSchema = new Schema({
         required: true,
     },
     tokenExpiration: {
-        type: Date,
-        default: null,
-    }
-
+        type: Date,
+        default: null,
+    }
+}, 
+{
+    timestamps: true 
 });
 
 // 🔒 Hook para encriptar contraseña antes de guardar

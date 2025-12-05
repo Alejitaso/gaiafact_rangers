@@ -108,55 +108,70 @@ function Login() {
 
       const data = await res.json();
 
-      if (data.success) {
+       if (data.success) {
         setError(null);
         setAttempts(0);
         localStorage.removeItem("attempts");
 
         localStorage.setItem("token", data.token);
         localStorage.setItem("tipo_usuario", data.usuario.tipo_usuario);
-        localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
         setTimeout(() => {
-          window.location.href = "/login";
-        }, 500);
-        
-      } else {
-
-        // --- Nueva lógica 403 (usuario inactivo/bloqueado admin)
-        let errorMessage = data.message || "Correo o contraseña incorrectos";
-        let displayMessage = errorMessage;
+          window.location.href = "/inicio";
+        }, 2000);
+      } 
+      else {
 
         if (res.status === 403) {
-          displayMessage = "Tu cuenta está inactiva o ha sido bloqueada. Por favor, contacta a soporte.";
+
+          let displayMessage = "";
+
+          if (data.message === "no_verificado") {
+            displayMessage = "Tu cuenta aún no ha sido verificada. Por favor revisa tu correo.";
+          }
+
+          else if (data.message === "Inactivo") {
+            displayMessage = "Tu cuenta está inactiva o ha sido bloqueada. Por favor, contacta a soporte.";
+          }
+
+          else {
+            displayMessage = "Error de autenticación. Contacte a soporte.";
+          }
 
           // ❗ NO cuenta como intento fallido
           setError(displayMessage);
-        } else {
-          // ❗ Cuenta como intento fallido (ej: 401)
-          const newAttempts = attempts + 1;
-          setAttempts(newAttempts);
 
-          if (newAttempts >= 3) {
-            setIsLocked(true);
-            setTimeLeft(300);
-            localStorage.setItem("isLocked", "true");
-            localStorage.setItem("timeLeft", 300);
-          }
+          setTimeout(() => {
+            setIsNavigating(false);
+            setShowContent(true);
+            if (emailInputRef.current) {
+              emailInputRef.current.focus();
+            }
+          }, 500);
 
-          setError(displayMessage);
+          return; // Salir de la función
         }
-        
+
+        const newAttempts = attempts + 1;
+        setAttempts(newAttempts);
+
+        if (newAttempts >= 3) {
+          setIsLocked(true);
+          setTimeLeft(300);
+          localStorage.setItem("isLocked", "true");
+          localStorage.setItem("timeLeft", 300);
+        }
+
+        setError(data.message || "Correo o contraseña incorrectos");
+
         setTimeout(() => {
           setIsNavigating(false);
           setShowContent(true);
-          // ✅ Enfocar el email después de error
           if (emailInputRef.current) {
             emailInputRef.current.focus();
           }
         }, 500);
       }
-      // Manejo de errores de conexión de red.
     } catch (err) {
       setError("Error de conexión con el servidor");
       

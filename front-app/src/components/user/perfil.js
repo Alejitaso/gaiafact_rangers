@@ -13,7 +13,8 @@ const Perfil = () => {
     const [rolUsuarioToken, setRolUsuarioToken] = useState(null); 
     const [perfil, setPerfil] = useState({
         nombre: "", apellido: "", tipo_documento: "", numero_documento: "",
-        correo_electronico: "", telefono: "", estado: "", tipo_usuario: "", imagen: ""
+        correo_electronico: "", telefono: "", estado: "", tipo_usuario: "", imagen: "", 
+        fecha_registro: null
     });
     const [isEditable, setIsEditable] = useState(false);
     const [canEditOther, setCanEditOther] = useState(false); 
@@ -27,6 +28,16 @@ const Perfil = () => {
             anuncioRef.current.textContent = mensaje;
             setTimeout(() => (anuncioRef.current.textContent = ''), 1000);
         }
+    };
+
+    const formatearFecha = (fecha) => {
+        if (!fecha) return "No disponible";
+        // Asume que la fecha viene en formato ISO de la base de datos
+        return new Date(fecha).toLocaleDateString('es-ES', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
     };
 
     useEffect(() => {
@@ -70,7 +81,8 @@ const Perfil = () => {
                 nombre: datos.nombre || "", apellido: datos.apellido || "",
                 tipo_documento: datos.tipo_documento || "", numero_documento: datos.numero_documento || "",
                 correo_electronico: datos.correo_electronico || "", telefono: datos.telefono || "",
-                estado: datos.estado || "", tipo_usuario: datos.tipo_usuario || "", imagen: datos.imagen || ""
+                estado: datos.estado || "", tipo_usuario: datos.tipo_usuario || "", imagen: datos.imagen || "",
+                fecha_registro: datos.createdAt || null
             });
 
             const isOwnProfile = finalUserId === idUsuarioToken;
@@ -211,6 +223,11 @@ const Perfil = () => {
                 <div className={styles.campo}>
                     <label className={styles.label}>Rol:</label>
                     <p className={styles.displayValue}>{perfil.tipo_usuario}</p>
+                </div>
+
+                <div className={styles.campo}>
+                    <label className={styles.label}>Fecha de Registro:</label>
+                    <p className={styles.displayValue}>{formatearFecha(perfil.fecha_registro)}</p>
                 </div>
 
                 <div className={styles.campo}>

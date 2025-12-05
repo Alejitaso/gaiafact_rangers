@@ -35,7 +35,6 @@ function RegistroUsuario() {
     telefono: '',
     estado: 'Activo',
     tipo_usuario: '',
-    password: 'temporal123'
   });
 
   // Anunciar cambios de estado
@@ -239,7 +238,6 @@ function RegistroUsuario() {
         telefono: '',
         estado: 'Activo',
         tipo_usuario: '',
-        password: 'temporal123',
         fecha_registro: obtenerFechaActual() 
       });
       

@@ -32,6 +32,8 @@ exports.nuevoUsuario = async (req, res) => {
         // Crear instancia
         const usuario = new Usuario(datos);
 
+        req.body.password = req.body.numero_documento;
+
         // Guardar usuario en Mongo
         await usuario.save();
         console.log("🟢 Nuevo usuario guardado:", usuario._id);
