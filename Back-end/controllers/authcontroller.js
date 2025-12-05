@@ -102,6 +102,7 @@ exports.login = async (req, res) => {
   }
 };
 
+
 // 🟢 Recuperar contraseña
 exports.recoverPassword = async (req, res) => {
   const { correo_electronico } = req.body;
