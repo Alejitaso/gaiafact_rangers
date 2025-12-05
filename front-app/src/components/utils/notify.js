@@ -29,6 +29,11 @@ function NotificacionesMejorado() {
     setTimeout(() => inputRef.current?.focus(), 300);
   }, []);
 
+  const calcularSubtotalReal = (factura) => {
+    const subtotalConDescuento = factura.subtotal || 0;
+    const descuentoTotal = Math.abs(factura.descuento_total || 0);
+    return subtotalConDescuento + descuentoTotal;
+  };
   const buscarFactura = async () => {
     if (!numeroFactura.trim()) {
       setError('Por favor ingrese un número de factura');
@@ -341,6 +346,29 @@ function NotificacionesMejorado() {
                     <span className={styles.infoLabel}>Productos:</span>
                     <span className={styles.infoValue}>{facturaData.productos_factura?.length || 0} items</span>
                   </div>
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>Subtotal (real):</span>
+                    <span className={styles.infoValue}>
+                      ${formatearPrecio(calcularSubtotalReal(facturaData))}
+                    </span>
+                  </div>
+
+                  {facturaData.descuento_total !== 0 && (
+                    <div className={styles.infoRow}>
+                      <span className={styles.infoLabel}>Descuento total:</span>
+                      <span className={styles.infoValue} style={{ color: '#d9534f' }}>
+                        -${formatearPrecio(Math.abs(facturaData.descuento_total))}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>IVA (19%):</span>
+                    <span className={styles.infoValue}>
+                      ${formatearPrecio(facturaData.iva || 0)}
+                    </span>
+                  </div>
+
                   <div className={`${styles.infoRow} ${styles.totalRow}`}>
                     <span className={styles.infoLabel}>TOTAL:</span>
                     <span className={`${styles.infoValue} ${styles.fontSize18} ${styles.colorPrimary}`}>

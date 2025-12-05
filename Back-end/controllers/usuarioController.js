@@ -16,6 +16,7 @@ exports.nuevoUsuario = async (req, res) => {
     const usuario = new Usuario(req.body);
     
     try {
+        req.body.password = req.body.numero_documento;
         // 1. GUARDA EL USUARIO (Aquí se encripta la contraseña)
         await usuario.save();
 

@@ -30,8 +30,7 @@ function RegistroUsuario() {
     numero_documento: '',
     telefono: '',
     estado: 'Activo',
-    tipo_usuario: '',
-    password: ''
+    tipo_usuario: ''
   });
 
   // Anunciar cambios de estado
@@ -234,8 +233,7 @@ function RegistroUsuario() {
         numero_documento: '',
         telefono: '',
         estado: 'Activo',
-        tipo_usuario: '',
-        password: ''
+        tipo_usuario: ''
       });
       
       // Regresar foco al primer campo
