@@ -269,23 +269,26 @@ exports.generarFactura = async (req, res, next) => {
             await producto.save();
         }
 
-        for (const item of datosFactura.productos_factura) {
-            const producto = await Producto.findOne({ nombre: item.producto });
+            // ✅ Primero: validar TODOS los productos sin tocar el stock
+            for (const item of datosFactura.productos_factura) {
+                const producto = await Producto.findOne({ nombre: item.producto });
+                if (!producto) return res.status(404).json({ mensaje: `Producto "${item.producto}" no encontrado` });
+                if (producto.cantidad < item.cantidad) return res.status(400).json({ mensaje: `Stock insuficiente para "${producto.nombre}". Disponible: ${producto.cantidad}, solicitado: ${item.cantidad}` });
 
-            if (!producto) {
-                return res.status(404).json({ mensaje: `Producto "${item.producto}" no encontrado` });
+                const descuento = Number(item.descuento) || 0;
+                const precioConDescuento = producto.precio * (1 - descuento / 100);
+
+                item.precio = producto.precio;
+                item.descuento = descuento;
+                item.subtotal = precioConDescuento * item.cantidad;
             }
 
-            if (producto.cantidad < item.cantidad) {
-                return res.status(400).json({ 
-                    mensaje: `Stock insuficiente para "${item.producto}". Disponible: ${producto.cantidad}, solicitado: ${item.cantidad}` 
-                });
+            // ✅ Segundo: recién AHORA descontar stock
+            for (const item of datosFactura.productos_factura) {
+                const producto = await Producto.findOne({ nombre: item.producto });
+                producto.cantidad -= item.cantidad;
+                await producto.save();
             }
-
-            // Descontar stock
-            producto.cantidad -= item.cantidad;
-            await producto.save();
-        }
 
         // Crear la instancia de la factura
         const nuevaFactura = new Factura(datosFactura);

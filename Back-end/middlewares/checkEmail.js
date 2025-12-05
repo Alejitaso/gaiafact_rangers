@@ -1,6 +1,6 @@
-import { validarEmail } from "../Validators/validarEmail.js";
+const { validarEmail } = require("../Validators/validarEmail.js");
 
-export const checkEmail = async (req, res, next) => {
+exports.checkEmail = async (req, res, next) => {
   const { correo_electronico } = req.body;
 
   try {
