@@ -4,6 +4,10 @@ import clienteAxios from '../../config/axios';
 import Swal from 'sweetalert2';
 import styles from './registro.module.css';
 
+const obtenerFechaActual = () => {
+    return new Date().toISOString();
+};
+
 const validarEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -235,7 +239,8 @@ function RegistroUsuario() {
         telefono: '',
         estado: 'Activo',
         tipo_usuario: '',
-        password: 'temporal123'
+        password: 'temporal123',
+        fecha_registro: obtenerFechaActual() 
       });
       
       // Regresar foco al primer campo
@@ -548,6 +553,11 @@ function RegistroUsuario() {
             )}
           </div>
 
+          <input 
+              type="hidden" 
+              name="fecha_registro" 
+              value={usuario.fecha_registro} 
+          />
 
           {/* BOTÓN DE ENVÍO */}
           <button 

@@ -44,6 +44,7 @@ exports.login = async (req, res) => {
             return res.status(401).json({
                 success: false,
                 message: "Correo o contraseña incorrectos",
+                errorCode: "INVALID_CREDENTIALS"
             });
         }
 
@@ -52,6 +53,7 @@ exports.login = async (req, res) => {
             return res.status(401).json({
                 success: false,
                 message: "Correo o contraseña incorrectos",
+                errorCode: "INVALID_CREDENTIALS"
             });
         }
 
@@ -59,6 +61,13 @@ exports.login = async (req, res) => {
             return res.status(403).json({
                 success: false,
                 message: "Tu cuenta ha sido desactivada. Por favor, contacta al administrador del sistema.",
+            });
+        }
+
+        if (user.isVerified === "false") {
+            return res.status(403).json({
+                success: false,
+                message: "no_verificado"
             });
         }
 

@@ -1,6 +1,9 @@
 const Usuario = require('../models/usuario'); 
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const { validarEmail } = require('../Validators/validarEmail');
+
+const FRONTEND_LOGIN_URL = `${process.env.FRONTEND_URL}/login`;
 
 const transporter = nodemailer.createTransport({
   service: "SendGrid",
@@ -12,17 +15,34 @@ const transporter = nodemailer.createTransport({
 
 // Agrega un nuevo usuario (Solución: Correo temporalmente deshabilitado)
 exports.nuevoUsuario = async (req, res) => {
-    const usuario = new Usuario(req.body);
-    
-    try {
-        await usuario.save();
+    try {
 
-        // 2. Genera un token
-        const token = jwt.sign({
-            userId: usuario._id 
-        }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const datos = req.body;
 
-        // 3. Crea el enlace de verificación
+        // Validar email
+        const { valid } = await validarEmail(datos.correo_electronico);
+
+        if (!valid) {
+            return res.status(400).json({
+                success: false,
+                mensaje: 'El correo electrónico no es válido'
+            });
+        }
+
+        // Crear instancia
+        const usuario = new Usuario(datos);
+
+        // Guardar usuario en Mongo
+        await usuario.save();
+        console.log("🟢 Nuevo usuario guardado:", usuario._id);
+
+        // Crear token
+        const token = jwt.sign(
+            { userId: usuario._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
         const verificationLink = `${process.env.FRONTEND_URL}?token=${token}`;
 
         // 4. Define las opciones del correo
@@ -112,6 +132,56 @@ exports.nuevoUsuario = async (req, res) => {
         // Si no es unicidad, es un error 500 real.
         res.status(500).json({ mensaje: 'Hubo un error interno al registrar el usuario', error: error.message });
     }
+};
+
+
+// ---------------------------------------------------
+// 2. VERIFICAR CUENTA (BACKEND) Y REDIRIGIR A LOGIN
+// ---------------------------------------------------
+exports.verificarCuenta = async (req, res) => {
+
+    const token = req.query.token;
+
+    if (!token) {
+        const redirectUrl = `${FRONTEND_LOGIN_URL}?verified=false&error=Token inválido`;
+        return res.redirect(redirectUrl);
+    }
+
+    try {
+        // Desencriptar token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.userId;
+
+        console.log("🟢 TOKEN DECODIFICADO:", decoded);
+
+        // Actualizar usuario
+        const usuario = await Usuario.findByIdAndUpdate(
+            userId,
+            { isVerified: true },
+            { new: true }
+        );
+
+        if (!usuario) {
+            console.log("❌ Usuario no encontrado:", userId);
+            return res.redirect(`${FRONTEND_LOGIN_URL}?verified=false&error=Usuario no encontrado`);
+        }
+
+        console.log("🟢 Cuenta verificada:", usuario._id);
+
+        // Redirigir al login con éxito
+        return res.redirect(`${FRONTEND_LOGIN_URL}?verified=true`);
+
+    } catch (error) {
+
+        console.error("❌ Error al verificar la cuenta:", error);
+
+        let msg = "Error en la verificación";
+
+        if (error.name === "TokenExpiredError") msg = "El enlace ha expirado";
+        if (error.name === "JsonWebTokenError") msg = "Token inválido";
+
+        return res.redirect(`${FRONTEND_LOGIN_URL}?verified=false&error=${encodeURIComponent(msg)}`);
+    }
 };
 
 // Mostrar todos los usuarios (SOLO SUPERADMIN y ADMINISTRADOR)

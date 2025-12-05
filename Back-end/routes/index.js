@@ -15,6 +15,8 @@ const notificacionController = require('../controllers/notificacionController.js
 const securityNetworkMiddleware = require("../middlewares/securityNetworkMiddleware");
 const validarRolRegistro = require('../middlewares/validarRolRegistro.js');
 const logController = require('../controllers/logController');
+const { checkEmail } = require('../middlewares/checkEmail.js');
+const { verificarCuenta } = require("../controllers/usuarioController");
 const Factura = require('../models/factura');
 
 const loginLimiter = rateLimit({
@@ -27,11 +29,12 @@ const loginLimiter = rateLimit({
 
 module.exports = function () {  
   /* ─────────────── USUARIOS ─────────────── */
-  router.post('/Usuario', verificarAuth, audit('registrarCliente'),validarRolRegistro, usuarioController.nuevoUsuario);
+  router.post('/Usuario', verificarAuth,checkEmail, audit('registrarCliente'),validarRolRegistro, usuarioController.nuevoUsuario);
   router.get('/Usuario/documento/:documento', verificarAuth, audit('buscarClientePorDocumento'), usuarioController.buscarPorDocumento);
   router.get('/Usuario/:idUsuario', verificarAuth, verificarAccesoPerfil, audit('verPerfilUsuario'), usuarioController.mostrarUsuario);
   router.get('/Usuario', verificarAuth, verificarRolGestor, audit('listarUsuarios'), usuarioController.mostrarUsuarios);
   router.put('/Usuario/:idUsuario', verificarAuth, audit('actualizarUsuario'), usuarioController.actualizarUsuario);
+  router.get('/Usuario/verificar', usuarioController.verificarCuenta);
 
   /* ─────────────── PRODUCTOS ─────────────── */
   router.post('/productos', verificarAuth, verificarRolGestor, audit('crearProducto'), productoController.nuevoProducto);
@@ -61,6 +64,8 @@ module.exports = function () {
   router.post("/auth/recover", verificarAuth, audit('recuperarContrasena'), authController.recoverPassword);
   router.get('/auth/verify-email', verificarAuth, audit('verificarCorreo'), authController.verifyEmail);
   router.post('/auth/reset/:token', audit('restablecerContrasena'), authController.resetPassword);
+  router.get('/auth/verify', usuarioController.verificarCuenta);
+  router.get("/verificar/:token", verificarCuenta);
 
   /* ─────────────── NOTIFICACIONES ─────────────── */
   router.post('/notificaciones/crear', verificarAuth, audit('crearNotificacion'), notificacionController.guardarNotificacion);

@@ -58,11 +58,19 @@ const usuarioSchema = new Schema({
     resetToken: {
         type: String,
         default: null,
-},
+    },
+    verifyToken: {
+        type: String,
+        default: null,
+    },
     tokenExpiration: {
         type: Date,
-        default: null,
-    }
+        required: true,
+    },
+    tokenExpiration: {
+        type: Date,
+        default: null,
+    }
 
 });
 
