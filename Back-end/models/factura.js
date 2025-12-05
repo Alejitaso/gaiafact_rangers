@@ -43,6 +43,7 @@ const facturasSchema = new mongoose.Schema({
     productos_factura: {
         type: [{
            producto: String,
+           producto_id: mongoose.Schema.Types.ObjectId,
            cantidad: Number,
            precio: Number,
            descuento: { type: Number, default: 0 },

@@ -35,6 +35,7 @@ function RegistroUsuario() {
     telefono: '',
     estado: 'Activo',
     tipo_usuario: '',
+    fecha_registro: obtenerFechaActual() 
   });
 
   // Anunciar cambios de estado

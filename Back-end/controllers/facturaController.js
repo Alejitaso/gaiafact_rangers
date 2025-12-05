@@ -371,6 +371,8 @@ exports.generarFactura = async (req, res) => {
                 documento_receptor: nuevaFactura.usuario.numero_documento,
                 correo_receptor: nuevaFactura.usuario.correo_electronico,
                 tipo: 'automatico',
+                factura: nuevaFactura._id,                
+                cliente: nuevaFactura.usuario._id   
             });  
 
             console.log(`📧 Correo enviado automáticamente a ${nuevaFactura.usuario.correo_electronico}`);
@@ -743,9 +745,10 @@ exports.enviarFacturaPorCorreo = async (req, res, next) => {
                                     <tr>
                                         <td>${prod.producto}</td>
                                         <td style="text-align:center">${prod.cantidad}</td>
-                                        <td style="text-align:right">$${prod.precio.toLocaleString('es-CO')}</td>
+                                        <td style="text-align:right">$${(Number(prod.precio) || 0).toLocaleString('es-CO')}</td>
                                         <td style="text-align:right">${prod.descuento || 0} %</td>
-                                        <td style="text-align:right">$${prod.subtotal.toLocaleString('es-CO')}</td>
+                                        <td style="text-align:right">$${(Number(prod.subtotal) || 0).toLocaleString('es-CO')
+}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
