@@ -78,10 +78,8 @@ function AppContent() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const tipo = (localStorage.getItem("tipo_usuario") || "").toUpperCase();
-    if (token && tipo) {
-      if (location.pathname === "/" || location.pathname === "/login") {
-        window.location.href = "/inicio";
-      }
+    if (token && tipo && location.pathname === "/") {
+      window.location.href = "/inicio";
     }
   }, [location.pathname]);
 
@@ -135,6 +133,7 @@ function AppContent() {
                 />
               ))}
 
+              {/* ✅ RUTA 404 CORREGIDA - DENTRO de Routes y con lógica correcta */}
               <Route 
                 path="*" 
                 element={
@@ -147,8 +146,6 @@ function AppContent() {
               />
             </Routes>
           </div>
-
-          <Footer />
         </div>
       </div>
       

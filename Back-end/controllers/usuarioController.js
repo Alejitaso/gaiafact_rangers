@@ -1,39 +1,59 @@
-const Usuario = require('../models/usuario'); 
+const Usuario = require('../models/usuario');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const { validarEmail } = require('../Validators/validarEmail');
 
+// URL frontend (login)
+const FRONTEND_LOGIN_URL = 'http://localhost:3000/login';
+
+// CONFIGURACIÓN DEL TRANSPORTER
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // o tu servicio de correo
-    auth: {
-        user: process.env.EMAIL_USER, // Asegúrate de tener estas variables de entorno
-        pass: process.env.EMAIL_PASS
-    }
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
 });
 
-// Agrega un nuevo usuario (Solución: Correo temporalmente deshabilitado)
+// ---------------------------------------------------
+// 1. REGISTRAR NUEVO USUARIO
+// ---------------------------------------------------
 exports.nuevoUsuario = async (req, res) => {
-    // El password del front-end es 'temporal123', lo cual es suficiente para pasar la validación.
-    const usuario = new Usuario(req.body);
-    
-    try {
+
+    const usuario = new Usuario(req.body);
+
+    try {
         req.body.password = req.body.numero_documento;
-        // 1. GUARDA EL USUARIO (Aquí se encripta la contraseña)
-        await usuario.save();
+        // Validar email
+        const { valid } = await validarEmail(usuario.correo_electronico);
 
-        // 2. Genera un token
-        const token = jwt.sign({
-            userId: usuario._id // ✅ Clave correcta usada en el backend
-        }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        if (!valid) {
+            return res.status(400).json({
+                success: false,
+                mensaje: 'El correo electrónico no es válido'
+            });
+        }
 
-        // 3. Crea el enlace de verificación
-        const verificationLink = `http://localhost:3000?token=${token}`;
+        // Guardar usuario
+        await usuario.save();
+        console.log("🟢 Nuevo usuario guardado:", usuario._id);
 
-        // 4. Define las opciones del correo
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: usuario.correo_electronico,
-            subject: 'Verifica tu correo electrónico para GaiaFact',
-            html: `
+        // Crear token
+        const token = jwt.sign(
+            { userId: usuario._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        // URL de verificación (BACKEND)
+        const verificationLink = `http://localhost:4000/api/auth/verify?token=${token}`;
+
+        // Correo
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: usuario.correo_electronico,
+            subject: 'Verifica tu cuenta',
+            html: `
         <!DOCTYPE html>
         <html lang="es">
         <head>
@@ -98,120 +118,173 @@ exports.nuevoUsuario = async (req, res) => {
         </body>
         </html>
     `
-        };
+        };
 
-        // 🛑 Envía el correo - ESTA LÍNEA FUE COMENTADA PARA EVITAR EL ERROR 500
-        await transporter.sendMail(mailOptions);
+        // Enviar correo
+        await transporter.sendMail(mailOptions);
 
-        res.json({ mensaje: 'Se agregó un nuevo usuario. Por favor, verifica tu correo electrónico.' });
-    } catch (error) {
-        // Manejo de errores de unicidad (correo/documento ya existen)
-        if (error.code === 11000) {
-            return res.status(400).json({ 
-                mensaje: 'El correo electrónico o el número de documento ya están registrados.', 
-                error: error.message 
-            });
-        }
-        
-        // Si no es unicidad, es un error 500 real.
-        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
-    }
+        return res.json({
+            success: true,
+            mensaje: 'Usuario creado. Revisa tu correo para verificar tu cuenta.'
+        });
+
+    } catch (error) {
+
+        // Duplicado
+        if (error.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                mensaje: "El correo o número de documento ya están registrados."
+            });
+        }
+
+        console.error("❌ Error en nuevoUsuario:", error);
+        return res.status(500).json({
+            success: false,
+            mensaje: "Error en el servidor."
+        });
+    }
 };
 
-// Mostrar todos los usuarios (SOLO SUPERADMIN y ADMINISTRADOR)
-// El middleware verificarRolGestor se encarga de la autorización.
-exports.mostrarUsuarios = async (req, res, next) => {
-    try {
-        // La autorización de rol (SUPERADMIN/ADMINISTRADOR) la maneja verificarRolGestor
-        // que es ejecutado antes de este controlador en la ruta.
 
-        const usuarios = await Usuario.find({});
-        res.json(usuarios);
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
-    }
-};
+// ---------------------------------------------------
+// 2. VERIFICAR CUENTA (BACKEND) Y REDIRIGIR A LOGIN
+// ---------------------------------------------------
+exports.verificarCuenta = async (req, res) => {
 
-// Mostrar un usuario específico
-// La autorización (perfil propio o rol Gestor) la maneja verificarAccesoPerfil.
-exports.mostrarUsuario = async (req, res) => {
-    const userIdToView = req.params.idUsuario;
-    
-    try {
-        // ✅ La lógica de autorización REDUNDANTE fue eliminada,
-        // ya que es manejada por el middleware verificarAccesoPerfil.
-        
-        // 1. Buscar el usuario
-        const usuario = await Usuario.findById(userIdToView).select('-password'); 
+    const token = req.query.token;
 
-        if (!usuario) {
-            return res.status(404).json({
-                success: false,
-                message: "Usuario no encontrado"
-            });
-        }
-
-        // 2. Respuesta exitosa
-        res.json(usuario); 
-
-    } catch (err) {
-        console.error("Error al mostrar usuario:", err);
-        // Si el ID no es válido (ej: formato incorrecto de ObjectId), Mongoose lanza un error.
-        if (err.kind === 'ObjectId') {
-             return res.status(400).json({ success: false, message: "ID de usuario inválido" });
-        }
-        res.status(500).json({ success: false, message: "Error en el servidor" });
-    }
-};
-
-// Buscar usuario por documento
-exports.buscarPorDocumento = async (req, res) => {
-  try {
-    const usuario = await Usuario.findOne({ 
-      $or: [
-        { numero_documento: req.params.documento }
-      ]
-    });
-
-    if (!usuario) {
-      return res.json({ 
-        mensaje: 'Usuario no encontrado',
-        usuario: null 
-      });
+    if (!token) {
+        const redirectUrl = `${FRONTEND_LOGIN_URL}?verified=false&error=Token inválido`;
+        return res.redirect(redirectUrl);
     }
 
-    return res.json({ 
-      mensaje: 'Usuario encontrado', 
-      usuario: usuario 
-    });
+    try {
+        // Desencriptar token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.userId;
 
-  } catch (error) {
-    console.error("❌ Error al buscar usuario:", error);
-    return res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
-  }
+        console.log("🟢 TOKEN DECODIFICADO:", decoded);
+
+        // Actualizar usuario
+        const usuario = await Usuario.findByIdAndUpdate(
+            userId,
+            { isVerified: true },
+            { new: true }
+        );
+
+        if (!usuario) {
+            console.log("❌ Usuario no encontrado:", userId);
+            return res.redirect(`${FRONTEND_LOGIN_URL}?verified=false&error=Usuario no encontrado`);
+        }
+
+        console.log("🟢 Cuenta verificada:", usuario._id);
+
+        // Redirigir al login con éxito
+        return res.redirect(`${FRONTEND_LOGIN_URL}?verified=true`);
+
+    } catch (error) {
+
+        console.error("❌ Error al verificar la cuenta:", error);
+
+        let msg = "Error en la verificación";
+
+        if (error.name === "TokenExpiredError") msg = "El enlace ha expirado";
+        if (error.name === "JsonWebTokenError") msg = "Token inválido";
+
+        return res.redirect(`${FRONTEND_LOGIN_URL}?verified=false&error=${encodeURIComponent(msg)}`);
+    }
 };
 
-exports.actualizarUsuario = async (req, res, next) => {
-    try {
-        const usuario = await Usuario.findOneAndUpdate(
-            { _id: req.params.idUsuario },
-            req.body,
-            { new: true }
-        );
-        res.json(usuario);
-    } catch (error) {
-        res.send(error);
-        next();
-    }
+
+// ---------------------------------------------------
+// 3. MOSTRAR TODOS LOS USUARIOS
+// ---------------------------------------------------
+exports.mostrarUsuarios = async (req, res) => {
+    try {
+        const usuarios = await Usuario.find({});
+        res.json(usuarios);
+    } catch (error) {
+        res.status(500).json({ mensaje: "Error en el servidor." });
+    }
 };
 
-exports.eliminarUsuario = async (req, res, next) => {
-    try {
-        await Usuario.findOneAndDelete({ _id: req.params.idUsuario });
-        res.json({ mensaje: 'El usuario ha sido eliminado' });
-    } catch (error) {
-        console.log(error);
-        next();
-    }
+
+// ---------------------------------------------------
+// 4. MOSTRAR UN USUARIO POR ID
+// ---------------------------------------------------
+exports.mostrarUsuario = async (req, res) => {
+    try {
+        const usuario = await Usuario.findById(req.params.idUsuario).select('-password');
+
+        if (!usuario) return res.status(404).json({ success: false, mensaje: "Usuario no encontrado" });
+
+        res.json(usuario);
+
+    } catch (err) {
+        res.status(500).json({ success: false, mensaje: "Error en el servidor" });
+    }
+};
+
+
+// ---------------------------------------------------
+// 5. BUSCAR POR DOCUMENTO
+// ---------------------------------------------------
+exports.buscarPorDocumento = async (req, res) => {
+
+    try {
+        const usuario = await Usuario.findOne({ numero_documento: req.params.documento });
+
+        if (!usuario) {
+            return res.json({
+                success: false,
+                mensaje: 'Usuario no encontrado',
+                usuario: null
+            });
+        }
+
+        return res.json({
+            success: true,
+            mensaje: 'Usuario encontrado',
+            usuario
+        });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, mensaje: "Error en el servidor." });
+    }
+};
+
+
+// ---------------------------------------------------
+// 6. ACTUALIZAR USUARIO
+// ---------------------------------------------------
+exports.actualizarUsuario = async (req, res) => {
+
+    try {
+        const usuario = await Usuario.findByIdAndUpdate(
+            req.params.idUsuario,
+            req.body,
+            { new: true }
+        );
+
+        res.json(usuario);
+
+    } catch (error) {
+        res.status(500).json({ mensaje: "Error en el servidor." });
+    }
+};
+
+
+// ---------------------------------------------------
+// 7. ELIMINAR USUARIO
+// ---------------------------------------------------
+exports.eliminarUsuario = async (req, res) => {
+
+    try {
+        await Usuario.findByIdAndDelete(req.params.idUsuario);
+        res.json({ mensaje: 'Usuario eliminado' });
+
+    } catch (error) {
+        res.status(500).json({ mensaje: "Error en el servidor." });
+    }
 };
