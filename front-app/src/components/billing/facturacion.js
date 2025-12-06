@@ -27,6 +27,7 @@ const Facturacion = () => {
     const [telefono, setTelefono] = useState('');
     const [correo, setCorreo] = useState('');
     const [metodoPago, setMetodoPago] = useState('');
+    const [id, idUsuario] = useState('');
     
     // Estados para el manejo de clientes
     const [buscandoCliente, setBuscandoCliente] = useState(false);
@@ -243,6 +244,7 @@ const Facturacion = () => {
     const registrarNuevoCliente = async () => {
         try {
             const datosCliente = {
+                id: clienteId,
                 nombre: nombres,
                 apellido: apellidos,
                 tipo_documento: tipoDocumento,
