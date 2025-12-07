@@ -124,8 +124,11 @@ exports.nuevoUsuario = async (req, res) => {
     `
         };
 
-        // 🛑 Envía el correo - ESTA LÍNEA FUE COMENTADA PARA EVITAR EL ERROR 500
-        await transporter.sendMail(mailOptions);
+        try {
+            await transporter.sendMail(mailOptions);
+        } catch (mailErr) {
+            console.error('⚠️  El usuario se creó pero el correo no se pudo enviar:', mailErr.message);
+        }
 
         res.json({ mensaje: 'Se agregó un nuevo usuario. Por favor, verifica tu correo electrónico.' });
     } catch (error) {
