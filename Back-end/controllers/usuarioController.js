@@ -6,12 +6,15 @@ const { validarEmail } = require('../Validators/validarEmail');
 const FRONTEND_LOGIN_URL = `${process.env.FRONTEND_URL}/login`;
 
 const transporter = nodemailer.createTransport({
-  service: "SendGrid",
+  host: "smtp.sendgrid.net",
+  port: 587,
+  secure: false,
   auth: {
     user: "apikey",             
-    pass: process.env.EMAIL_PASS, 
-  },
+    pass: process.env.EMAIL_PASS     
+  }
 });
+
 
 // Agrega un nuevo usuario (Solución: Correo temporalmente deshabilitado)
 exports.nuevoUsuario = async (req, res) => {
