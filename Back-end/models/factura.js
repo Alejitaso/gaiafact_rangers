@@ -66,6 +66,7 @@ const facturasSchema = new mongoose.Schema({
         type: String, 
         required: false
     }
-});
+    
+}, { timestamps: true }); 
 
 module.exports = mongoose.model('Factura', facturasSchema);

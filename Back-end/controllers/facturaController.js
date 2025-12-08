@@ -417,14 +417,17 @@ exports.mostrarFacturas = async (req, res, next) => {
     const usuario = req.usuario;
     if (!usuario) return res.status(401).json({ mensaje: 'Usuario no autenticado' });
 
-    // ⭐ Filtro dinámico según rol
+    //Filtro dinámico según rol
     const { filtroFecha, puedeVerHistorico } = obtenerFiltroFacturas(usuario.tipo_usuario);
-    console.log('🔍 Filtro aplicado:', filtroFecha);   // para debug
+    console.log('🔍 Filtro aplicado:', filtroFecha);   
 
-    // Si el usuario NO es admin → agregamos también su documento
     if (!puedeVerHistorico) {
       filtroFecha['usuario.numero_documento'] = usuario.numero_documento;
     }
+
+    console.log('🔍 Usuario:', req.usuario.tipo_usuario);
+    console.log('🔍 Filtro final:', filtroFecha);
+    console.log('🔍 Colección:', Factura.collection.name);   
 
     const facturas = await Factura.find(filtroFecha)
       .sort({ fecha_emision: -1 })

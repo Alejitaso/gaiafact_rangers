@@ -40,9 +40,10 @@ const notificacionSchema = new Schema({
     },
 //Campo 'cliente', referencia al documento de la colección 'CLIENTE' por su ID (ObjectId). Es obligatorio
     cliente: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'CLIENTE',
-        required: true,
+      nombre: String,
+      apellido: String,
+      numero_documento: String,
+      correo_electronico: String
     }
 }, {
 //Opción que añade automáticamente campos 'createdAt' y 'updatedAt' para el registro de tiempo
