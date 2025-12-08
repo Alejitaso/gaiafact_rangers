@@ -7,7 +7,7 @@ exports.audit = (accion) => (req, res, next) => {
   res.json = function (data) {
     if (res.statusCode < 400) {
       Log.create({
-          usuarioId: req.usuario?._id || null, // ✅ ahora sí existe req.user
+          usuarioId: req.usuario?._id || null, 
         accion,
         ruta: req.originalUrl,
         metodo: req.method,

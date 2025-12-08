@@ -186,6 +186,41 @@ exports.verificarCuenta = async (req, res) => {
     }
 };
 
+exports.reenviarVerificacionAdmin = async (req, res) => {
+  try {
+    const { idUsuario } = req.params;   // _id del usuario a reenviar
+
+    const usuario = await Usuario.findById(idUsuario);
+    if (!usuario) {
+      return res.status(404).json({ msg: 'Usuario no encontrado' });
+    }
+    if (usuario.isVerified) {
+      return res.status(400).json({ msg: 'El usuario ya verificó su correo' });
+    }
+
+    // Generar nuevo token (1 h)
+    const token = jwt.sign(
+      { userId: usuario._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    const verificationLink = `${process.env.FRONTEND_URL}?token=${token}`;
+
+    // Mismo HTML que ya tienes
+    await sgMail.send({
+      to: usuario.correo_electronico,
+      from: process.env.EMAIL_USER,
+      subject: 'Verifica tu correo electrónico para GaiaFact',
+      html: `...mismo template...`
+    });
+
+    res.json({ msg: 'Correo de verificación re-enviado' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Error al reenviar correo', error: err.message });
+  }
+};
+
 // Mostrar todos los usuarios (SOLO SUPERADMIN y ADMINISTRADOR)
 exports.mostrarUsuarios = async (req, res, next) => {
     try {
