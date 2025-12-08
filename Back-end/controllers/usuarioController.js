@@ -46,7 +46,7 @@ exports.nuevoUsuario = async (req, res) => {
         try {
         await sgMail.send({
             to: usuario.correo_electronico,
-            from: process.env.EMAIL_USER,   // debe estar verificado en SendGrid
+            from: process.env.EMAIL_USER,   
             subject: 'Verifica tu correo electrónico para GaiaFact',
             html: `
                 <!DOCTYPE html>
@@ -115,13 +115,15 @@ exports.nuevoUsuario = async (req, res) => {
             `
         });
         } catch (mailErr) {
-        console.error('⚠️  El usuario se creó pero el correo no se pudo enviar:', mailErr.message);
-        console.error('⚠️  SendGrid dice:', err.response?.body || err.message);
-        // NO rompes el flujo – el usuario ya está guardado
+            // 👇 esto te dirá QUÉ campo falla
+            console.error('⚠️  SendGrid body:', mailErr.response?.body);
+            console.error('⚠️  SendGrid status:', mailErr.code);
+            console.error('⚠️  SendGrid message:', mailErr.message);
+            // NO rompes el registro
         }
 
         res.json({ mensaje: 'Se agregó un nuevo usuario. Por favor, verifica tu correo electrónico.' });
-    } catch (error) {
+        } catch (error) {
         if (error.code === 11000) {
             return res.status(400).json({ 
                 mensaje: 'El correo electrónico o el número de documento ya están registrados.', 
@@ -133,7 +135,6 @@ exports.nuevoUsuario = async (req, res) => {
         res.status(500).json({ mensaje: 'Hubo un error interno al registrar el usuario', error: error.message });
     }
 };
-
 
 // ---------------------------------------------------
 // 2. VERIFICAR CUENTA (BACKEND) Y REDIRIGIR A LOGIN
