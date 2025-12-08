@@ -3,25 +3,13 @@ const Notificacion = require('../models/notificacion');
 // Guardar notificación
 exports.guardarNotificacion = async (datos) => {
   try {
-    const notificacion = new Notificacion({
-      numero_factura: datos.numero_factura,
-      documento_emisor: datos.documento_emisor,
-      documento_receptor: datos.documento_receptor,
-      correo_receptor: datos.correo_receptor,
-      tipo: datos.tipo || 'automatico',
-      fecha_enviada: datos.fecha_enviada || new Date(),
-      factura: datos.factura,
-      cliente: datos.cliente
-    });
-
+    const notificacion = new Notificacion(datos);
     await notificacion.save();
     console.log('✅ Notificación guardada:', notificacion.numero_factura);
-
   } catch (error) {
     console.error('❌ Error al guardar notificación:', error.message);
   }
 };
-
 
 // Listar notificaciones con filtros
 exports.listarNotificaciones = async (req, res) => {

@@ -165,7 +165,6 @@ const VisFactura = () => {
     };
 
     const seleccionarFecha = (dia) => {
-        // ✅ CORRECCIÓN: Creamos la fecha local y luego ajustamos
         // para obtener el formato YYYY-MM-DD sin el desplazamiento.
         const fechaLocal = new Date(anioCalendario, mesCalendario, dia);
         

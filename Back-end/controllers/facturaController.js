@@ -418,7 +418,7 @@ exports.mostrarFacturas = async (req, res, next) => {
     if (!usuario) return res.status(401).json({ mensaje: 'Usuario no autenticado' });
 
     let query = {};
-    if (!puedeVerTodasLasFacturas(usuario.tipo_usuario))
+    if (!obtenerFiltroFacturas(usuario.tipo_usuario))
       query = { 'usuario.numero_documento': usuario.numero_documento };
 
     const facturas = await Factura.find(query).sort({ fecha_emision: -1 });
@@ -868,7 +868,7 @@ exports.buscarFactura = async (req, res, next) => {
     const factura = await Factura.findOne({ numero_factura: req.params.numeroFactura });
     if (!factura) return res.status(404).json({ mensaje: 'Factura no encontrada' });
 
-    if (!puedeVerTodasLasFacturas(usuario.tipo_usuario) &&
+    if (!obtenerFiltroFacturas(usuario.tipo_usuario) &&
         factura.usuario.numero_documento !== usuario.numero_documento)
       return res.status(403).json({ mensaje: 'Sin permisos para ver esta factura' });
 
