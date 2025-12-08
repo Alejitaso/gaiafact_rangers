@@ -115,8 +115,8 @@ exports.nuevoUsuario = async (req, res) => {
             `
         });
         } catch (mailErr) {
-        console.error('⚠️  SendGrid dice:', err.response?.body || err.message);
         console.error('⚠️  El usuario se creó pero el correo no se pudo enviar:', mailErr.message);
+        console.error('⚠️  SendGrid dice:', err.response?.body || err.message);
         // NO rompes el flujo – el usuario ya está guardado
         }
 
