@@ -150,7 +150,7 @@ function NotificacionesMejorado() {
         emailCliente: correo,
       });
 
-      anunciar('Factura enviada exitosamente');
+      anunciar('Factura enviada exitosamente </br> revise su correo y carpeta de spam');
       Swal.fire({
         icon: 'success',
         title: '¡Enviado!',

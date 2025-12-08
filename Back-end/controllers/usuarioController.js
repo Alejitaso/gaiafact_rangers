@@ -7,7 +7,7 @@ sgMail.setApiKey(process.env.EMAIL_PASS);
 
 const FRONTEND_LOGIN_URL = `${process.env.FRONTEND_URL}/login`;
 
-// Agrega un nuevo usuario (Solución: Correo temporalmente deshabilitado)
+// Agrega un nuevo usuario 
 exports.nuevoUsuario = async (req, res) => {
     try {
 
@@ -42,7 +42,7 @@ exports.nuevoUsuario = async (req, res) => {
         );
 
         const verificationLink = `${process.env.FRONTEND_URL}?token=${token}`;
-        
+
         console.log('📧 from usado:', process.env.EMAIL_USER);
         try {
         await sgMail.send({
@@ -116,11 +116,9 @@ exports.nuevoUsuario = async (req, res) => {
             `
         });
         } catch (mailErr) {
-            // 👇 esto te dirá QUÉ campo falla
             console.error('⚠️  SendGrid body:', mailErr.response?.body);
             console.error('⚠️  SendGrid status:', mailErr.code);
             console.error('⚠️  SendGrid message:', mailErr.message);
-            // NO rompes el registro
         }
 
         res.json({ mensaje: 'Se agregó un nuevo usuario. Por favor, verifica tu correo electrónico.' });
@@ -162,6 +160,8 @@ exports.verificarCuenta = async (req, res) => {
             { isVerified: true },
             { new: true }
         );
+
+        console.log('✅ isVerified tras update:', usuario.isVerified); 
 
         if (!usuario) {
             console.log("❌ Usuario no encontrado:", userId);

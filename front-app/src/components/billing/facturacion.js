@@ -521,7 +521,7 @@ const Facturacion = () => {
             const res = await clienteAxios.post('/api/facturas', datosFactura);
 
             setMensajeEstado('Factura generada exitosamente');
-            Swal.fire('Correcto', 'Factura generada, guardada y enviada exitosamente', 'success');
+            Swal.fire('Correcto', 'Factura generada, guardada y enviada exitosamente <br> porfavor revise carpeta de spam para ver la factura', 'success');
 
             limpiarFormulario();
 

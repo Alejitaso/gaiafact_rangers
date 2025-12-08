@@ -39,7 +39,7 @@ function RecoverPassword() {
         await Swal.fire({
           icon: 'success',
           title: 'Correo Enviado',
-          text: `Se envió un correo de recuperación a ${correo_electronico}.`,
+          text: `Se envió un correo de recuperación a ${correo_electronico}. <br> Por favor, revisa tu bandeja de entrada y carpeta de spam.`,
           customClass: { 
             popup: 'swal-contorno-interior',
             confirmButton: 'swal-button-focus' // Para mejor focus visible
