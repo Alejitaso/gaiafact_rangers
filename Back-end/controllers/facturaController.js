@@ -6,6 +6,10 @@ const notificacionController = require('./notificacionController');
 const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
 const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+
+const CERTIFICADO_DUMMY = 'MIID+zCCAuOgAwIBAgIQN+J/r...[CERTIFICADO SIMULADO LARGO]...T/TjX2A9T7tW/8Xb3';
+const SIGNATURE_VALUE_DUMMY = 'QkFzZTY0IEZpcm1hIHJlYWxpemFkYSBwb3IgR2FpYUZhY3QgZGUgbW9kbyBhY2FkZW1pY28...';
 
 
 
@@ -60,9 +64,16 @@ const generarPDFFactura = async (datosFactura) => {
                    year: 'numeric', month: 'long', day: 'numeric' 
                })}`, 350, 90, { align: 'right' });
 
-            // CUFE en texto más pequeño
-            doc.fontSize(7).text(`CUFE: ${datosFactura.codigo_CUFE || 'TEMPORAL-' + datosFactura.numero_factura}`, 
-                     300, 110, { align: 'right', width: 245 });
+            // Bloque de CUFE
+            const cufeX = 300;
+            const cufeY = 110;
+            doc.fontSize(7).fillColor(colorPrimario).font('Helvetica-Bold')
+                .text('CÓDIGO ÚNICO DE FACTURA ELECTRÓNICA (CUFE)', cufeX, cufeY, { align: 'right', width: 245 });
+
+            doc.fontSize(8).fillColor(colorTexto).font('Helvetica')
+                .text(datosFactura.codigo_CUFE || 'TEMPORAL-' + datosFactura.numero_factura, 
+                    cufeX, cufeY + 12, { align: 'right', width: 245, lineBreak: true });
+
 
             // Línea divisoria
             doc.moveTo(50, 160).lineTo(545, 160).strokeColor(colorPrimario).lineWidth(2).stroke();
@@ -162,8 +173,8 @@ const generarPDFFactura = async (datosFactura) => {
                .fontSize(14)
                .text(`$${totalFinal.toLocaleString('es-CO')}`, 460, yPosition, { align: 'right', width: 85 });
 
-            // ========== CÓDIGOS QR ==========
-            yPosition += 50;
+ // ========== CÓDIGOS QR ==========
+            let yPositionQRStart = yPosition + 50; // Inicia la sección QR 50pts después de los totales
 
             // Generar QR Code
             // ========== GENERAR QR CON LÓGICA DE codigo_QR.js ==========
@@ -187,28 +198,46 @@ const generarPDFFactura = async (datosFactura) => {
             errorCorrectionLevel: "M"
             });
 
-            doc.image(qrCodeImage, 60, yPosition, { width: 120, height: 120 });
-            doc.fontSize(8).fillColor(colorGris).text('Escanea para verificar', 60, yPosition + 125, { width: 120, align: 'center' });
+            doc.image(qrCodeImage, 60, yPositionQRStart, { width: 120, height: 120 });
+            doc.fontSize(8).fillColor(colorGris).text('Escanea para verificar', 60, yPositionQRStart + 125, { width: 120, align: 'center' });
 
-            // Número de factura
+            // Número de factura (ubicado a la derecha del QR)
             doc.fontSize(16).fillColor(colorTexto).font('Helvetica-Bold')
-               .text(datosFactura.numero_factura, 250, yPosition + 40, { align: 'center', width: 250 });
+               .text(datosFactura.numero_factura, 250, yPositionQRStart + 40, { align: 'center', width: 250 });
             
             doc.fontSize(8).fillColor(colorGris).font('Helvetica')
-               .text('Número de Factura', 250, yPosition + 60, { align: 'center', width: 250 });
+               .text('Número de Factura', 250, yPositionQRStart + 60, { align: 'center', width: 250 });
+
+            
+            // La nueva posición debe ser MÁS ALLÁ del punto más bajo de la sección QR (yPositionQRStart + 125 + 10)
+            let yPositionValidation = yPositionQRStart + 150; 
+            
+            doc.moveTo(50, yPositionValidation).lineTo(545, yPositionValidation).strokeColor(colorSecundario).lineWidth(1).stroke();
+            yPositionValidation += 15;
+
+            doc.fontSize(10).fillColor(colorPrimario).font('Helvetica-Bold')
+               .text('VALIDACIÓN DE FACTURA ELECTRÓNICA', 50, yPositionValidation);
+            
+            yPositionValidation += 15;
+            doc.fontSize(8).fillColor(colorGris).font('Helvetica')
+               .text('Este documento ha sido firmado digitalmente mediante el estándar XAdES por Athena\'S - GaiaFact.', 50, yPositionValidation)
+               .text('La integridad y autenticidad pueden ser verificadas con el CUFE ante la DIAN.', 50, yPositionValidation + 10);
+            
+            // ----------------------------------------------------------------------
 
             // ========== FOOTER ==========
-            yPosition += 150;
+            let yPositionFooter = yPositionValidation + 35; // Define el inicio del footer después de la validación
+            
             doc.fontSize(8).fillColor(colorGris)
-               .text('Esta factura electrónica ha sido generada por el sistema GaiaFact - Athena\'S', 50, yPosition, { 
+               .text('Esta factura electrónica ha sido generada por el sistema GaiaFact - Athena\'S', 50, yPositionFooter, { 
                    align: 'center', 
                    width: 495 
                })
-               .text(`Rango de numeración: ${datosFactura.rango_numeracion_actual || 'TEMP-2025'}`, 50, yPosition + 15, { 
+               .text(`Rango de numeración: ${datosFactura.rango_numeracion_actual || 'TEMP-2025'}`, 50, yPositionFooter + 15, { 
                    align: 'center', 
                    width: 495 
                })
-               .text('Gracias por su compra', 50, yPosition + 30, { 
+               .text('Gracias por su compra', 50, yPositionFooter + 30, { 
                    align: 'center', 
                    width: 495 
                });
@@ -220,8 +249,52 @@ const generarPDFFactura = async (datosFactura) => {
     });
 };
 
-const generarXMLFactura = (datosFactura) => {
-    return `<?xml version="1.0" encoding="UTF-8"?>
+const generarXMLFactura = (datosFactura, digestValue) => {
+
+    const signingTime = new Date().toISOString();
+
+    const signatureBlock = `
+    <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xades="http://uri.etsi.org/01903/v1.3.2#">
+        <ds:SignedInfo>
+            <ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+            <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256"/>
+            <ds:Reference URI="">
+                <ds:Transforms>
+                    <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                    <ds:Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+                </ds:Transforms>
+                <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                <ds:DigestValue>${digestValue}</ds:DigestValue>
+            </ds:Reference>
+        </ds:SignedInfo>
+        <ds:SignatureValue>
+            ${SIGNATURE_VALUE_DUMMY}
+        </ds:SignatureValue>
+        <ds:KeyInfo>
+            <ds:X509Data>
+                <ds:X509Certificate>${CERTIFICADO_DUMMY}</ds:X509Certificate>
+            </ds:X509Data>
+        </ds:KeyInfo>
+        <ds:Object>
+            <xades:QualifyingProperties Target="#SignatureId">
+                <xades:SignedProperties>
+                    <xades:SignedSignatureProperties>
+                        <xades:SigningTime>${signingTime}</xades:SigningTime>
+                        <xades:SigningCertificate>
+                            <xades:Cert>
+                                <xades:CertDigest>
+                                    <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                                    <ds:DigestValue>SIMULATED_CERT_DIGEST</ds:DigestValue>
+                                </xades:CertDigest>
+                            </xades:Cert>
+                        </xades:SigningCertificate>
+                    </xades:SignedSignatureProperties>
+                </xades:SignedProperties>
+            </xades:QualifyingProperties>
+        </ds:Object>
+    </ds:Signature>`;
+
+    const xmlBase = `<?xml version="1.0" encoding="UTF-8"?>
         <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" 
                 xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
                 xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
@@ -233,7 +306,11 @@ const generarXMLFactura = (datosFactura) => {
             <cac:PaymentMeans>
                 <cbc:PaymentMeansCode>${datosFactura.metodo_pago}</cbc:PaymentMeansCode>
             </cac:PaymentMeans>
-        </Invoice>`;
+            </Invoice>`;
+
+            const finalXML = xmlBase.replace('</Invoice>', `${signatureBlock}\n</Invoice>`);
+
+            return finalXML;
 };
 
 exports.generarFactura = async (req, res, next) => {
@@ -294,9 +371,20 @@ exports.generarFactura = async (req, res, next) => {
         const nuevaFactura = new Factura(datosFactura);
 
         // Generar el PDF y el XML
-        const pdfBuffer = await generarPDFFactura(nuevaFactura);
-        const xmlString = generarXMLFactura(nuevaFactura);
+        const contentToSign = JSON.stringify({
+            numero: nuevaFactura.numero_factura,
+            fecha: nuevaFactura.fecha_emision,
+            total: nuevaFactura.total
+            // En un caso real, esto sería el XML normalizado
+        });
 
+
+        const digestValue = crypto.createHash('sha256').update(contentToSign).digest('base64');
+        console.log(`🔑 Digest Value generado: ${digestValue}`);
+
+        const pdfBuffer = await generarPDFFactura(nuevaFactura);
+
+        const xmlString = generarXMLFactura(nuevaFactura, digestValue);
         // Guardar el PDF y XML en la factura
         nuevaFactura.pdf_factura = pdfBuffer;
         nuevaFactura.xml_factura = xmlString;
