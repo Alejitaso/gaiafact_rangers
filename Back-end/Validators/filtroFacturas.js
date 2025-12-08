@@ -17,4 +17,4 @@ function obtenerFiltroFacturas(tipoUsuario) {
   };
 }
 
-export default obtenerFiltroFacturas;
+module.exports = obtenerFiltroFacturas;
