@@ -287,8 +287,8 @@ function RegistroUsuario() {
         return ["ADMINISTRADOR", "USUARIO", "CLIENTE", "SUPERADMIN"];
       case "ADMINISTRADOR":
         return ["USUARIO", "CLIENTE"];
-      case "EMPLEADO":
-        return ["USUARIO"];
+      case "USUARIO":
+        return ["CLIENTE"];
       default:
         return [];
     }
