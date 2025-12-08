@@ -7,50 +7,32 @@ const Usuario = require('../models/usuario');
 exports.verificarAuth = async (req, res, next) => {
     const token = req.headers['authorization']?.split(' ')[1];
 
-    console.log('🔍 Verificando autenticación...');
-    console.log('📋 Headers:', req.headers['authorization'] ? 'Authorization header presente' : 'No hay header Authorization');
-
     if (!token) {
-        console.log('❌ Token no proporcionado');
         return res.status(401).json({ mensaje: 'Token no proporcionado' });
     }
 
     try {
-        // Decodificar el token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log('✅ Token decodificado:', { id: decoded.id });
-        
-        // 1. Obtiene el usuario de la base de datos
-        const usuario = await Usuario.findById(decoded.id).select('-password');
-        
-        if (!usuario) {
-            console.log('❌ Usuario no encontrado en BD');
+
+        // Obtener usuario desde la BD
+        const usuarioBD = await Usuario.findById(decoded.id).select('-password');
+
+        if (!usuarioBD) {
             return res.status(404).json({ mensaje: 'Usuario no encontrado' });
         }
-        
-        console.log('✅ Usuario encontrado:', { 
-            id: usuario._id, 
-            tipo_usuario: usuario.tipo_usuario,
-            numero_documento: usuario.numero_documento 
-        });
-        
-        // 2. Adjuntar el usuario completo a req.usuario
-        req.usuario = usuario;
-        
-        // 3. Asegurar que req.usuario.id existe (para compatibilidad)
-        req.usuario.id = decoded.id;
+
+        // 🔥 FUSIONAR INFO DEL TOKEN + BD
+        req.usuario = {
+            _id: usuarioBD._id,
+            nombre: usuarioBD.nombre,
+            correo_electronico: usuarioBD.correo_electronico,
+
+            // 🔥 El tipo_usuario MÁS CONFIABLE es EL DEL TOKEN
+            tipo_usuario: decoded.tipo_usuario || usuarioBD.tipo_usuario,
+        };
 
         next();
     } catch (error) {
-        console.error("❌ Error al verificar token:", error.message);
-        
-        if (error.name === 'JsonWebTokenError') {
-            return res.status(401).json({ mensaje: 'Token inválido' });
-        }
-        if (error.name === 'TokenExpiredError') {
-            return res.status(401).json({ mensaje: 'Token expirado' });
-        }
-        
         return res.status(401).json({ mensaje: 'Token inválido o expirado' });
     }
 };

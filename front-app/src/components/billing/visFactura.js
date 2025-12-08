@@ -60,8 +60,8 @@ const VisFactura = () => {
             setCargando(true);
             setMensajeEstado('Cargando facturas del sistema');
             const res = await clienteAxios.get('/api/facturas');
-            setFacturas(Array.isArray(res.data) ? res.data : []);
-            setMensajeEstado(`${res.data.length} facturas cargadas correctamente`);
+            setFacturas(Array.isArray(res.data.facturas) ? res.data.facturas : []);
+            setMensajeEstado(`${res.data.facturas?.length || 0} facturas cargadas correctamente`);
         } catch (error) {
             console.error('Error al obtener facturas:', error);
             setMensajeEstado('Error al cargar las facturas');

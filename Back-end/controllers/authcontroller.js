@@ -4,6 +4,7 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const sgMail = require('@sendgrid/mail');
+const usuario = require("../models/usuario");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const JWT_SECRET = process.env.JWT_SECRET;
