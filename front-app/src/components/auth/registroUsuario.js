@@ -210,7 +210,7 @@ function RegistroUsuario() {
       await Swal.fire({
         icon: 'success',
         title: 'Correcto',
-        text: 'Usuario registrado correctamente <br> Por favor, verifica el correo electrónico para activar la cuenta.',
+        text: 'Usuario registrado correctamente. Por favor, verifica el correo electrónico para activar la cuenta.',
         customClass: { 
           popup: 'swal-contorno-interior',
           confirmButton: 'swal-button-focus'

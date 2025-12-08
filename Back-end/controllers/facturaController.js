@@ -6,6 +6,8 @@ const QRCode      = require('qrcode');
 const sgMail      = require('@sendgrid/mail');
 const notificacionController = require('./notificacionController');
 const facturaSchema = require('../Validators/facturaValidator');
+const obtenerFiltroFacturas = require('../Validators/filtroFacturas');
+
 
 // -----------------------------------------------------------
 // 1)  CONFIG DE SENDGRID – FUENTE ÚNICA: SENDGRID_API_KEY
@@ -236,10 +238,23 @@ const generarXMLFactura = (datosFactura) => {
         </Invoice>`;
 };
 
-const puedeVerTodasLasFacturas = (tipoUsuario) => {
-  if (!tipoUsuario) return false;
-  const tipo = tipoUsuario.toUpperCase();
-  return ['SUPERADMIN', 'ADMINISTRADOR', 'USUARIO'].includes(tipo);
+exports.mostrarFacturas = async (req, res) => {
+  try {
+    const { filtroFecha, puedeVerHistorico } = obtenerFiltroFacturas(req.usuario.tipo_usuario);
+
+    const facturas = await Factura.find(filtroFecha)
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.json({
+      facturas,
+      puedeVerHistorico,
+      fechaConsulta: new Date()
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ mensaje: 'Error al obtener facturas' });
+  }
 };
 
 // -----------------------------------------------------------
