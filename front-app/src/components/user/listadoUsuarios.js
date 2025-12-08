@@ -80,7 +80,7 @@ const ListadoUsuarios = () => {
         const documento = String(usuario.numero_documento || '').toLowerCase();
 
         // Nueva: fecha formateada en texto
-        const fechaRegistro = formatDate(usuario.fecha_registro).toLowerCase();
+        const fechaRegistro = formatDate(usuario.createdAt).toLowerCase();
 
         // Detectar búsqueda exacta de estado
         const esEstado = term === 'activo' || term === 'inactivo';
@@ -188,7 +188,7 @@ const ListadoUsuarios = () => {
                                 <td>{usuario.estado || 'Activo'}</td>
 
                                 {/* Fecha REAL */}
-                                <td>{formatDate(usuario.fecha_registro)}</td>
+                                <td>{formatDate(usuario.createdAt)}</td>
 
                                 <td>
                                     <button
