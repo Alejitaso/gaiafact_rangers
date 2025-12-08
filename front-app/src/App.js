@@ -146,13 +146,16 @@ function AppContent() {
               />
             </Routes>
           </div>
+          <Footer />
         </div>
+        
       </div>
       
-      <Footer />
+      
       <div className="fixed-utils">
         {!ocultarSidebar && <KeyboardShortcutsHelp />}
-        <ColorBlindToggle key="colorblind" />
+        {!ocultarSidebar && <ColorBlindToggle key="colorblind" />}
+        
       </div>
     </Fragment>
   );
