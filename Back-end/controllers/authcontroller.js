@@ -64,7 +64,7 @@ exports.login = async (req, res) => {
             });
         }
 
-        if (user.isVerified === "false") {
+        if (!user.isVerified) {
             return res.status(403).json({
                 success: false,
                 message: "no_verificado"
