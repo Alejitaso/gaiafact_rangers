@@ -19,6 +19,16 @@
     max-width: 350px;
 }
 
+.action-btn-secondary {
+  background-color: #ffc107;
+  color: #212529;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
 .search-input-wrapper {
     position: relative; 
     width: 100%;
