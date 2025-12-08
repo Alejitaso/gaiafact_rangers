@@ -417,12 +417,24 @@ exports.mostrarFacturas = async (req, res, next) => {
     const usuario = req.usuario;
     if (!usuario) return res.status(401).json({ mensaje: 'Usuario no autenticado' });
 
-    let query = {};
-    if (!obtenerFiltroFacturas(usuario.tipo_usuario))
-      query = { 'usuario.numero_documento': usuario.numero_documento };
+    // ⭐ Filtro dinámico según rol
+    const { filtroFecha, puedeVerHistorico } = obtenerFiltroFacturas(usuario.tipo_usuario);
+    console.log('🔍 Filtro aplicado:', filtroFecha);   // para debug
 
-    const facturas = await Factura.find(query).sort({ fecha_emision: -1 });
-    res.json(facturas);
+    // Si el usuario NO es admin → agregamos también su documento
+    if (!puedeVerHistorico) {
+      filtroFecha['usuario.numero_documento'] = usuario.numero_documento;
+    }
+
+    const facturas = await Factura.find(filtroFecha)
+      .sort({ fecha_emision: -1 })
+      .lean();
+
+    res.json({
+      facturas,
+      puedeVerHistorico,
+      fechaConsulta: new Date()
+    });
   } catch (e) {
     console.error('❌ mostrarFacturas:', e);
     res.status(500).json({ mensaje: 'Error al mostrar facturas' });
@@ -868,9 +880,11 @@ exports.buscarFactura = async (req, res, next) => {
     const factura = await Factura.findOne({ numero_factura: req.params.numeroFactura });
     if (!factura) return res.status(404).json({ mensaje: 'Factura no encontrada' });
 
-    if (!obtenerFiltroFacturas(usuario.tipo_usuario) &&
-        factura.usuario.numero_documento !== usuario.numero_documento)
-      return res.status(403).json({ mensaje: 'Sin permisos para ver esta factura' });
+    const { puedeVerHistorico } = obtenerFiltroFacturas(usuario.tipo_usuario);
+
+    if (!puedeVerHistorico && factura.usuario.numero_documento !== usuario.numero_documento) {
+    return res.status(403).json({ mensaje: 'Sin permisos para ver esta factura' });
+    }
 
     res.json(factura);
   } catch (e) {
