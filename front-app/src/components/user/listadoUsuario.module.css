@@ -20,7 +20,7 @@
 }
 
 .action-btn-secondary {
-  background-color: #ffc107;
+  background-color: var(--color-seis);
   color: #212529;
   border: none;
   padding: 4px 8px;

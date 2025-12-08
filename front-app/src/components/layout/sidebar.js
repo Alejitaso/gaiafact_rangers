@@ -236,6 +236,17 @@ const Sidebar = () => {
             </a>
         )}
 
+        {/*USUARIO */}
+        {["USUARIO"].includes(tipoUsuario) && (
+          <a
+                href='/registro' onClick={(e) => { e.preventDefault(); window.location.href = "/registro"; }}
+                className={`${styles.sidebarLink} ${currentPath === '/registro' ? styles.activeLink : ''}`}
+              >
+                <i className="fa-solid fa-user"></i>
+                <span className={styles.linkText}>Usuario</span>
+              </a>
+        )}
+
         {/* Todos pueden ver Perfil */}
         <a
           href='/perfil' onClick={(e) => { e.preventDefault(); window.location.href = "/perfil"; }}

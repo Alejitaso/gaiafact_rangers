@@ -136,7 +136,7 @@ const ListadoUsuarios = () => {
                     },
                 }
             );
-            Swal.fire('Enviado', 'Correo de verificación reenviado correctamente.', 'success');
+            Swal.fire('Enviado', 'Correo de verificación reenviado correctamente. <br> Notificar revison en carpeta de spam', 'success');
         } catch (error) {
             const msg = error.response?.data?.mensaje || 'No se pudo reenviar el correo';
             Swal.fire('Error', msg, 'error');
