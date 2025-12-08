@@ -42,7 +42,8 @@ exports.nuevoUsuario = async (req, res) => {
         );
 
         const verificationLink = `${process.env.FRONTEND_URL}?token=${token}`;
-
+        
+        console.log('📧 from usado:', process.env.EMAIL_USER);
         try {
         await sgMail.send({
             to: usuario.correo_electronico,
