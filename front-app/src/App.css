@@ -36,3 +36,47 @@
     transform: rotate(360deg);
   }
 }
+
+/* Aplicar filtros solo al contenido principal, no a elementos fixed */
+body.colorblind-protanopia #main,
+body.colorblind-protanopia .sidebar {
+  filter: contrast(1.2) saturate(1.1) hue-rotate(5deg);
+}
+
+body.colorblind-deuteranopia #main,
+body.colorblind-deuteranopia .sidebar {
+  filter: contrast(1.1) saturate(0.8) hue-rotate(20deg);
+}
+
+body.colorblind-tritanopia #main,
+body.colorblind-tritanopia .sidebar {
+  filter: contrast(1.1) saturate(0.8) hue-rotate(180deg);
+}
+
+/* Aplicar filtros al wrapper en lugar del body */
+body.colorblind-protanopia .app-wrapper {
+  filter: contrast(1.2) saturate(1.1) hue-rotate(5deg);
+}
+
+body.colorblind-deuteranopia .app-wrapper {
+  filter: contrast(1.1) saturate(0.8) hue-rotate(20deg);
+}
+
+body.colorblind-tritanopia .app-wrapper {
+  filter: contrast(1.1) saturate(0.8) hue-rotate(180deg);
+}
+
+.fixed-utils {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  pointer-events: none;
+}
+
+.fixed-utils > * {
+  pointer-events: auto;
+}

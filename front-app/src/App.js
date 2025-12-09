@@ -21,29 +21,25 @@ import Inventario from './components/products/inventory.js';
 import ListadoUsuarios from './components/user/listadoUsuarios.js';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts.js';
 import KeyboardShortcutsHelp from './components/utils/KeyboardShortcutsHelp';
+import ColorBlindToggle from './components/utils/ColorBlindToggle';
+import './colorblind-themes.css';
 import Swal from 'sweetalert2';
 import './App.css';
 
-// 🔒 Componente para proteger rutas con verificación de rol
 const ProtectedRoute = ({ element, allowedRoles = [] }) => {
   const token = localStorage.getItem("token");
   const tipoUsuario = (localStorage.getItem("tipo_usuario") || "").toUpperCase();
 
-  // Si no hay token, redirigir a login
   if (!token) {
     return <Navigate to="/login" replace />;
   }
 
-  // Si la ruta tiene roles específicos permitidos
   if (allowedRoles.length > 0) {
-    // Verificar si el usuario tiene permiso
     if (!allowedRoles.includes(tipoUsuario)) {
-
       return <Navigate to="/inicio" replace />;
     }
   }
 
-  // Si todo está bien, renderizar el componente
   return element;
 };
 
@@ -53,12 +49,17 @@ function AppContent() {
   const ocultarSidebar = rutasSinSidebar.includes(location.pathname) || location.pathname.startsWith('/nueva_contra');
   useKeyboardShortcuts();
 
-  // 🟢 Estado del tipo de usuario
+  useEffect(() => {
+    const saved = localStorage.getItem('colorblind-mode');
+    if (saved && saved !== 'normal') {
+      document.body.classList.add(`colorblind-${saved}`);
+    }
+  }, []);
+
   const [tipoUsuario, setTipoUsuario] = useState(
     (localStorage.getItem("tipo_usuario") || "").toUpperCase()
   );
 
-  // 🧠 Escucha cambios en el almacenamiento (login/logout)
   useEffect(() => {
     const handleStorageChange = () => {
       const newTipo = (localStorage.getItem("tipo_usuario") || "").toUpperCase();
@@ -74,18 +75,14 @@ function AppContent() {
     };
   }, []);
 
-  // 🚀 Redirigir si el usuario ya está logueado e intenta entrar a login
   useEffect(() => {
     const token = localStorage.getItem("token");
     const tipo = (localStorage.getItem("tipo_usuario") || "").toUpperCase();
-    if (token && tipo) {
-      if (location.pathname === "/" || location.pathname === "/login") {
-        window.location.href = "/inicio";
-      }
+    if (token && tipo && location.pathname === "/") {
+      window.location.href = "/inicio";
     }
   }, [location.pathname]);
 
-  // 🔹 Rutas públicas (sin protección)
   const rutasPublicas = [
     { path: "/", element: <Login /> },
     { path: "/login", element: <Login /> },
@@ -93,22 +90,14 @@ function AppContent() {
     { path: "/nueva_contra/:token", element: <Nueva_contra /> },
   ];
 
-  // 🔹 Definición de todas las rutas con sus roles permitidos
   const todasLasRutas = [
-    // Rutas accesibles para TODOS los usuarios autenticados
     { path: "/inicio", element: <Inicio />, roles: [] },
     { path: "/perfil/:idUsuario?", element: <Perfil />, roles: [] },
-    
-    // Rutas para CLIENTE, USUARIO, ADMINISTRADOR y SUPERADMIN
     { path: "/vis-factura", element: <VisFactura />, roles: ['CLIENTE', 'USUARIO', 'ADMINISTRADOR', 'SUPERADMIN'] },
     { path: "/notify", element: <Notify />, roles: ['CLIENTE', 'USUARIO', 'ADMINISTRADOR', 'SUPERADMIN'] },
-    
-    // Rutas para USUARIO, ADMINISTRADOR y SUPERADMIN
     { path: "/facturacion", element: <Facturacion />, roles: ['USUARIO', 'ADMINISTRADOR', 'SUPERADMIN'] },
     { path: "/codigoqr", element: <Codigo_QR />, roles: ['USUARIO', 'ADMINISTRADOR', 'SUPERADMIN'] },
     { path: "/codigoBarras", element: <CodigoBarras />, roles: ['USUARIO', 'ADMINISTRADOR', 'SUPERADMIN'] },
-    
-    // Rutas SOLO para ADMINISTRADOR y SUPERADMIN
     { path: "/inventario", element: <Inventario />, roles: ['ADMINISTRADOR', 'SUPERADMIN'] },
     { path: "/Img", element: <Img />, roles: ['ADMINISTRADOR', 'SUPERADMIN'] },
     { path: "/registro", element: <RegistroUsuario />, roles: ['ADMINISTRADOR', 'SUPERADMIN', 'USUARIO'] },
@@ -119,48 +108,54 @@ function AppContent() {
 
   return (
     <Fragment>
-      {!ocultarSidebar && <Sidebar />}
+      <div className="app-wrapper">
+        {!ocultarSidebar && <Sidebar />}
 
-      <div id="main" className={ocultarSidebar ? 'full-width' : ''}>
-        <Header title="GaiaFact" />
+        <div id="main" className={ocultarSidebar ? 'full-width' : ''}>
+          <Header title="GaiaFact" />
 
-        <div className="content">
-          <Routes>
-            {/* Rutas públicas */}
-            {rutasPublicas.map((ruta, i) => (
-              <Route key={i} path={ruta.path} element={ruta.element} />
-            ))}
+          <div className="content">
+            <Routes>
+              {rutasPublicas.map((ruta, i) => (
+                <Route key={i} path={ruta.path} element={ruta.element} />
+              ))}
 
-            {/* Rutas protegidas con verificación de rol */}
-            {todasLasRutas.map((ruta, i) => (
+              {todasLasRutas.map((ruta, i) => (
+                <Route 
+                  key={i} 
+                  path={ruta.path} 
+                  element={
+                    <ProtectedRoute 
+                      element={ruta.element} 
+                      allowedRoles={ruta.roles}
+                    />
+                  } 
+                />
+              ))}
+
+              {/* ✅ RUTA 404 CORREGIDA - DENTRO de Routes y con lógica correcta */}
               <Route 
-                key={i} 
-                path={ruta.path} 
+                path="*" 
                 element={
-                  <ProtectedRoute 
-                    element={ruta.element} 
-                    allowedRoles={ruta.roles}
-                  />
+                  localStorage.getItem("token") ? (
+                    <Navigate to="/inicio" replace />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
                 } 
               />
-            ))}
-
-            {/* Ruta por defecto - redirige al inicio si está autenticado, sino a login */}
-            <Route 
-              path="*" 
-              element={
-                localStorage.getItem("token") ? (
-                  <Navigate to="/inicio" replace />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
-              } 
-            />
-          </Routes>
+            </Routes>
+          </div>
+          <Footer />
         </div>
-
-        <Footer />
+        
+      </div>
+      
+      
+      <div className="fixed-utils">
         {!ocultarSidebar && <KeyboardShortcutsHelp />}
+        {!ocultarSidebar && <ColorBlindToggle key="colorblind" />}
+        
       </div>
     </Fragment>
   );

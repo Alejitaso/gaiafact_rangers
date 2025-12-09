@@ -6,44 +6,6 @@ const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
 const axios = require('axios');
 
-// Configuración de multer
-const configuracionMulter = {
-    storage: multer.diskStorage({
-        destination: (req, file, cb) => {
-            cb(null, './uploads');
-        },
-        filename: (req, file, cb) => {
-            const extension = file.mimetype.split('/')[1];
-            cb(null, `${shortid.generate()}.${extension}`);
-        }
-    }),
-    fileFilter(req, file, cb) {
-        if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/gif') {
-            cb(null, true);
-        } else {
-            cb(new Error('Formato de archivo no válido. Solo se permiten imágenes'), false);
-        }
-    },
-    limits: {
-        fileSize: 5000000
-    }
-};
-
-const upload = multer(configuracionMulter).single('imagen');
-
-// FUNCIONES EXPORTADAS - ESTAS SON LAS QUE NECESITAS
-
-//sube un archivo
-exports.subirArchivo = (req, res, next) => {
-    upload(req, res, function(error) {
-        if(error) {
-            return res.json({mensaje: error.message});
-        }
-        return next();
-    });
-};
-
-
 
 
 const generarCodigoBarras = (datosProducto) => {
@@ -119,7 +81,7 @@ exports.nuevoProducto = async(req, res, next) => {
     }catch(error){
         // Si hay un error (ej. validación, o la base de datos no está disponible)
         console.error('Error al procesar el producto:', error);
-        res.status(500).json({mensaje: 'Error al procesar el producto', error: error.message});
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
         next();
     }
 };
@@ -137,7 +99,7 @@ exports.obtenerCodigoBarrasPDF = async (req, res, next) => {
             url: `https://barcodeapi.org/api/128/${producto.codigo_barras_datos}`
         });
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error', error: error.message });
+        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
     }
 };
 
@@ -167,29 +129,31 @@ exports.mostrarProducto = async(req, res, next) => {
     }
 };
 
-exports.actualizarProducto = async(req, res, next) => {
-    try{
-        let nuevoProducto = req.body;
-        //verificar si hay imagen nueva
-        if(req.file){
-            nuevoProducto.imagen = req.file.filename;
-        }else{
-            let productoAnterior = await Productos.findById(req.params.idProducto);
-            if(productoAnterior) {
-                nuevoProducto.imagen = productoAnterior.imagen;
-            }
-        }
+exports.actualizarProducto = async (req, res, next) => {
 
-        let producto = await Productos.findOneAndUpdate(
-            {_id: req.params.idProducto}, 
-            nuevoProducto, 
-            {new: true}
-        );
-        res.json(producto);
-    }catch(error){
-        console.log(error);
-        next();
+  try {
+    let nuevoProducto = req.body;
+
+    // ✅ Asegurar que tipo_prenda sea string
+    if (Array.isArray(nuevoProducto.tipo_prenda)) {
+      nuevoProducto.tipo_prenda = nuevoProducto.tipo_prenda[0];
     }
+
+    const producto = await Productos.findOneAndUpdate(
+      { _id: req.params.idProducto },
+      nuevoProducto,
+      { new: true }
+    );
+
+    if (!producto) {
+      return res.status(404).json({ mensaje: 'Producto no encontrado' });
+    }
+
+    res.json(producto);
+  } catch (error) {
+    console.error('❌ Error actualizando producto:', error);
+    res.status(500).json({ mensaje: 'Error en el servidor' });
+  }
 };
 
 //elimina un producto via id

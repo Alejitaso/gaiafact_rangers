@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 import styles from './header.module.css';
 
-import logoIzquierdo from '../layout/logos/logo_final (1).png';
-import logoDerecho from '../layout/logos/logo_athena_S.png';
+import logoIzquierdo from '../layout/logos/logo_final (1).webp';
+import logoDerecho from '../layout/logos/logo_athena_S.webp';
 
 const Header = ({ title }) => {
     return (

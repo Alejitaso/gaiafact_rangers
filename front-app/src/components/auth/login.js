@@ -106,7 +106,7 @@ function Login() {
 
       const data = await res.json();
 
-      if (data.success) {
+       if (data.success) {
         setError(null);
         setAttempts(0);
         localStorage.removeItem("attempts");
@@ -117,23 +117,54 @@ function Login() {
         setTimeout(() => {
           window.location.href = "/inicio";
         }, 2000);
-        
-      } else {
-        setError(data.message || "Correo o contraseña incorrectos");
+      } 
+      else {
+
+        if (res.status === 403) {
+
+          let displayMessage = "";
+
+          if (data.message === "no_verificado") {
+            displayMessage = "Tu cuenta aún no ha sido verificada. Por favor revisa tu correo.";
+          }
+
+          else if (data.message === "Inactivo") {
+            displayMessage = "Tu cuenta está inactiva o ha sido bloqueada. Por favor, contacta a soporte.";
+          }
+
+          else {
+            displayMessage = "Error de autenticación. Contacte a soporte.";
+          }
+
+          // ❗ NO cuenta como intento fallido
+          setError(displayMessage);
+
+          setTimeout(() => {
+            setIsNavigating(false);
+            setShowContent(true);
+            if (emailInputRef.current) {
+              emailInputRef.current.focus();
+            }
+          }, 500);
+
+          return; // Salir de la función
+        }
+
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
 
         if (newAttempts >= 3) {
           setIsLocked(true);
-          setTimeLeft(60 * 5);
+          setTimeLeft(300);
           localStorage.setItem("isLocked", "true");
-          localStorage.setItem("timeLeft", 60 * 5);
+          localStorage.setItem("timeLeft", 300);
         }
-        
+
+        setError(data.message || "Correo o contraseña incorrectos");
+
         setTimeout(() => {
           setIsNavigating(false);
           setShowContent(true);
-          // ✅ Enfocar el email después de error
           if (emailInputRef.current) {
             emailInputRef.current.focus();
           }

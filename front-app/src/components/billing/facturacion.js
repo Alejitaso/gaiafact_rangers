@@ -26,6 +26,7 @@ const Facturacion = () => {
     const [apellidos, setApellidos] = useState('');
     const [telefono, setTelefono] = useState('');
     const [correo, setCorreo] = useState('');
+    const [metodoPago, setMetodoPago] = useState('');
     
     // Estados para el manejo de clientes
     const [buscandoCliente, setBuscandoCliente] = useState(false);
@@ -342,6 +343,7 @@ const Facturacion = () => {
                     <h4><i class="fas fa-box"></i> ${producto.nombre}</h4>
                     <p><strong>ID:</strong> ${producto._id.substring(producto._id.length - 6).toUpperCase()}</p>
                     <p><strong>Precio:</strong> $${formatearPrecio(producto.precio)}</p>
+                    <p><strong>Descuento:</strong> ${producto.descuento || 0}%</p>
                     <p><strong>Stock disponible:</strong> ${producto.cantidad} unidades</p>
                     <p><strong>Tipo:</strong> ${producto.tipo_prenda}</p>
                     <div style="margin-top: 15px;">
@@ -421,7 +423,8 @@ const Facturacion = () => {
                 precio: producto.precio,
                 cantidad: cantidad,
                 stock: producto.cantidad,
-                tipo_prenda: producto.tipo_prenda
+                tipo_prenda: producto.tipo_prenda,
+                descuento: producto.descuento || 0
             };
             
             setProductosFactura(prev => [...prev, nuevoProducto]);
@@ -578,6 +581,10 @@ const Facturacion = () => {
     };
 
     const abrirPopup = () => {
+         if (!metodoPago) {
+                mostrarError('Método de pago requerido', 'Seleccione un método de pago antes de agregar productos');
+                return;
+            }
         setShowPopup(true);
         setActiveTab('barcode');
         setBarcodeInput('');
@@ -628,9 +635,10 @@ const Facturacion = () => {
     };
 
     const calcularTotal = () => {
-        return productosFactura.reduce((total, producto) => 
-            total + (producto.precio * producto.cantidad), 0
-        );
+    return productosFactura.reduce((total, p) => {
+        const precioConDescuento = p.precio * (1 - (p.descuento || 0) / 100);
+        return total + (precioConDescuento * p.cantidad);
+    }, 0);
     };
 
     return (
@@ -787,13 +795,34 @@ const Facturacion = () => {
                     )}
                 </section>
                 
-                <div className={styles.botonAnadir}>
-                    <button 
-                        onClick={abrirPopup}
-                        aria-label="Agregar producto a la factura"
-                        className="fa-solid fa-plus"
-                    ></button>
-                </div>
+                <div className={styles.accionesProductos}>
+            <div className={styles.selectorMetodoPago}>
+                <label htmlFor="metodo-pago" className="sr-only">Método de pago</label>
+                <select
+                id="metodo-pago"
+                value={metodoPago}
+                onChange={(e) => setMetodoPago(e.target.value)}
+                aria-required="true"
+                className={styles.metodoPagoSelect}
+                >
+                <option value="">Método de pago</option>
+                <option value="Efectivo">Efectivo</option>
+                <option value="Tarjeta débito">Tarjeta débito</option>
+                <option value="Tarjeta crédito">Tarjeta crédito</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Nequi">Nequi</option>
+                <option value="Daviplata">Daviplata</option>
+                </select>
+            </div>
+
+            <div className={styles.botonAnadir}>
+                <button 
+                onClick={abrirPopup}
+                aria-label="Agregar producto a la factura"
+                className="fa-solid fa-plus"
+                ></button>
+            </div>
+            </div>
                 
                 <section aria-labelledby="productos-table-title">
                     <h2 id="productos-table-title" className="sr-only">Productos en la Factura</h2>
@@ -869,10 +898,15 @@ const Facturacion = () => {
                                                         Stock: {producto.stock}
                                                     </small>
                                                 )}
+                        
+                                                
                                             </td>
                                             <td>${formatearPrecio(producto.precio)}</td>
                                             <td style={{ fontWeight: 'bold' }}>
                                                 ${formatearPrecio(producto.precio * producto.cantidad)}
+                                                {producto.descuento > 0 && (
+                                                    <small style={{ color: 'green' }}>-{producto.descuento}%</small>
+                                                )}
                                             </td>
                                             <td>
                                                 <button 

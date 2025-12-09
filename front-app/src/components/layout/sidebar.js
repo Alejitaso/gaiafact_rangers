@@ -118,7 +118,7 @@ const Sidebar = () => {
 
         {/* Todos los usuarios pueden ver Inicio */}
         <a
-          onClick={(e) => { e.preventDefault(); window.location.href = "/inicio"; }}
+          href='/inicio' onClick={(e) => { e.preventDefault(); window.location.href = "/inicio"; }}
           className={`${styles.sidebarLink} ${currentPath === '/inicio' ? styles.activeLink : ''}`}
         >
           <i className="fa-solid fa-home"></i>

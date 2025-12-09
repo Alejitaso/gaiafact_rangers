@@ -46,42 +46,62 @@ exports.login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: "Correo o contraseña incorrectos",
+        errorCode: "INVALID_CREDENTIALS"
       });
     }
 
+    // 🟠 Comprobar contraseña
     const isMatch = await user.compararPassword(password);
     if (!isMatch) {
       return res.status(401).json({
         success: false,
         message: "Correo o contraseña incorrectos",
+        errorCode: "INVALID_CREDENTIALS"
       });
     }
 
-    // Crear JWT que incluya tipo_usuario (rol)
+      if (user.estado === "Inactivo") {
+  return res.status(403).json({
+    success: false,
+    message: "Inactivo" 
+  });
+}
+
+    // 🚫 Primero: cuenta sin verificar
+    if (user.isVerified === "false") {
+  return res.status(403).json({
+    success: false,
+    message: "no_verificado"
+  });
+}
+
+    // 🟢 Si todo está bien crear token
     const payload = {
       id: user._id,
       correo_electronico: user.correo_electronico,
-      tipo_usuario: user.tipo_usuario, 
+      tipo_usuario: user.tipo_usuario,
     };
 
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
 
     return res.json({
       success: true,
-      message: "✅ Login exitoso",
+      message: "Login exitoso",
       usuario: {
         id: user._id,
         nombre: user.nombre,
         correo_electronico: user.correo_electronico,
         tipo_usuario: user.tipo_usuario,
       },
-      token, 
+      token,
     });
+
   } catch (err) {
     console.error("❌ Error en login:", err);
     res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };
+
 
 // 🟢 Recuperar contraseña
 exports.recoverPassword = async (req, res) => {
