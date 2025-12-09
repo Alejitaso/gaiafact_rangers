@@ -484,32 +484,52 @@ exports.generarFactura = async (req, res) => {
     }
 };
 
-exports.mostrarFacturas = async (req, res, next) => {
+exports.mostrarFacturas = async (req, res) => {
   try {
     const usuario = req.usuario;
     if (!usuario) return res.status(401).json({ mensaje: 'Usuario no autenticado' });
 
-    //Filtro dinámico según rol
-    const { filtroFecha, puedeVerHistorico } = obtenerFiltroFacturas(usuario.tipo_usuario);  
-    const facturas = await Factura.find(filtroFecha)
+    let filtro = {};
+
+    /** ================================
+     *  🔒 SI ES USUARIO → SOLO HOY
+     *  ================================ */
+    if (usuario.tipo_usuario === "USUARIO") {
+      const inicioDelDia = new Date();
+      inicioDelDia.setHours(0, 0, 0, 0);
+
+      const finDelDia = new Date();
+      finDelDia.setHours(23, 59, 59, 999);
+
+      filtro.fecha_emision = { $gte: inicioDelDia, $lte: finDelDia };
+
+      console.log("🔒 Filtro aplicado para USUARIO:", filtro);
+
+    } else {
+      /** =========================================
+       *  ADMIN, GESTOR, SUPERADMIN → ven todo
+       *  ========================================= */
+      filtro = {}; 
+    }
+
+    const facturas = await Factura.find(filtro)
       .sort({ fecha_emision: -1 })
       .lean();
 
     res.json({
       facturas,
-      puedeVerHistorico,
+      filtroAplicado: filtro,
       fechaConsulta: new Date()
     });
-    
+
   } catch (e) {
     console.error('❌ mostrarFacturas:', e);
     res.status(500).json({ mensaje: 'Error al mostrar facturas' });
   }
 };
 
-exports.obtenerFacturaPDF = async (req, res, next) => {
-  console.log("📥 [DESCARGA PDF] Ruta ejecutada. ID recibido:", req.params.idFactura);
 
+exports.obtenerFacturaPDF = async (req, res, next) => {
   try {
     // ❗ Tu ruta usa :idFactura, no :id → esto corregido
     const factura = await Factura.findById(req.params.idFactura);
@@ -948,11 +968,22 @@ exports.buscarFactura = async (req, res, next) => {
 
     const { puedeVerHistorico } = obtenerFiltroFacturas(usuario.tipo_usuario);
 
-    if (!puedeVerHistorico && factura.usuario.numero_documento !== usuario.numero_documento) {
-    return res.status(403).json({ mensaje: 'Sin permisos para ver esta factura' });
+    if (!puedeVerHistorico) {
+      const inicioDelDia = new Date();
+      inicioDelDia.setHours(0, 0, 0, 0);
+
+      const finDelDia = new Date();
+      finDelDia.setHours(23, 59, 59, 999);
+
+      const fechaFactura = new Date(factura.fecha_emision);
+
+      if (fechaFactura < inicioDelDia || fechaFactura > finDelDia) {
+        return res.status(403).json({ mensaje: 'Solo puedes ver facturas creadas hoy' });
+      }
     }
 
     res.json(factura);
+
   } catch (e) {
     console.error('❌ buscarFactura:', e);
     res.status(500).json({ mensaje: 'Error al buscar factura' });
