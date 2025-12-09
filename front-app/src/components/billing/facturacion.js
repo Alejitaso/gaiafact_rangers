@@ -443,7 +443,6 @@ const Facturacion = () => {
     };
 
     const generarFactura = async () => {
-        // VALIDACIÓN: Debe haber productos visibles
         if (productosFactura.length === 0) {
             mostrarError('Error', 'Debe agregar al menos un producto a la factura');
             return;
@@ -491,7 +490,6 @@ const Facturacion = () => {
             const iva = subtotal * 0.19;
             const total = subtotal + iva;
 
-            // 🔧 Enviar SOLO productos limpios al backend
             const datosFactura = {
                 subtotal,
                 iva,

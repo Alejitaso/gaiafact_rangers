@@ -17,13 +17,22 @@ const VisFactura = () => {
     const [anioCalendario, setAnioCalendario] = useState(new Date().getFullYear());
     const [mensajeEstado, setMensajeEstado] = useState('');
     const [descargando, setDescargando] = useState(false);
+    const tipoUsuario = localStorage.getItem("tipo_usuario");
     
     const calendarioRef = useRef(null);
     const filtroTipoRef = useRef(null);
+    
 
     useEffect(() => {
         obtenerFacturas();
     }, []);
+
+    useEffect(() => {
+        if (tipoUsuario === "USUARIO") {
+            setFiltroTipo("hoy");
+        }
+    }, [tipoUsuario]);
+
 
     useEffect(() => {
         filtrarYOrdenarFacturas();
@@ -106,7 +115,9 @@ const VisFactura = () => {
         }
 
         // Aplicar filtro por tipo
-        if (filtroTipo !== 'todo') {
+        const filtroAplicado = tipoUsuario === "USUARIO" ? "hoy" : filtroTipo;
+
+        if (filtroAplicado !== 'todo') {
             const ahora = new Date();
             const hace7Dias = new Date(ahora.getTime() - 7 * 24 * 60 * 60 * 1000);
             const hace30Dias = new Date(ahora.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -114,7 +125,7 @@ const VisFactura = () => {
             resultado = resultado.filter(factura => {
                 const fechaFactura = new Date(factura.fecha_emision);
 
-                switch (filtroTipo) {
+                switch (filtroAplicado) {
                     case 'hoy':
                         return fechaFactura.toDateString() === ahora.toDateString();
                     case 'semana':
@@ -126,6 +137,7 @@ const VisFactura = () => {
                 }
             });
         }
+
 
         // Aplicar ordenamiento
         resultado.sort((a, b) => {
@@ -191,7 +203,7 @@ const VisFactura = () => {
 
     const obtenerPrimerDia = () => {
         const primerDia = new Date(anioCalendario, mesCalendario, 1).getDay();
-        return primerDia === 0 ? 6 : primerDia - 1; // 0 → 6 (domingo al final), 1 → 0, etc.
+        return primerDia === 0 ? 6 : primerDia - 1; 
     };
 
     const meses = [
