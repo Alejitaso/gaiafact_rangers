@@ -2,7 +2,7 @@
 const Log = require('../models/log');
 
 // Middleware para auditar acciones
-exports.audit = (accion, extra = {}) => (req, res, next) => {
+exports.audit = (accion) => (req, res, next) => {
   const originalSend = res.json.bind(res);
 
   res.json = function (data) {
@@ -15,9 +15,9 @@ exports.audit = (accion, extra = {}) => (req, res, next) => {
         resultado: 'éxito',
         fecha: new Date(),
 
-        /* === NUEVOS CAMPOS === */
-        recursoId: extra.recursoId || req.params.idProducto || req.params.idFactura || null,
-        cambios: extra.cambios || null
+        /* ✅ CORREGIDO: usar el valor real */
+        recursoId: req.params.idProducto || req.params.idFactura || null,
+        cambios: null // opcional
       }).catch(console.error);
     }
     originalSend(data);
