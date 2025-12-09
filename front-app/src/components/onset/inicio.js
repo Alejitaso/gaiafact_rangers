@@ -5,6 +5,7 @@ import LogsViewer from '../admin/LogsViewer';
 
 const TIEMPO_SLIDE = 6000; // 6 segundos
 
+// Componente de inicio con carrusel 3D optimizado
 const Inicio = React.memo(() => {
   const carouselRef = useRef(null);
   const rafRef = useRef(null);
@@ -15,11 +16,11 @@ const Inicio = React.memo(() => {
   const [isHovered, setIsHovered] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
-  // ✅ Memoiza cálculos pesados
+  // Memoiza cálculos pesados
   const numItems = useMemo(() => images.length, [images]);
   const angleStep = useMemo(() => (numItems > 0 ? 360 / numItems : 0), [numItems]);
 
-  // ✅ Carga de imágenes con lazy loading
+  // Carga de imágenes con lazy loading
   const cargarImagenes = useCallback(async () => {
     try {
       const res = await ClientesAxios.get('api/imagenes/carousel');
@@ -35,7 +36,7 @@ const Inicio = React.memo(() => {
     }
   }, []);
 
-  // ✅ Memoiza la lógica del carrusel
+  // Memoiza la lógica del carrusel
   const updateCarousel = useCallback((rotation) => {
     if (!carouselRef.current || numItems === 0) return;
     const carouselItems = carouselRef.current.querySelectorAll(`.${styles.curvedCarouselItem}`);
@@ -58,7 +59,7 @@ const Inicio = React.memo(() => {
     });
   }, [angleStep, numItems, styles]);
 
-  // ✅ Animación suave con setTimeout (6 segundos)
+  // Animación suave con setTimeout (6 segundos)
   const showNextItem = useCallback(() => {
     if (angleStep === 0) return;
     setCurrentRotation(prev => prev - angleStep);
@@ -79,7 +80,7 @@ const Inicio = React.memo(() => {
     }
   }, []);
 
-  // ✅ Efectos limpios y optimizados
+  // Efectos limpios y optimizados
   useEffect(() => {
     cargarImagenes();
     return () => {
@@ -103,6 +104,7 @@ const Inicio = React.memo(() => {
     return () => stopAutoSlide();
   }, [isHovered, images.length, angleStep, startAutoSlide, stopAutoSlide, isPaused]);
 
+  // Renderizado del componente
   return (
     <Fragment>
       {/* Botón de pausa / reanudar */}

@@ -1,6 +1,7 @@
 // middlewares/auditMiddleware.js
 const Log = require('../models/log');
 
+// Middleware para auditar acciones
 exports.audit = (accion) => (req, res, next) => {
   const originalSend = res.json.bind(res);
 

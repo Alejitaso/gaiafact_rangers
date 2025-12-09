@@ -4,20 +4,24 @@ import clienteAxios from '../../config/axios';
 import Swal from 'sweetalert2';
 import styles from './registro.module.css';
 
+// Función para obtener la fecha y hora actual en formato ISO
 const obtenerFechaActual = () => {
     return new Date().toISOString();
 };
 
+// Funciones de validación
 const validarEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
 };
 
+// Validar que el texto contenga solo letras y espacios
 const validarSoloLetras = (text) => {
     const letrasRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
     return letrasRegex.test(text.trim());
 };
 
+// Componente para el registro de un nuevo usuario
 function RegistroUsuario() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -133,6 +137,7 @@ function RegistroUsuario() {
   }
 };
 
+  // Validar formulario antes de enviar
   const validarFormulario = () => {
     const { nombre, apellido, correo_electronico, tipo_documento, numero_documento, telefono, tipo_usuario } = usuario;
     const nuevosErrores = {};
@@ -186,6 +191,7 @@ function RegistroUsuario() {
     return Object.keys(nuevosErrores).length === 0;
   };
 
+    // Manejar el envío del formulario
   const manejarEnvio = async (e) => {
     e.preventDefault();
     
@@ -279,6 +285,7 @@ function RegistroUsuario() {
     }
   };
 
+  //  Obtener el rol actual del usuario desde el almacenamiento local
   const rolActual = localStorage.getItem("tipo_usuario");
 
   const obtenerOpcionesPermitidas = () => {
@@ -305,6 +312,7 @@ function RegistroUsuario() {
                        !usuario.tipo_documento || !usuario.numero_documento || 
                        !usuario.telefono || !usuario.tipo_usuario;
 
+  // Renderiza el formulario de registro de usuario
   return (
     <div className={styles.content}>
       {/* Región para anuncios dinámicos */}

@@ -1,5 +1,7 @@
+// middlewares/checkEmail.js
 import { validarEmail } from "../Validators/validarEmail.js";
 
+// Middleware para validar el formato del correo electrónico
 export const checkEmail = async (req, res, next) => {
   const { correo_electronico } = req.body;
 

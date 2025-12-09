@@ -119,6 +119,8 @@ exports.recoverPassword = async (req, res) => {
 
     const resetLink = `${process.env.FRONTEND_URL}/nueva_contra/${token}`;
 
+    //correo para recuperar contraseña
+
     const msg = {
       to: correo_electronico,
       from: process.env.FROM_EMAIL, 

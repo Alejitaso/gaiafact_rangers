@@ -3,6 +3,7 @@ import Swal from 'sweetalert2';
 import clienteAxios from '../../config/axios';
 import styles from './Facturacion.module.css';
 
+// Componente principal para la facturación
 const Facturacion = () => {
     const [showPopup, setShowPopup] = useState(false);
     const [showErrorPopup, setShowErrorPopup] = useState(false);
@@ -43,6 +44,7 @@ const Facturacion = () => {
     const previousFocusRef = useRef(null);
     const tipoDocumentoRef = useRef(null);
 
+    // Función para mostrar errores en un popup accesible
     const mostrarError = (titulo, mensaje) => {
         setErrorTitle(titulo);
         setErrorMessage(mensaje);
@@ -50,6 +52,7 @@ const Facturacion = () => {
         setMensajeEstado(`Error: ${titulo}. ${mensaje}`);
     };
 
+    // Función para cerrar el popup de error
     const cerrarErrorPopup = () => {
         setShowErrorPopup(false);
         setErrorTitle('');
@@ -113,6 +116,7 @@ const Facturacion = () => {
         setIsListening(false);
     }, [activeTab]);
 
+    // Función para obtener productos desde el Back-end
     const obtenerProductos = async () => {
         try {
             setCargandoProductos(true);
@@ -138,6 +142,7 @@ const Facturacion = () => {
         }
     };
 
+    // Cargar productos al montar el componente
     useEffect(() => {
         obtenerProductos();
     }, []);
@@ -241,6 +246,7 @@ const Facturacion = () => {
         }, 800);
     };
 
+    // Función para registrar un nuevo cliente
     const registrarNuevoCliente = async () => {
         try {
             const datosCliente = {
@@ -406,6 +412,7 @@ const Facturacion = () => {
         });
     };
 
+    // Función para agregar producto a la factura
     const agregarProductoAFactura = (producto, cantidad) => {
         const productoExistente = productosFactura.find(p => p.id === producto._id);
         
@@ -442,6 +449,7 @@ const Facturacion = () => {
         });
     };
 
+    // Función para generar la factura
     const generarFactura = async () => {
         if (productosFactura.length === 0) {
             mostrarError('Error', 'Debe agregar al menos un producto a la factura');
@@ -656,6 +664,7 @@ const Facturacion = () => {
     }, 0);
     };
 
+    // Renderizado del componente
     return (
         <Fragment>
             {/* Región de anuncios para lectores de pantalla */}

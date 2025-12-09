@@ -3,6 +3,7 @@ import clienteAxios from '../../config/axios';
 import Swal from 'sweetalert2';
 import styles from './codigoBr.module.css';
 
+// Componente para generar y descargar códigos de barras de productos
 function CodigoBarras() {
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -32,6 +33,7 @@ function CodigoBarras() {
     setTimeout(() => setMensajeEstado(''), 100);
   };
 
+  // Obtiene la lista de productos desde el servidor
   const obtenerProductos = async () => {
     try {
       setCargando(true);
@@ -67,10 +69,12 @@ function CodigoBarras() {
     }
   };
 
+  // Maneja el cambio en el input del código de barras
   const handleCodigoInput = (value) => {
     setCodigoInput(value);
   };
 
+  // Busca un producto por su código de barras
   const buscarProductoPorCodigo = async (codigo) => {
     if (!codigo.trim()) {
       anunciar('Por favor ingrese un código de barras');
@@ -243,12 +247,14 @@ function CodigoBarras() {
     }
   };
 
+  // Elimina un código de la lista de seleccionados
   const eliminarProducto = (uniqueId) => {
     const producto = productosSeleccionados.find(p => p.uniqueId === uniqueId);
     setProductosSeleccionados(prev => prev.filter(p => p.uniqueId !== uniqueId));
     anunciar(`Código de ${producto?.nombre || 'producto'} eliminado. Códigos restantes: ${productosSeleccionados.length - 1}`);
   };
 
+  // Elimina todos los códigos de un producto específico
   const eliminarTodosDeUnProducto = (productoId) => {
     const producto = productosSeleccionados.find(p => p._id === productoId);
     const cantidad = productosSeleccionados.filter(p => p._id === productoId).length;
@@ -329,6 +335,7 @@ function CodigoBarras() {
     }
   };
 
+  // Descarga los códigos de barras seleccionados como imágenes
   const descargarCodigos = async () => {
     if (productosSeleccionados.length === 0) {
       anunciar('No hay productos seleccionados para descargar');
@@ -383,6 +390,7 @@ function CodigoBarras() {
     }
   };
 
+  // Imprime los códigos de barras seleccionados
   const imprimirCodigos = () => {
     if (productosSeleccionados.length === 0) {
       anunciar('No hay productos seleccionados para imprimir');
@@ -489,6 +497,7 @@ function CodigoBarras() {
     ventanaImpresion.document.close();
   };
 
+  // Renderizado del componente
   return (
     <Fragment>
       {/* Región de anuncios en vivo para lectores de pantalla */}

@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import ClientesAxios from '../../config/axios'; // ✅ cliente con token automático
 import styles from './LogsViewer.module.css';
 
+// Componente para visualizar los registros de actividad del sistema
 const LogsViewer = () => {
   const [logs, setLogs] = useState([]);
   const [filtrados, setFiltrados] = useState([]);
@@ -37,6 +38,8 @@ const LogsViewer = () => {
     fetchLogs();
   }, []);
 
+
+// Filtrado de logs según fecha, rol y usuario
   useEffect(() => {
     let resultado = logs;
 
@@ -61,6 +64,7 @@ const LogsViewer = () => {
     anunciar(`${resultado.length} resultado${resultado.length === 1 ? '' : 's'}`);
   }, [fecha, rol, usuario, logs]);
 
+  // Renderiza la lista de logs filtrados
   return (
     <div className={styles.logsWrapper}>
       <div ref={anuncioRef} role="status" aria-live="polite" className="sr-only" />

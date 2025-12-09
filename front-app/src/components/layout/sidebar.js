@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import { useLocation } from 'react-router-dom';
 import styles from './sidebar.module.css';
 
-
+// Componente de barra lateral
 const Sidebar = () => {
   const location = useLocation();
   const currentPath = location.pathname;
@@ -62,6 +62,8 @@ const Sidebar = () => {
     }
   };
 
+
+  // Funciones para alternar secciones de información
   const toggleContactInfo = (event) => {
     event.preventDefault();
     const contactInfo = document.getElementById("contactInfo");
@@ -77,6 +79,7 @@ const Sidebar = () => {
     }
   };
 
+  // Funciones para alternar secciones de información
   const toggleCodeInfo = (event) => {
     event.preventDefault();
     const codeInfo = document.getElementById("codeInfo");
@@ -92,6 +95,7 @@ const Sidebar = () => {
     }
   };
 
+  // Funciones para alternar secciones de información
   const toggleRegInfo = (event) => {
     event.preventDefault();
     const regInfo = document.getElementById("regInfo");
@@ -107,6 +111,7 @@ const Sidebar = () => {
     }
   };
 
+  // Renderizado del componente
   return (
     <Fragment>
       <div id="mySidebar" className={styles.sidebar}>

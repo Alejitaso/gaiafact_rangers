@@ -5,10 +5,11 @@ import Swal from 'sweetalert2';
 import styles from './editarProducto.module.css';
 
 const OPCIONES_PRENDA = [
-  'Camisetas', 'Camisas', 'Pantalones', 'Jeans', 'Vestidos',
-  'Faldas', 'Chaquetas', 'Buzos', 'Ropa interior', 'Accesorios'
+  'Camisetas', 'Camisas', 'Pantalones', 'Vestidos',
+  'Faldas', 'Sacos'
 ];
 
+// Componente para editar o crear un producto
 function EditarProducto() {
   const { idProducto: id } = useParams();
   const navigate = useNavigate();
@@ -29,7 +30,8 @@ function EditarProducto() {
   useEffect(() => {
     cerrarForzadoSweetAlert();
   }, [location.pathname]);
-
+  
+  // Carga el producto si estamos en modo edición
   useEffect(() => {
     const cargarProducto = async () => {
       if (!id) {
@@ -43,30 +45,10 @@ function EditarProducto() {
       
       try {
         setCargando(true);
-        console.log('🔍 ID capturado de la URL:', id);
-        console.log('🔍 Haciendo petición a:', `/api/productos/${id}`);
         
         const response = await clienteAxios.get(`/api/productos/${id}`);
         
-        console.log('📦 === RESPUESTA COMPLETA ===');
-        console.log('Status:', response.status);
-        console.log('Headers:', response.headers);
-        console.log('Data completo:', response.data);
-        console.log('Tipo de data:', typeof response.data);
-        console.log('Es array?:', Array.isArray(response.data));
-        console.log('Keys de data:', Object.keys(response.data));
-        console.log('========================');
-        
         const data = response.data;
-        
-        console.log('📋 Campos individuales:');
-        console.log('  - nombre:', data.nombre);
-        console.log('  - descripcion:', data.descripcion);
-        console.log('  - descripcion_detallada:', data.descripcion_detallada);
-        console.log('  - tipo_prenda:', data.tipo_prenda, '(tipo:', typeof data.tipo_prenda, ')');
-        console.log('  - cantidad:', data.cantidad, '(tipo:', typeof data.cantidad, ')');
-        console.log('  - precio:', data.precio, '(tipo:', typeof data.precio, ')');
-        console.log('  - descuento:', data.descuento, '(tipo:', typeof data.descuento, ')');
         
         // Procesar tipo_prenda
         let tipoPrendaFinal;
@@ -86,8 +68,7 @@ function EditarProducto() {
           precio: data.precio !== undefined && data.precio !== null ? data.precio : '',
           descuento: data.descuento ? Number(data.descuento) : ''
         };
-        
-        console.log('🎯 Objeto que se va a guardar en el estado:', productoParaEstado);
+      
         
         setProducto(productoParaEstado);
         
@@ -98,12 +79,6 @@ function EditarProducto() {
         }, 100);
         
       } catch (err) {
-        console.error('❌ ERROR COMPLETO:', err);
-        console.error('❌ Error response:', err.response);
-        console.error('❌ Status:', err.response?.status);
-        console.error('❌ Data:', err.response?.data);
-        console.error('❌ Message:', err.message);
-        
         Swal.fire('Error', 'No se pudo cargar el producto', 'error');
         navigate('/inventario');
       } finally {
@@ -152,6 +127,7 @@ function EditarProducto() {
     });
   };
 
+  // Muestra un popup de confirmación con los datos del producto
   const mostrarPopupPreview = (datosProducto) => {
     cerrarForzadoSweetAlert();
     
@@ -159,7 +135,6 @@ function EditarProducto() {
       ? datosProducto.precio * (1 - datosProducto.descuento / 100)
       : datosProducto.precio;
 
-    console.log('Mostrando popup de preview con datos:', datosProducto);
 
     Swal.fire({
       title: modoEdicion ? '¿Confirmar modificación?' : '¿Confirmar creación?',
@@ -332,8 +307,8 @@ function EditarProducto() {
     );
   }
 
-  console.log('🎨 Renderizando formulario con estado actual:', producto);
 
+  // Renderiza el formulario de edición/creación de producto
   return (
     <Fragment>
       <form className={styles.registerForm} onSubmit={manejarEnvio}>

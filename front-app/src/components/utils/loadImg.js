@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import clienteAxios from "../../config/axios";
 import axios from "axios";
 
+// Componente para subir imágenes al carrusel
 function SubirImagen(props) {
     // Estados del componente
     const [archivo, setArchivo] = useState(null);

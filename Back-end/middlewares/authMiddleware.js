@@ -37,6 +37,7 @@ exports.verificarAuth = async (req, res, next) => {
     }
 };
 
+// Verifica si el usuario tiene un rol de gestor (Superadmin o Administrador)
 exports.verificarRolGestor = (req, res, next) => {
     // req.usuario es proporcionado por verificarAuth
     const usuarioRol = req.usuario.tipo_usuario?.toUpperCase();
@@ -52,6 +53,7 @@ exports.verificarRolGestor = (req, res, next) => {
     next();
 };
 
+// Verifica si el usuario tiene acceso a su propio perfil o es un gestor
 exports.verificarAccesoPerfil = (req, res, next) => {
     // ID del usuario autenticado (del token, gracias a verificarAuth)
     const userIdFromToken = req.usuario._id.toString(); 

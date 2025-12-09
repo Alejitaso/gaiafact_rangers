@@ -5,7 +5,6 @@ exports.guardarNotificacion = async (datos) => {
   try {
     const notificacion = new Notificacion(datos);
     await notificacion.save();
-    console.log('✅ Notificación guardada:', notificacion.numero_factura);
   } catch (error) {
     console.error('❌ Error al guardar notificación:', error.message);
   }

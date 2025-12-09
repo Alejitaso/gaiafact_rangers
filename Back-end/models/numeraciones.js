@@ -1,5 +1,6 @@
 const Numeracion = require('../models/Numeracion'); 
 
+// Función para generar un número de factura de forma atómica y segura.
 async function generarNumeroFactura(prefijo = 'F') {
     // 1. Incrementar el número de forma atómica en la base de datos.
     const numeracionActualizada = await Numeracion.findOneAndUpdate(

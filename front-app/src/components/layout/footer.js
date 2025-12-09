@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import styles from './footer.module.css';
 
+// Componente de pie de página
 const Footer = () => {
     return (
     <Fragment>

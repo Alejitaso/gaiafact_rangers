@@ -1,5 +1,7 @@
+// middlewares/securityNetworkMiddleware.js
 const IP_EMPRESA = "181.237.111.210"; 
 
+// Middleware para validar la seguridad de la red
 module.exports = function securityNetworkMiddleware(req, res, next) {
   try {
     const userType = req.user?.tipo_usuario;

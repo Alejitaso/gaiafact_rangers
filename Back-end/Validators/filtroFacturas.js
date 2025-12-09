@@ -1,3 +1,5 @@
+
+// este módulo exporta una función que obtiene un filtro de facturas basado en el tipo de usuario
 function obtenerFiltroFacturas(tipoUsuario) {
   const hoy = new Date();
   const inicioDelDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());

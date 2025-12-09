@@ -1,6 +1,7 @@
 // models/log.js
 const mongoose = require('mongoose');
 
+// Definición del esquema para los logs
 const logSchema = new mongoose.Schema({
   usuarioId: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', default: null },
   accion: { type: String, required: true },

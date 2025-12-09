@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema; 
 
+// Definición del esquema para los parámetros de facturación
 const parametrosSchema = new Schema({
     // Identificador corto o código para el conjunto de parámetros.
     denominacion: {

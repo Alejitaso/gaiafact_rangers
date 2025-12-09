@@ -4,6 +4,8 @@ import Swal from "sweetalert2";
 import clienteAxios from "../../config/axios";
 import styles from "./inventory.module.css";
 
+
+// Componente de inventario de productos
 function Inventario() {
   const navigate = useNavigate();
   const [productos, setProductos] = useState([]);
@@ -12,7 +14,7 @@ function Inventario() {
   const [cargando, setCargando] = useState(true);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
 
-  // ✅ Accesibilidad
+  // Accesibilidad
   const buscarRef = useRef(null);
   const anuncioRef = useRef(null);
 
@@ -33,6 +35,7 @@ function Inventario() {
     filtrarProductos();
   }, [busqueda, productos]);
 
+  // Obtener productos desde la API
   const obtenerProductos = async () => {
     anunciar("Cargando inventario");
     try {
@@ -57,6 +60,7 @@ function Inventario() {
     }
   };
 
+  // Filtrar productos según búsqueda
   const filtrarProductos = () => {
     if (!busqueda.trim()) return setProductosFiltrados(productos);
     const filtrados = productos.filter((p) => {
@@ -73,6 +77,7 @@ function Inventario() {
     anunciar(`Seleccionado: ${producto.nombre}`);
   };
 
+  // Navegar a la página de modificación del producto seleccionado
   const modificarProducto = () => {
     if (!productoSeleccionado) {
       anunciar("Error: no hay producto seleccionado");
@@ -85,8 +90,10 @@ function Inventario() {
     navigate(`/productos/editar/${productoSeleccionado._id}`);
   };
 
+  // Navegar a la página de agregar nuevo producto
   const agregarProducto = () => navigate("/registroproduct");
 
+  // Eliminar producto seleccionado
   const eliminarProducto = async (id, nombre) => {
     const result = await Swal.fire({
       title: "¿Estás seguro?",
@@ -123,7 +130,7 @@ function Inventario() {
     return texto.length > limite ? texto.substring(0, limite) + "..." : texto;
   };
 
-  // ✅ Lógica original sin cambios de nombres
+  //  Lógica original sin cambios de nombres
 const descargarCodigoBarras = async (idProducto) => {
   try {
     const res = await clienteAxios.get(`/api/productos/${idProducto}`);
@@ -196,6 +203,7 @@ const descargarCodigoBarras = async (idProducto) => {
   }
 };
 
+  // Renderizado del componente
   return (
     <Fragment>
       {/* ✅ Anuncios en vivo */}

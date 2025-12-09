@@ -3,6 +3,7 @@ import Swal from 'sweetalert2';
 import clienteAxios from '../../config/axios';
 import styles from './VisFactura.module.css';
 
+// Componente para visualizar y gestionar facturas
 const VisFactura = () => {
     const [facturas, setFacturas] = useState([]);
     const [facturasFiltradas, setFacturasFiltradas] = useState([]);
@@ -22,18 +23,19 @@ const VisFactura = () => {
     const calendarioRef = useRef(null);
     const filtroTipoRef = useRef(null);
     
-
+    // Cargar facturas al montar el componente
     useEffect(() => {
         obtenerFacturas();
     }, []);
 
+    // Ajustar filtro por tipo de usuario
     useEffect(() => {
         if (tipoUsuario === "USUARIO") {
             setFiltroTipo("hoy");
         }
     }, [tipoUsuario]);
 
-
+    // Filtrar y ordenar facturas al cambiar criterios
     useEffect(() => {
         filtrarYOrdenarFacturas();
     }, [facturas, filtroTipo, busqueda, ordenamiento, criterioOrden, fechaBusqueda]);
@@ -64,6 +66,7 @@ const VisFactura = () => {
         return () => document.removeEventListener('keydown', handleEscape);
     }, [mostrarCalendario]);
 
+    // Función para obtener facturas desde el Back-end
     const obtenerFacturas = async () => {
         try {
             setCargando(true);
@@ -197,15 +200,18 @@ const VisFactura = () => {
         setMostrarCalendario(false);
     };
 
+    // Obtener días del mes para el calendario
     const obtenerDiasDelMes = () => {
         return new Date(anioCalendario, mesCalendario + 1, 0).getDate();
     };
 
+    // Obtener el primer día de la semana del mes
     const obtenerPrimerDia = () => {
         const primerDia = new Date(anioCalendario, mesCalendario, 1).getDay();
         return primerDia === 0 ? 6 : primerDia - 1; 
     };
 
+    // Nombres de meses y días para el calendario
     const meses = [
         'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
@@ -220,6 +226,7 @@ const VisFactura = () => {
         setMensajeEstado('Filtro de fecha eliminado');
     };
 
+    // Función para descargar factura en PDF
     const descargarPDF = async (idFactura, numeroFactura) => {
         try {
             setDescargando(true);
@@ -275,6 +282,7 @@ const VisFactura = () => {
         }
     };
 
+    // Formatear precio a moneda local
     const formatearPrecio = (precio) => {
         return precio.toLocaleString('es-CO', {
             minimumFractionDigits: 0,
@@ -304,6 +312,7 @@ const VisFactura = () => {
         }
     };
 
+    // Renderizado del componente
     return (
         <Fragment>
             {/* Región de anuncios para lectores de pantalla */}
