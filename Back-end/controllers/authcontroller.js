@@ -76,6 +76,7 @@ exports.login = async (req, res) => {
             id: user._id,
             correo_electronico: user.correo_electronico,
             tipo_usuario: user.tipo_usuario,
+            numero_documento: user.numero_documento
         };
 
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });

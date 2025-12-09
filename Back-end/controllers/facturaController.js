@@ -484,32 +484,53 @@ exports.generarFactura = async (req, res) => {
     }
 };
 
+//mostrar facturas con filtros según tipo de usuario
 exports.mostrarFacturas = async (req, res) => {
   try {
     const usuario = req.usuario;
-    if (!usuario) return res.status(401).json({ mensaje: 'Usuario no autenticado' });
+    if (!usuario) {
+      return res.status(401).json({ mensaje: 'Usuario no autenticado' });
+    }
 
     let filtro = {};
 
-    /** ================================
-     *  🔒 SI ES USUARIO → SOLO HOY
-     *  ================================ */
-    if (usuario.tipo_usuario === "USUARIO") {
-      const inicioDelDia = new Date();
-      inicioDelDia.setHours(0, 0, 0, 0);
+    /** ===================================================
+     *  🧑‍🛒 CLIENTE → solo sus facturas (todas las fechas)
+     * =================================================== */
+    if (usuario.tipo_usuario === "CLIENTE") {
+      filtro = {
+        "usuario.numero_documento": usuario.numero_documento
+      };
 
-      const finDelDia = new Date();
-      finDelDia.setHours(23, 59, 59, 999);
+      console.log("🟦 CLIENTE: mostrando solo sus facturas →", filtro);
+    }
 
-      filtro.fecha_emision = { $gte: inicioDelDia, $lte: finDelDia };
+    /** ===================================================
+     *  👨‍💼 USUARIO → solo facturas del día actual
+     * =================================================== */
+    else if (usuario.tipo_usuario === "USUARIO") {
+      const inicio = new Date();
+      inicio.setHours(0, 0, 0, 0);
 
-      console.log("🔒 Filtro aplicado para USUARIO:", filtro);
+      const fin = new Date();
+      fin.setHours(23, 59, 59, 999);
 
-    } else {
-      /** =========================================
-       *  ADMIN, GESTOR, SUPERADMIN → ven todo
-       *  ========================================= */
-      filtro = {}; 
+      filtro = {
+        fecha_emision: { $gte: inicio, $lte: fin }
+      };
+
+      console.log("🟧 USUARIO: mostrando solo facturas de hoy →", filtro);
+    }
+
+    /** ===================================================
+     *  👑 ADMIN / SUPERADMIN → todo
+     * =================================================== */
+    else if (
+      usuario.tipo_usuario === "ADMINISTRADOR" ||
+      usuario.tipo_usuario === "SUPERADMIN"
+    ) {
+      filtro = {};
+      console.log("🟩 ADMIN/SUPERADMIN: mostrando todas las facturas");
     }
 
     const facturas = await Factura.find(filtro)
@@ -523,11 +544,10 @@ exports.mostrarFacturas = async (req, res) => {
     });
 
   } catch (e) {
-    console.error('❌ mostrarFacturas:', e);
-    res.status(500).json({ mensaje: 'Error al mostrar facturas' });
+    console.error("❌ Error en mostrarFacturas →", e);
+    res.status(500).json({ mensaje: "Error al mostrar facturas" });
   }
 };
-
 
 exports.obtenerFacturaPDF = async (req, res, next) => {
   try {
