@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+// Definición del esquema para la facturación
 const facturacionSchema = new Schema({
   // Referencia al Producto: Enlaza este ítem con el documento del producto
   id_producto: {

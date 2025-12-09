@@ -7,7 +7,7 @@ const QRCode = require('qrcode');
 const axios = require('axios');
 
 
-
+//genera el codigode barras del producto
 const generarCodigoBarras = (datosProducto) => {
     const idString = datosProducto._id.toString();
     const codigoBarras = idString.substring(idString.length - 12);
@@ -80,6 +80,8 @@ exports.nuevoProducto = async(req, res, next) => {
     }
 };
 
+
+// Genera un PDF con el código de barras del producto
 exports.obtenerCodigoBarrasPDF = async (req, res, next) => {
     try {
         const producto = await Productos.findById(req.params.idProducto);
@@ -123,6 +125,8 @@ exports.mostrarProducto = async(req, res, next) => {
     }
 };
 
+
+//actualiza un producto via id
 exports.actualizarProducto = async (req, res, next) => {
 
   try {

@@ -100,7 +100,6 @@ const obtenerImagenesCarousel = async (req, res) => {
             imagenes: rutas
         });
     } catch (error) {
-        console.error('❌ Error al obtener imágenes:', error);
         return res.status(500).json({ exito: false, mensaje: 'Error al obtener imágenes.', error: error.message });
     }
 };

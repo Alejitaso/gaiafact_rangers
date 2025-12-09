@@ -1,5 +1,6 @@
 const Joi = require('joi');
 
+// Definición del esquema de validación para la factura
 const facturaSchema = Joi.object({
   usuario: Joi.object({
     nombre: Joi.string().min(2).max(50).required(),

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './ColorBlindToggle.module.css';
 
+// Definición de los modos de daltonismo disponibles
 const COLOR_MODES = {
   normal: 'Normal',
   protanopia: 'Protanopia',
@@ -11,6 +12,7 @@ const COLOR_MODES = {
 
 const STORAGE_KEY = 'colorblind-mode';
 
+// Componente para alternar modos de color para daltonismo
 const ColorBlindToggle = () => {
   const [mode, setMode] = useState(() => {
     return localStorage.getItem(STORAGE_KEY) || 'normal';
@@ -31,6 +33,7 @@ const ColorBlindToggle = () => {
     setIsOpen(false);
   };
 
+  // Renderizado del componente
   return (
     <div className={styles.colorblindToggleWrapper}>
       <button

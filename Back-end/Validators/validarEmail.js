@@ -1,5 +1,7 @@
+// Back-end/Validators/validarEmail.js
 const validateEmail = require("deep-email-validator");
 
+// Función para validar el formato del correo electrónico
 async function validarEmail(correo) {
   return await validateEmail.validate({
     email: correo,

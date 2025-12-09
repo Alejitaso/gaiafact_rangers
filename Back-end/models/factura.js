@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// Definición del esquema para las facturas
 const facturasSchema = new mongoose.Schema({
     numero_factura: {
         type: String,

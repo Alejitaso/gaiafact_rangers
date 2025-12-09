@@ -1,3 +1,5 @@
+// middlewares/validarRolRegistro.js
+// Middleware para validar el rol del usuario que está creando un nuevo usuario
 const validarRolRegistro = (req, res, next) => {
     const rolCreador = req.usuario.tipo_usuario; 
     const rolNuevo = req.body.tipo_usuario;

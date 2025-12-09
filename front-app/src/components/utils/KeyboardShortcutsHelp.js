@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './KeyboardShortcutsHelp.css';
 
+// Componente para mostrar ayuda de atajos de teclado
 const KeyboardShortcutsHelp = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -68,6 +69,7 @@ const KeyboardShortcutsHelp = () => {
     }
   ];
 
+  // Renderizado del componente
   return (
     <>
       {/* Botón flotante para abrir la ayuda */}

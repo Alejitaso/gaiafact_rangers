@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+
 //Definición del esquema Mongoose para el modelo de Notificación.
 const notificacionSchema = new Schema({
     numero_factura: {

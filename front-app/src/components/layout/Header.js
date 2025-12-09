@@ -4,6 +4,7 @@ import styles from './header.module.css';
 import logoIzquierdo from '../layout/logos/logo_final (1).webp';
 import logoDerecho from '../layout/logos/logo_athena_S.webp';
 
+// Componente de encabezado
 const Header = ({ title }) => {
     return (
         <Fragment>

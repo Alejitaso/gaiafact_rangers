@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import styles from './style_rec_contr.module.css';
 import Swal from 'sweetalert2';
 
+// Componente para recuperar la contraseña del usuario
 function RecoverPassword() {
   const [correo_electronico, setCorreoElectronico] = useState("");
   const [error, setError] = useState(null);
@@ -108,6 +109,7 @@ function RecoverPassword() {
     }
   };
 
+  // Renderiza el formulario de recuperación de contraseña
   return (
     // Contenedor principal con estilos.
     <div className={styles.recoveryform}>

@@ -4,6 +4,7 @@ import NotificacionesPanel from '../admin/NotifyPanel.js';
 import clienteAxios from '../../config/axios';
 import styles from './notify.module.css';
 
+// Componente mejorado para enviar notificaciones de facturas por correo
 function NotificacionesMejorado() {
    // ESTADOS DEL COMPONENTE
   const [numeroFactura, setNumeroFactura] = useState('');
@@ -49,6 +50,7 @@ function NotificacionesMejorado() {
     setClienteData(null);
     anunciar('Buscando factura...');
 
+    //peticion para buscar la factura
     try {
       const resFactura = await clienteAxios.get(`/api/facturas/buscar-factura/${numeroFactura}`);
       if (!resFactura.data) throw new Error('Factura no encontrada');
@@ -104,6 +106,7 @@ function NotificacionesMejorado() {
     }
   };
 
+  //peticion para enviar la notificacion por correo
   const enviarNotificacion = async () => {
     if (!facturaData || !clienteData) return;
 

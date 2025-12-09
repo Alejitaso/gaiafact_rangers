@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// Definición del esquema Mongoose para el modelo de Numeración.
 const NumeracionSchema = new mongoose.Schema({
     // Prefijo de la resolución (ej: 'F')
     prefijo: { 

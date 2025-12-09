@@ -41,6 +41,8 @@ exports.nuevoUsuario = async (req, res) => {
             { expiresIn: '24h' }
         );
 
+        // Enviar correo de verificación
+
         const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email/${token}`;
 
         try {
@@ -191,6 +193,8 @@ exports.reenviarVerificacionAdmin = async (req, res) => {
       { expiresIn: '1h' }
     );
 
+    // Enviar correo de verificación dos pasos
+
     const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email/${token}`;
 
     await sgMail.send({
@@ -337,6 +341,8 @@ exports.buscarPorDocumento = async (req, res) => {
   }
 };
 
+
+// Actualizar un usuario por ID
 exports.actualizarUsuario = async (req, res, next) => {
     try {
         const usuario = await Usuario.findOneAndUpdate(
@@ -351,6 +357,7 @@ exports.actualizarUsuario = async (req, res, next) => {
     }
 };
 
+// Eliminar un usuario por ID
 exports.eliminarUsuario = async (req, res, next) => {
     try {
         await Usuario.findOneAndDelete({ _id: req.params.idUsuario });

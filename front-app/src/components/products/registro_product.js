@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import clienteAxios from "../../config/axios";
 import styles from './registroProduct.module.css';
 
+// Componente para registrar un nuevo producto
 function RegistroProducto() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -16,6 +17,7 @@ function RegistroProducto() {
         descripcion: ''
     });
 
+    // Estados para manejo de carga, mensajes y errores de validación.
     const [cargando, setCargando] = useState(false);
     const [mensajeEstado, setMensajeEstado] = useState('');
     const [errores, setErrores] = useState({});
@@ -38,6 +40,7 @@ function RegistroProducto() {
         setTimeout(() => setMensajeEstado(''), 100);
     };
 
+    // Función para cerrar cualquier popup de SweetAlert2 que pueda estar abierto
     const cerrarForzadoSweetAlert = () => {
         try {
             Swal.close();

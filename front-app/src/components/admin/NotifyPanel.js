@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import clienteAxios from '../../config/axios';
 import styles from './NotifyPanel.module.css';
 
+// Componente para mostrar notificaciones enviadas
 const NotificacionesPanel = () => {
   const [notificaciones, setNotificaciones] = useState([]);
   const [busqueda, setBusqueda] = useState('');
@@ -31,6 +32,7 @@ const NotificacionesPanel = () => {
     });
   };
 
+  // Renderiza el panel de notificaciones
   return (
     <aside className={styles.panel} aria-label="Panel de notificaciones enviadas">
       <h3 className={styles.titulo}>📬 Notificaciones Enviadas</h3>
@@ -60,7 +62,7 @@ const NotificacionesPanel = () => {
               <small>De: <strong>{notif.documento_emisor}</strong></small>
             </div>
             <div className={styles.fila}>
-              <small>Para: <strong>{notif.documento_receptor}</strong> ({notif.correo_receptor})</small>
+              <small>Para:({notif.correo_receptor})</small>
             </div>
             <div className={styles.fila}>
               <span className={styles.tipo}>{notif.tipo === 'automatico' ? '🤖 Auto' : '👤 Manual'}</span>

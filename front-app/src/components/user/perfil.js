@@ -5,6 +5,7 @@ import { jwtDecode } from 'jwt-decode';
 import styles from './perfil.module.css';
 import { useParams, useNavigate } from 'react-router-dom';
 
+// Componente de perfil de usuario con gestión de permisos
 const Perfil = () => {
     const { idUsuario: idParam } = useParams();
     const navigate = useNavigate();
@@ -40,6 +41,7 @@ const Perfil = () => {
         });
     };
 
+    // Decodifica el token JWT para obtener ID y rol del usuario
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
@@ -115,6 +117,7 @@ const Perfil = () => {
         }
     }, [obtenerPerfil, idUsuarioToken]);
 
+    // Maneja cambios en los campos editables del perfil
     const handleChange = (e) => {
         if (isEditable) {
             setPerfil({ ...perfil, [e.target.name]: e.target.value });
@@ -123,6 +126,7 @@ const Perfil = () => {
         }
     };
 
+    // Actualiza el perfil del usuario
     const actualizarPerfil = async () => {
         if (!isEditable) {
             Swal.fire("Acción denegada", "No tienes permisos para editar este perfil.", "warning");
@@ -169,7 +173,7 @@ const Perfil = () => {
     
     const canEditOwnStatus = idParam === undefined || idParam === null;
 
-
+    // Renderizado del componente
     return (
         <div className={styles["perfil-container"]} role="main" aria-label={`Perfil de ${perfil.nombre}`}>
             <div ref={anuncioRef} role="status" aria-live="assertive" aria-atomic="true" className="sr-only"></div>

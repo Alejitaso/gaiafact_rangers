@@ -4,6 +4,7 @@ import clienteAxios from "../../config/axios";
 import QRCode from "qrcode";
 import styles from './codigoQR.module.css';
 
+// Componente para generar y descargar código QR de una factura
 function GeneradorQR() {
   const [numeroFactura, setNumeroFactura] = useState("");
   const [codigoQR, setCodigoQR] = useState("");
@@ -17,6 +18,7 @@ function GeneradorQR() {
     setMensajeEstado(mensaje);
   };
 
+  // Genera el código QR con los datos de la factura
   const generarCodigoQR = async (datosCompletos) => {
     try {
       const fecha = new Date(datosCompletos.fecha_emision);
@@ -24,12 +26,12 @@ function GeneradorQR() {
       const horaFormato = fecha.toLocaleTimeString('es-CO');
       
       const qrData = `Número de Factura: ${datosCompletos.numero_factura}
-Fecha: ${fechaFormato}
-Hora: ${horaFormato}
-NIT: 900123456-1
-Cliente: ${datosCompletos.usuario.nombre} ${datosCompletos.usuario.apellido}
-Documento: ${datosCompletos.usuario.tipo_documento || 'CC'} ${datosCompletos.usuario.numero_documento}
-CUFE: ${datosCompletos.codigo_CUFE || 'TEMP-' + datosCompletos.numero_factura}`;
+        Fecha: ${fechaFormato}
+        Hora: ${horaFormato}
+        NIT: 900123456-1
+        Cliente: ${datosCompletos.usuario.nombre} ${datosCompletos.usuario.apellido}
+        Documento: ${datosCompletos.usuario.tipo_documento || 'CC'} ${datosCompletos.usuario.numero_documento}
+        CUFE: ${datosCompletos.codigo_CUFE || 'TEMP-' + datosCompletos.numero_factura}`;
 
       const qrCodeURL = await QRCode.toDataURL(qrData, {
         width: 400,
@@ -41,6 +43,7 @@ CUFE: ${datosCompletos.codigo_CUFE || 'TEMP-' + datosCompletos.numero_factura}`;
         margin: 2,
       });
 
+      // Datos estructurados para factura electrónica
       const datosFacturaElectronica = {
         numeroFactura: datosCompletos.numero_factura,
         fecha: fechaFormato,
@@ -58,6 +61,7 @@ CUFE: ${datosCompletos.codigo_CUFE || 'TEMP-' + datosCompletos.numero_factura}`;
     }
   };
 
+  // Busca la factura por número y genera el código QR
   const buscarFactura = async () => {
     if (!numeroFactura.trim()) {
       anunciar("Error: número de factura vacío");
@@ -101,6 +105,7 @@ CUFE: ${datosCompletos.codigo_CUFE || 'TEMP-' + datosCompletos.numero_factura}`;
     }
   };
 
+  // Descarga el código QR como imagen PNG
   const descargarCodigoQR = () => {
     if (!codigoQR) {
       anunciar("No hay código QR para descargar");
@@ -121,6 +126,7 @@ CUFE: ${datosCompletos.codigo_CUFE || 'TEMP-' + datosCompletos.numero_factura}`;
     anunciar("Código QR descargado");
   };
 
+  //  Limpia el formulario y el código QR generado
   const limpiarFormulario = () => {
     if (codigoQR) {
       Swal.fire({
@@ -154,6 +160,7 @@ CUFE: ${datosCompletos.codigo_CUFE || 'TEMP-' + datosCompletos.numero_factura}`;
     }
   };
 
+  // Renderizado del componente
   return (
     <Fragment>
       {/* Anuncios para lectores de pantalla */}
