@@ -60,10 +60,10 @@ module.exports = function () {
   router.get('/facturas/:idFactura/xml', verificarAuth, audit('descargarFacturaXML'), facturaController.obtenerFacturaXML);
 
  /* ─────────────── AUTENTICACIÓN ─────────────── */   
-  router.post("/auth/login", loginLimiter, audit('inicioSesion'), authController.login);
-  router.post("/auth/recover", audit('recuperarContrasena'), authController.recoverPassword);
+  router.post("/login", loginLimiter, audit('inicioSesion'), authController.login);
+  router.post("/recover", audit('recuperarContrasena'), authController.recoverPassword);
   router.get('/verify-email/:token', authController.verifyEmail);
-  router.post('/auth/reset/:token', audit('restablecerContrasena'), authController.resetPassword);
+  router.post('/reset/:token', audit('restablecerContrasena'), authController.resetPassword);
 
   /* ─────────────── NOTIFICACIONES ─────────────── */
   router.post('/notificaciones/crear', verificarAuth, audit('crearNotificacion'), notificacionController.guardarNotificacion);

@@ -78,14 +78,9 @@ app.get('/', (req, res) => {
   });
 });
 
-// Rutas de autenticación 
-app.post("/api/auth/login", authcontroller.login);
-app.post("/api/auth/recover", authcontroller.recoverPassword);
-app.post("/api/auth/reset-password", authcontroller.resetPassword);
-
 // Rutas principales
 console.log('📦 Montando rutas en /api');
-app.use("/api", routes());
+app.use("/api/auth", routes());
 
 // Servir imágenes
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
