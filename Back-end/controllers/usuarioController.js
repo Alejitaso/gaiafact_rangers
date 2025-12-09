@@ -41,7 +41,7 @@ exports.nuevoUsuario = async (req, res) => {
             { expiresIn: '1h' }
         );
 
-        const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
+        const verificationLink = `${process.env.REACT_APP_API_URL}/api/auth/verify-email?token=${token}`;
 
         try {
         await sgMail.send({
@@ -203,7 +203,7 @@ exports.reenviarVerificacionAdmin = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
-    const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
+    const verificationLink = `${process.env.REACT_APP_API_URL}/api/auth/verify-email?token=${token}`;
 
     // Mismo HTML que ya tienes
     await sgMail.send({
