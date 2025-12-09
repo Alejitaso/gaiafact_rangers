@@ -41,7 +41,7 @@ exports.nuevoUsuario = async (req, res) => {
             { expiresIn: '1h' }
         );
 
-        const verificationLink = `${process.env.REACT_APP_API_URL}/api/auth/verify-email?token=${token}`;
+        const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email/${encodeURIComponent(token)}`;
 
         try {
         await sgMail.send({
@@ -138,56 +138,43 @@ exports.nuevoUsuario = async (req, res) => {
 // 2. VERIFICAR CUENTA (BACKEND) Y REDIRIGIR A LOGIN
 // ---------------------------------------------------
 exports.verificarCuenta = async (req, res) => {
+  try {
+    // aceptar token por query o por params
+    const token = req.query.token || req.params.token;
 
-    const token = req.query.token;
+    console.log('🔎 llamada a verificarCuenta, token recibido:', token ? token.slice(0,50) + '...' : token);
 
     if (!token) {
-        const redirectUrl = `${FRONTEND_LOGIN_URL}?verified=false&error=Token inválido`;
-        return res.redirect(redirectUrl);
+      return res.status(400).send('Token no proporcionado');
     }
 
-    try {
-        // Desencriptar token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const userId = decoded.userId;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId || decoded.id || decoded.usuarioId;
 
-        console.log("🟢 TOKEN DECODIFICADO:", decoded);
-
-        // Actualizar usuario
-        const usuario = await Usuario.findByIdAndUpdate(
-            userId,
-            { isVerified: true },
-            { new: true }
-        );
-
-        console.log('✅ isVerified tras update:', usuario.isVerified); 
-
-        if (!usuario) {
-            console.log("❌ Usuario no encontrado:", userId);
-            return res.redirect(`${FRONTEND_LOGIN_URL}?verified=false&error=Usuario no encontrado`);
-        }
-
-        console.log("🟢 Cuenta verificada:", usuario._id);
-
-        // Redirigir al login con éxito
-        return res.redirect(`${FRONTEND_LOGIN_URL}?verified=true`);
-
-    } catch (error) {
-
-        console.error("❌ Error al verificar la cuenta:", error);
-
-        let msg = "Error en la verificación";
-
-        if (error.name === "TokenExpiredError") msg = "El enlace ha expirado";
-        if (error.name === "JsonWebTokenError") msg = "Token inválido";
-
-        return res.redirect(`${FRONTEND_LOGIN_URL}?verified=false&error=${encodeURIComponent(msg)}`);
+    if (!userId) {
+      return res.status(400).send('Token inválido: no contiene userId');
     }
+
+    const usuario = await Usuario.findById(userId);
+    if (!usuario) return res.status(404).send('Usuario no encontrado.');
+
+    if (usuario.isVerified) return res.status(200).send('Tu cuenta ya ha sido verificada.');
+
+    usuario.isVerified = true;
+    await usuario.save();
+
+    // opcional: redirigir al front
+    return res.redirect(`${process.env.FRONTEND_URL}/verificado`); // o enviar mensaje
+
+  } catch (error) {
+    console.error('Error verificarCuenta:', error);
+    return res.status(400).send('El enlace de verificación es inválido o ha expirado.');
+  }
 };
 
 exports.reenviarVerificacionAdmin = async (req, res) => {
   try {
-    const { idUsuario } = req.params;   // _id del usuario a reenviar
+    const { idUsuario } = req.params;  
 
     const usuario = await Usuario.findById(idUsuario);
     if (!usuario) {
@@ -203,7 +190,7 @@ exports.reenviarVerificacionAdmin = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
-    const verificationLink = `${process.env.REACT_APP_API_URL}/api/auth/verify-email?token=${token}`;
+    const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email/${encodeURIComponent(token)}`;
 
     // Mismo HTML que ya tienes
     await sgMail.send({
