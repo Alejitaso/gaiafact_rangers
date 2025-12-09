@@ -6,46 +6,8 @@ const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
 const axios = require('axios');
 
-// Configuración de multer
-const configuracionMulter = {
-    storage: multer.diskStorage({
-        destination: (req, file, cb) => {
-            cb(null, './uploads');
-        },
-        filename: (req, file, cb) => {
-            const extension = file.mimetype.split('/')[1];
-            cb(null, `${shortid.generate()}.${extension}`);
-        }
-    }),
-    fileFilter(req, file, cb) {
-        if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/gif') {
-            cb(null, true);
-        } else {
-            cb(new Error('Formato de archivo no válido. Solo se permiten imágenes'), false);
-        }
-    },
-    limits: {
-        fileSize: 5000000
-    }
-};
 
-const upload = multer(configuracionMulter).single('imagen');
-
-// FUNCIONES EXPORTADAS - ESTAS SON LAS QUE NECESITAS
-
-//sube un archivo
-exports.subirArchivo = (req, res, next) => {
-    upload(req, res, function(error) {
-        if(error) {
-            return res.json({mensaje: error.message});
-        }
-        return next();
-    });
-};
-
-
-
-
+//genera el codigode barras del producto
 const generarCodigoBarras = (datosProducto) => {
     const idString = datosProducto._id.toString();
     const codigoBarras = idString.substring(idString.length - 12);
@@ -57,7 +19,6 @@ const generarCodigoBarras = (datosProducto) => {
 
 //agregar nuevos productos
 exports.nuevoProducto = async(req, res, next) => {
-    // Extraemos nombre y cantidad del body
     const { nombre, cantidad } = req.body;
     const cantidadNumerica = Number(cantidad);
 
@@ -69,11 +30,8 @@ exports.nuevoProducto = async(req, res, next) => {
     try{
         // 1. Intentar encontrar y actualizar SOLO LA CANTIDAD usando el nombre como clave
         const productoActualizado = await Productos.findOneAndUpdate(
-            // Criterio de búsqueda: busca el producto por su nombre
             { nombre: nombre },
-            // Operación: incrementar el campo 'cantidad' por el valor de 'cantidadNumerica'
             { $inc: { cantidad: cantidadNumerica } },
-            // Opciones: new: true para devolver el documento actualizado; runValidators: true para validar el esquema
             { new: true, runValidators: true }
         );
 
@@ -102,8 +60,6 @@ exports.nuevoProducto = async(req, res, next) => {
                 producto: nuevoProducto
             });
 
-            // Generar código de barras PDF
-            // Generar código de barras
             // Generar código de barras
             try {
                 console.log('📝 Generando código de barras...');
@@ -124,6 +80,8 @@ exports.nuevoProducto = async(req, res, next) => {
     }
 };
 
+
+// Genera un PDF con el código de barras del producto
 exports.obtenerCodigoBarrasPDF = async (req, res, next) => {
     try {
         const producto = await Productos.findById(req.params.idProducto);
@@ -160,36 +118,40 @@ exports.mostrarProducto = async(req, res, next) => {
         if(!producto){
             return res.json({mensaje: 'Ese producto no existe'});
         }
-        res.json(producto); // 👈 Devuelve el objeto producto directamente
+        res.json(producto); 
     } catch(error) {
         console.log(error);
         next();
     }
 };
 
-exports.actualizarProducto = async(req, res, next) => {
-    try{
-        let nuevoProducto = req.body;
-        //verificar si hay imagen nueva
-        if(req.file){
-            nuevoProducto.imagen = req.file.filename;
-        }else{
-            let productoAnterior = await Productos.findById(req.params.idProducto);
-            if(productoAnterior) {
-                nuevoProducto.imagen = productoAnterior.imagen;
-            }
-        }
 
-        let producto = await Productos.findOneAndUpdate(
-            {_id: req.params.idProducto}, 
-            nuevoProducto, 
-            {new: true}
-        );
-        res.json(producto);
-    }catch(error){
-        console.log(error);
-        next();
+//actualiza un producto via id
+exports.actualizarProducto = async (req, res, next) => {
+
+  try {
+    let nuevoProducto = req.body;
+
+    // ✅ Asegurar que tipo_prenda sea string
+    if (Array.isArray(nuevoProducto.tipo_prenda)) {
+      nuevoProducto.tipo_prenda = nuevoProducto.tipo_prenda[0];
     }
+
+    const producto = await Productos.findOneAndUpdate(
+      { _id: req.params.idProducto },
+      nuevoProducto,
+      { new: true }
+    );
+
+    if (!producto) {
+      return res.status(404).json({ mensaje: 'Producto no encontrado' });
+    }
+
+    res.json(producto);
+  } catch (error) {
+    console.error('❌ Error actualizando producto:', error);
+    res.status(500).json({ mensaje: 'Error en el servidor' });
+  }
 };
 
 //elimina un producto via id

@@ -1,110 +1,129 @@
 const Usuario = require('../models/usuario'); 
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const { validarEmail } = require('../Validators/validarEmail');
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.EMAIL_PASS); 
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail', // o tu servicio de correo
-    auth: {
-        user: process.env.EMAIL_USER, // Asegúrate de tener estas variables de entorno
-        pass: process.env.EMAIL_PASS
-    }
-});
+const FRONTEND_LOGIN_URL = `${process.env.FRONTEND_URL}/login`;
 
-// Agrega un nuevo usuario (Solución: Correo temporalmente deshabilitado)
+// Agrega un nuevo usuario 
 exports.nuevoUsuario = async (req, res) => {
-    // El password del front-end es 'temporal123', lo cual es suficiente para pasar la validación.
-    const usuario = new Usuario(req.body);
-    
-    try {
-        // 1. GUARDA EL USUARIO (Aquí se encripta la contraseña)
-        await usuario.save();
+    try {
 
-        // 2. Genera un token
-        const token = jwt.sign({
-            userId: usuario._id // ✅ Clave correcta usada en el backend
-        }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const datos = req.body;
 
-        // 3. Crea el enlace de verificación
-        const verificationLink = `http://localhost:3000?token=${token}`;
+        // Validar email
+        const { valid } = await validarEmail(datos.correo_electronico);
 
-        // 4. Define las opciones del correo
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: usuario.correo_electronico,
-            subject: 'Verifica tu correo electrónico para GaiaFact',
-            html: `
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>¡Verifica tu correo electrónico!</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+        if (!valid) {
+            return res.status(400).json({
+                success: false,
+                mensaje: 'El correo electrónico no es válido'
+            });
+        }
 
-            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4;">
-                <tr>
-                    <td align="center" style="padding: 20px;">
-                        <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                            <tr>
-                                <td align="center" style="padding: 20px 20px 0;">
-                                    <table cellpadding="0" cellspacing="0" border="0" style="display:inline-block;">
-                                        <tr>
-                                            <td style="padding-right: 10px; vertical-align: middle;">
-                                                <img src="https://drive.google.com/uc?export=view&id=1W9hegx7_xrNjxl4bN6939vas_DFwV2s4" alt="Logo de athenas" style="width: 90px; height: auto; display:block;">
-                                            </td>
-                                            <td style="vertical-align: middle;">
-                                                <span style="font-size: 30px; font-weight: bold; color: #333333;">Athena's</span>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                    <h1 style="color: #333333; font-size: 28px; margin: 20px 0 10px;">¡Verifica tu correo electrónico!</h1>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 20px; color: #555555; font-size: 16px; line-height: 1.6;">
-                                    <h2>Hola ${usuario.nombre},</h2>
-                                    <p>¡Gracias por registrarte! Para activar tu cuenta, por favor, haz clic en el botón de abajo para verificar tu dirección de correo electrónico.</p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td align="center" style="padding: 20px;">
-                                    <a href="${verificationLink}" style="background-color:#276177;color:#ffffff;padding:15px 30px;text-decoration:none;border-radius:5px;font-weight:bold;display:inline-block;font-size:16px;">
-                                      Verificar mi cuenta
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td align="center" style="padding: 20px; color: #999999; font-size: 12px;">
-                                    <table cellpadding="0" cellspacing="0" border="0" style="display:inline-block;">
-                                        <tr>
-                                            <td style="padding-right: 10px; vertical-align: middle;">
-                                                <img src="https://drive.google.com/uc?export=view&id=1YTQhGVEM1pTeurD1bF8Zf4qvNd3Ky03-" alt="Logo de Gaifact" style="width: 40px; height: auto; display:block;">
-                                            </td>
-                                            <td style="vertical-align: middle;">
-                                                <span style="font-size: 18px; font-weight: bold; color: #333333;">GaiaFact</span>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                    <p style="margin-top: 10px;">Este correo ha sido enviado por Athenas y GaiaFact. Todos los derechos reservados.</p>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
+        // ASIGNAR CONTRASEÑA ANTES DE CREAR EL USUARIO
+        datos.password = datos.numero_documento;
 
-        </body>
-        </html>
-    `
-        };
+        // Crear instancia
+        const usuario = new Usuario(datos);
 
-        // 🛑 Envía el correo - ESTA LÍNEA FUE COMENTADA PARA EVITAR EL ERROR 500
-        await transporter.sendMail(mailOptions);
+        // Guardar usuario en Mongo
+        await usuario.save();
+        console.log("🟢 Nuevo usuario guardado:", usuario._id);
+
+
+        // Crear token
+        const token = jwt.sign(
+            { userId: usuario._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+
+        // Enviar correo de verificación
+
+        const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email/${token}`;
+
+        try {
+        await sgMail.send({
+            to: usuario.correo_electronico,
+            from: process.env.EMAIL_USER,   
+            subject: 'Verifica tu correo electrónico para GaiaFact',
+            html: `
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>¡Verifica tu correo electrónico!</title>
+                </head>
+                <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4;">
+                        <tr>
+                            <td align="center" style="padding: 20px;">
+                                <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                    <tr>
+                                        <td align="center" style="padding: 20px 20px 0;">
+                                            <table cellpadding="0" cellspacing="0" border="0" style="display:inline-block;">
+                                                <tr>
+                                                    <td style="padding-right: 10px; vertical-align: middle;">
+                                                        <img src="https://drive.google.com/uc?export=view&id=1W9hegx7_xrNjxl4bN6939vas_DFwV2s4" alt="Logo de athenas" style="width: 90px; height: auto; display:block;">
+                                                    </td>
+                                                    <td style="vertical-align: middle;">
+                                                        <span style="font-size: 30px; font-weight: bold; color: #333333;">Athena's</span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <h1 style="color: #333333; font-size: 28px; margin: 20px 0 10px;">¡Verifica tu correo electrónico!</h1>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 20px; color: #555555; font-size: 16px; line-height: 1.6;">
+                                            <h2>Hola ${usuario.nombre},</h2>
+                                            <p>¡Gracias por registrarte! Para activar tu cuenta, por favor, haz clic en el botón de abajo para verificar tu dirección de correo electrónico.</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center" style="padding: 20px;">
+                                            <a href="${verificationLink}" style="background-color:#276177;color:#ffffff;padding:15px 30px;text-decoration:none;border-radius:5px;font-weight:bold;display:inline-block;font-size:16px;">
+                                            Verificar mi cuenta
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center" style="padding: 20px; color: #999999; font-size: 12px;">
+                                            <table cellpadding="0" cellspacing="0" border="0" style="display:inline-block;">
+                                                <tr>
+                                                    <td style="padding-right: 10px; vertical-align: middle;">
+                                                        <img src="https://drive.google.com/uc?export=view&id=1YTQhGVEM1pTeurD1bF8Zf4qvNd3Ky03-" alt="Logo de Gaifact" style="width: 40px; height: auto; display:block;">
+                                                    </td>
+                                                    <td style="vertical-align: middle;">
+                                                        <span style="font-size: 18px; font-weight: bold; color: #333333;">GaiaFact</span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <p style="margin-top: 10px;">Este correo ha sido enviado por Athenas y GaiaFact. Todos los derechos reservados.</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+
+                </body>
+                </html>
+            `
+        });
+        } catch (mailErr) {
+            console.error('⚠️  SendGrid body:', mailErr.response?.body);
+            console.error('⚠️  SendGrid status:', mailErr.code);
+            console.error('⚠️  SendGrid message:', mailErr.message);
+        }
 
         res.json({ mensaje: 'Se agregó un nuevo usuario. Por favor, verifica tu correo electrónico.' });
-    } catch (error) {
-        // Manejo de errores de unicidad (correo/documento ya existen)
+        } catch (error) {
         if (error.code === 11000) {
             return res.status(400).json({ 
                 mensaje: 'El correo electrónico o el número de documento ya están registrados.', 
@@ -117,13 +136,148 @@ exports.nuevoUsuario = async (req, res) => {
     }
 };
 
+// ---------------------------------------------------
+// 2. VERIFICAR CUENTA (BACKEND) Y REDIRIGIR A LOGIN
+// ---------------------------------------------------
+exports.verificarCuenta = async (req, res) => {
+  try {
+    // aceptar token por query o por params
+    const token = req.query.token || req.params.token;
+
+    console.log('🔎 llamada a verificarCuenta, token recibido:', token ? token.slice(0,50) + '...' : token);
+
+    if (!token) {
+      return res.status(400).send('Token no proporcionado');
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId || decoded.id || decoded.usuarioId;
+
+    if (!userId) {
+      return res.status(400).send('Token inválido: no contiene userId');
+    }
+
+    const usuario = await Usuario.findById(userId);
+    if (!usuario) return res.status(404).send('Usuario no encontrado.');
+
+    if (usuario.isVerified) return res.status(200).send('Tu cuenta ya ha sido verificada.');
+
+    usuario.isVerified = true;
+    await usuario.save();
+
+    // opcional: redirigir al front
+    return res.redirect(`${process.env.FRONTEND_URL}/verificado`); // o enviar mensaje
+
+  } catch (error) {
+    console.error('Error verificarCuenta:', error);
+    return res.status(400).send('El enlace de verificación es inválido o ha expirado.');
+  }
+};
+
+exports.reenviarVerificacionAdmin = async (req, res) => {
+  try {
+    const { idUsuario } = req.params;  
+
+    const usuario = await Usuario.findById(idUsuario);
+    if (!usuario) {
+      return res.status(404).json({ msg: 'Usuario no encontrado' });
+    }
+    if (usuario.isVerified) {
+      return res.status(400).json({ msg: 'El usuario ya verificó su correo' });
+    }
+
+    // Generar nuevo token (1 h)
+    const token = jwt.sign(
+      { userId: usuario._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    // Enviar correo de verificación dos pasos
+
+    const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email/${token}`;
+
+    await sgMail.send({
+      to: usuario.correo_electronico,
+      from: process.env.EMAIL_USER,
+      subject: 'Verifica tu correo electrónico para GaiaFact',
+      html: `
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>¡Verifica tu correo electrónico!</title>
+                </head>
+                <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4;">
+                        <tr>
+                            <td align="center" style="padding: 20px;">
+                                <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                    <tr>
+                                        <td align="center" style="padding: 20px 20px 0;">
+                                            <table cellpadding="0" cellspacing="0" border="0" style="display:inline-block;">
+                                                <tr>
+                                                    <td style="padding-right: 10px; vertical-align: middle;">
+                                                        <img src="https://drive.google.com/uc?export=view&id=1W9hegx7_xrNjxl4bN6939vas_DFwV2s4" alt="Logo de athenas" style="width: 90px; height: auto; display:block;">
+                                                    </td>
+                                                    <td style="vertical-align: middle;">
+                                                        <span style="font-size: 30px; font-weight: bold; color: #333333;">Athena's</span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <h1 style="color: #333333; font-size: 28px; margin: 20px 0 10px;">¡Verifica tu correo electrónico!</h1>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 20px; color: #555555; font-size: 16px; line-height: 1.6;">
+                                            <h2>Hola ${usuario.nombre},</h2>
+                                            <p>¡Gracias por registrarte! Para activar tu cuenta, por favor, haz clic en el botón de abajo para verificar tu dirección de correo electrónico.</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center" style="padding: 20px;">
+                                            <a href="${verificationLink}" style="background-color:#276177;color:#ffffff;padding:15px 30px;text-decoration:none;border-radius:5px;font-weight:bold;display:inline-block;font-size:16px;">
+                                            Verificar mi cuenta
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center" style="padding: 20px; color: #999999; font-size: 12px;">
+                                            <table cellpadding="0" cellspacing="0" border="0" style="display:inline-block;">
+                                                <tr>
+                                                    <td style="padding-right: 10px; vertical-align: middle;">
+                                                        <img src="https://drive.google.com/uc?export=view&id=1YTQhGVEM1pTeurD1bF8Zf4qvNd3Ky03-" alt="Logo de Gaifact" style="width: 40px; height: auto; display:block;">
+                                                    </td>
+                                                    <td style="vertical-align: middle;">
+                                                        <span style="font-size: 18px; font-weight: bold; color: #333333;">GaiaFact</span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <p style="margin-top: 10px;">Este correo ha sido enviado por Athenas y GaiaFact. Todos los derechos reservados.</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+
+                </body>
+                </html>
+            `
+    });
+
+    res.json({ msg: 'Correo de verificación re-enviado' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Error al reenviar correo', error: err.message });
+  }
+};
+
 // Mostrar todos los usuarios (SOLO SUPERADMIN y ADMINISTRADOR)
-// El middleware verificarRolGestor se encarga de la autorización.
 exports.mostrarUsuarios = async (req, res, next) => {
     try {
-        // La autorización de rol (SUPERADMIN/ADMINISTRADOR) la maneja verificarRolGestor
-        // que es ejecutado antes de este controlador en la ruta.
-
         const usuarios = await Usuario.find({});
         res.json(usuarios);
     } catch (error) {
@@ -133,14 +287,10 @@ exports.mostrarUsuarios = async (req, res, next) => {
 };
 
 // Mostrar un usuario específico
-// La autorización (perfil propio o rol Gestor) la maneja verificarAccesoPerfil.
 exports.mostrarUsuario = async (req, res) => {
     const userIdToView = req.params.idUsuario;
     
     try {
-        // ✅ La lógica de autorización REDUNDANTE fue eliminada,
-        // ya que es manejada por el middleware verificarAccesoPerfil.
-        
         // 1. Buscar el usuario
         const usuario = await Usuario.findById(userIdToView).select('-password'); 
 
@@ -156,7 +306,6 @@ exports.mostrarUsuario = async (req, res) => {
 
     } catch (err) {
         console.error("Error al mostrar usuario:", err);
-        // Si el ID no es válido (ej: formato incorrecto de ObjectId), Mongoose lanza un error.
         if (err.kind === 'ObjectId') {
              return res.status(400).json({ success: false, message: "ID de usuario inválido" });
         }
@@ -167,10 +316,8 @@ exports.mostrarUsuario = async (req, res) => {
 // Buscar usuario por documento
 exports.buscarPorDocumento = async (req, res) => {
   try {
-    const usuario = await Usuario.findOne({ 
-      $or: [
-        { numero_documento: req.params.documento }
-      ]
+    const usuario = await Usuario.findOne({
+      numero_documento: req.params.documento, 
     });
 
     if (!usuario) {
@@ -194,6 +341,8 @@ exports.buscarPorDocumento = async (req, res) => {
   }
 };
 
+
+// Actualizar un usuario por ID
 exports.actualizarUsuario = async (req, res, next) => {
     try {
         const usuario = await Usuario.findOneAndUpdate(
@@ -208,6 +357,7 @@ exports.actualizarUsuario = async (req, res, next) => {
     }
 };
 
+// Eliminar un usuario por ID
 exports.eliminarUsuario = async (req, res, next) => {
     try {
         await Usuario.findOneAndDelete({ _id: req.params.idUsuario });

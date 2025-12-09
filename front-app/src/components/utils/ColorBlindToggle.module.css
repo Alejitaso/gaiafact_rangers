@@ -1,0 +1,62 @@
+/* components/utils/ColorBlindToggle.module.css */
+
+
+.colorblindBtn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--color-tres);
+  border: 2px solid var(--color-uno);
+  color: var(--color-dos);
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(39, 97, 119, 0.3);
+  transition: all 0.3s ease;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.colorblindBtn:hover {
+  transform: scale(1.1);
+  background: var(--color-uno);
+}
+
+.colorblindMenu {
+  position: absolute;
+  bottom: 60px;
+  right: 0;
+  background: white;
+  border: 2px solid var(--color-tres);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 160px;
+}
+
+.colorblindOption {
+  padding: 8px 12px;
+  border: none;
+  background: var(--color-cuatro);
+  color: var(--color-uno);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.colorblindOption:hover {
+  background: var(--color-tres);
+  color: white;
+}
+
+.colorblindOption.active {
+  background: var(--color-uno);
+  color: white;
+  font-weight: bold;
+}

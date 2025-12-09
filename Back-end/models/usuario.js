@@ -58,12 +58,18 @@ const usuarioSchema = new Schema({
     resetToken: {
         type: String,
         default: null,
-},
-    tokenExpiration: {
+    },
+    verifyToken: {
+        type: String,
+        default: null,
+    },
+    tokenExpiration: {
         type: Date,
         default: null,
     }
-
+}, 
+{
+    timestamps: true 
 });
 
 // 🔒 Hook para encriptar contraseña antes de guardar

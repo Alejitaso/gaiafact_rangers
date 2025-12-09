@@ -21,6 +21,8 @@ import Inventario from './components/products/inventory.js';
 import ListadoUsuarios from './components/user/listadoUsuarios.js';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts.js';
 import KeyboardShortcutsHelp from './components/utils/KeyboardShortcutsHelp';
+import ColorBlindToggle from './components/utils/ColorBlindToggle';
+import './colorblind-themes.css';
 import Swal from 'sweetalert2';
 import './App.css';
 
@@ -53,6 +55,13 @@ function AppContent() {
   const ocultarSidebar = rutasSinSidebar.includes(location.pathname) || location.pathname.startsWith('/nueva_contra');
   useKeyboardShortcuts();
 
+  useEffect(() => {
+    const saved = localStorage.getItem('colorblind-mode');
+    if (saved && saved !== 'normal') {
+      document.body.classList.add(`colorblind-${saved}`);
+    }
+  }, []);
+
   // 🟢 Estado del tipo de usuario
   const [tipoUsuario, setTipoUsuario] = useState(
     (localStorage.getItem("tipo_usuario") || "").toUpperCase()
@@ -78,11 +87,9 @@ function AppContent() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const tipo = (localStorage.getItem("tipo_usuario") || "").toUpperCase();
-    if (token && tipo) {
-      if (location.pathname === "/" || location.pathname === "/login") {
-        window.location.href = "/inicio";
-      }
-    }
+    if (token && tipo && location.pathname === "/") {
+    window.location.href = "/inicio";
+  }
   }, [location.pathname]);
 
   // 🔹 Rutas públicas (sin protección)
@@ -119,48 +126,51 @@ function AppContent() {
 
   return (
     <Fragment>
-      {!ocultarSidebar && <Sidebar />}
+      <div className="app-wrapper">
+        {!ocultarSidebar && <Sidebar />}
 
-      <div id="main" className={ocultarSidebar ? 'full-width' : ''}>
-        <Header title="GaiaFact" />
+        <div id="main" className={ocultarSidebar ? 'full-width' : ''}>
+          <Header title="GaiaFact" />
 
-        <div className="content">
-          <Routes>
-            {/* Rutas públicas */}
-            {rutasPublicas.map((ruta, i) => (
-              <Route key={i} path={ruta.path} element={ruta.element} />
-            ))}
+          <div className="content">
+            <Routes>
+              {rutasPublicas.map((ruta, i) => (
+                <Route key={i} path={ruta.path} element={ruta.element} />
+              ))}
 
-            {/* Rutas protegidas con verificación de rol */}
-            {todasLasRutas.map((ruta, i) => (
+              {todasLasRutas.map((ruta, i) => (
+                <Route 
+                  key={i} 
+                  path={ruta.path} 
+                  element={
+                    <ProtectedRoute 
+                      element={ruta.element} 
+                      allowedRoles={ruta.roles}
+                    />
+                  } 
+                />
+              ))}
+
+              {/* ✅ RUTA 404 CORREGIDA - DENTRO de Routes y con lógica correcta */}
               <Route 
-                key={i} 
-                path={ruta.path} 
+                path="*" 
                 element={
-                  <ProtectedRoute 
-                    element={ruta.element} 
-                    allowedRoles={ruta.roles}
-                  />
+                  localStorage.getItem("token") ? (
+                    <Navigate to="/inicio" replace />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
                 } 
               />
-            ))}
-
-            {/* Ruta por defecto - redirige al inicio si está autenticado, sino a login */}
-            <Route 
-              path="*" 
-              element={
-                localStorage.getItem("token") ? (
-                  <Navigate to="/inicio" replace />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
-              } 
-            />
-          </Routes>
+            </Routes>
+          </div>
+          <Footer />
         </div>
-
-        <Footer />
+      </div>
+      {/* Los botones fixed van FUERA del wrapper que tiene filtros */}
+      <div className="fixed-utils">
         {!ocultarSidebar && <KeyboardShortcutsHelp />}
+        {!ocultarSidebar &&  <ColorBlindToggle key="colorblind" />}
       </div>
     </Fragment>
   );

@@ -1,7 +1,7 @@
 /* === Contenedor principal === */
-.listado-container { /* Renombrado de .perfil-container a .listado-container */
+.listado-container { 
     width: 100%;
-    max-width: 1100px; /* Aumentamos el ancho para la tabla */
+    max-width: 1100px;
     margin: 40px auto;
     background: linear-gradient(135deg, var(--color-uno) 0%, var(--color-tres) 100%);
     padding: 40px;
@@ -9,6 +9,65 @@
     color: var(--color-dos);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
     min-height: 500px; 
+}
+
+/* === barra de busqueda === */
+.search-container {
+    margin-bottom: 0;
+    display: flex;
+    width: 100%;
+    max-width: 350px;
+}
+
+.action-btn-secondary {
+  background-color: var(--color-seis);
+  color: #212529;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.search-input-wrapper {
+    position: relative; 
+    width: 100%;
+}
+
+.search-input {
+    width: 80%;
+    padding: 12px 20px;
+    padding-right: 45px;
+    font-size: 1rem;
+    color: var(--color-tres); 
+    background: var(--color-dos); 
+    border: 2px solid var(--color-tres); 
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+    color: var(--color-ocho); 
+    opacity: 0.8;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--color-cinco); 
+    box-shadow: 0 0 0 3px rgba(142, 155, 232, 0.4); 
+    background: white; 
+}
+
+/* === icono de lupa de la barra de busqueda === */
+.search-icon {
+    position: absolute;
+    right: 15px; 
+    top: 50%; 
+    transform: translateY(-50%);
+    color: var(--color-ocho); 
+    font-size: 1.1rem;
+    pointer-events: none; 
 }
 
 /* === Título === */
@@ -36,7 +95,7 @@
     width: 100%;
     border-collapse: separate;
     border-spacing: 0; 
-    min-width: 700px; /* Asegura un ancho mínimo para la tabla */
+    min-width: 700px; 
 }
 
 .tabla-usuarios th, 
@@ -70,9 +129,14 @@
 /* === Botones externos (Crear Usuario, Recargar, etc.) === */
 .botones-container {
     display: flex;
-    justify-content: flex-start;
-    gap: 20px;
+    justify-content: space-between;
+    align-items: baseline;
     margin-bottom: 20px;
+}
+
+.action-buttons-group {
+    display: flex;
+    gap: 20px;
 }
 
 .btn {
@@ -94,13 +158,13 @@
     transform: translateY(-2px);
 }
 
-/* 💥 ACTUALIZACIÓN: Estilo para botones de acción en la tabla (Ver Perfil) */
+/*ACTUALIZACIÓN: Estilo para botones de acción en la tabla (Ver Perfil) */
 .action-btn-primary {
-    padding: 6px 12px; /* Más pequeño que el botón principal */
-    border: 2px solid var(--color-tres); /* Borde con color principal */
+    padding: 6px 12px; 
+    border: 2px solid var(--color-tres);
     border-radius: 8px;
-    background-color: white; /* Fondo blanco */
-    color: var(--color-tres); /* Texto con color principal */
+    background-color: white;
+    color: var(--color-tres);
     cursor: pointer;
     font-weight: bold;
     transition: all 0.3s ease;
@@ -116,82 +180,112 @@
 /* === Responsive === */
 @media (max-width: 1150px) {
     .listado-container {
-        margin: 20px;
+        margin: 20px; 
     }
 }
 
+/* =========================================================
+   TABLETS y MÓVILES GRANDES (max-width: 768px)
+   ========================================================= */
 @media (max-width: 768px) {
+    /* Contenedor Principal */
     .listado-container {
-        padding: 25px 15px;
+        padding: 25px 0; 
+        margin: 20px 15px;
+        box-sizing: border-box; 
+        width: auto; 
     }
 
     .listado-container h1 {
         font-size: 2rem;
     }
-}
 
-@media (max-width: 500px) {
     .botones-container {
-        flex-direction: column;
+        flex-direction: column; 
+        align-items: stretch; 
+        gap: 15px; 
+    }
+    
+    .action-buttons-group {
+        flex-direction: column; 
         gap: 10px;
     }
+
     .btn {
+        width: 100%; 
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    /* 2. Buscador */
+    .search-container {
+        max-width: 80%; 
         width: 100%;
     }
+
+    .search-input {
+        width: 100%;
+        padding: 10px 15px;
+        padding-right: 40px;
+        font-size: 0.9rem;
+    }
+
+    .search-icon {
+        right: 12px; 
+        font-size: 1rem;
+    }
+
+    /* 3. Tabla (Scroll Horizontal y Accesibilidad) */
+    .tabla-wrapper {
+        padding: 0 0px 0px 0px; 
+
+        margin-top: 20px; 
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 8px;
+        border: 1px solid rgba(var(--color-dos), 0.2);
+    }
+
+    .tabla-usuarios {
+        min-width: 600px; 
+        margin: 0;
+        border-radius: 0;
+    }
 }
-
 /* =========================================================
-   SCROLL HORIZONTAL + ACCESIBILIDAD EN MÓVILES
-   ========================================================= */
-@media (max-width: 768px) {
-  .tabla-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 5px;
-  }
-
-  .tabla-usuarios {
-    min-width: 600px;
-    margin: 0;
-    border-radius: 0;
-  }
-
-  .botones-container {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .btn {
-    width: 100%;
-    font-size: 16px;
-    padding: 12px;
-  }
-}
-
-/* =========================================================
-   MÓVILES PEQUEÑOS (< 480px)
+   🛑 MÓVILES PEQUEÑOS (max-width: 480px)
    ========================================================= */
 @media (max-width: 480px) {
-  .listado-container {
-    padding: 15px 10px;
-    margin: 10px;
-  }
+    .listado-container {
+        padding: 15px 10px;
+        margin: 10px;
+    }
 
-  .listado-container h1 {
-    font-size: 1.5rem;
-  }
+    .listado-container h1 {
+        font-size: 1.5rem;
+    }
 
-  .tabla-usuarios th,
-  .tabla-usuarios td {
-    padding: 8px 6px;
-    font-size: 12px;
-  }
+    /* Buscador */
+    .search-input {
+        padding: 8px 12px;
+        padding-right: 35px; 
+        font-size: 0.85rem;
+    }
 
-  .action-btn-primary {
-    font-size: 12px;
-    padding: 6px 10px;
-  }
+    .search-icon {
+        right: 10px; 
+        font-size: 0.9rem;
+    }
+    
+    /* Tabla */
+    .tabla-usuarios th,
+    .tabla-usuarios td {
+        padding: 8px 6px;
+        font-size: 12px;
+    }
+
+    .action-btn-primary {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
 }

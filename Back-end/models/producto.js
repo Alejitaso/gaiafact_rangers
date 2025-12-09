@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+// Definición del esquema para los productos
 const productoSchema = new Schema({
   id_producto: {
     type: Schema.ObjectId,
@@ -24,6 +25,12 @@ const productoSchema = new Schema({
   },
   precio: {
     type: Number
+  },
+  descuento: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 100
   },
   codigoProducto: {
     type: Number,

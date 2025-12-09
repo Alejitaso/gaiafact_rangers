@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styles from './style_loguin.module.css';
 
 function Login() {
+  //Declaración de Estados de Formulario y UI
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -16,9 +17,9 @@ function Login() {
   
   const videoRef = useRef(null);
   const emailInputRef = useRef(null);
-  const announceRef = useRef(null); // ✅ Para anuncios en vivo
+  const announceRef = useRef(null); 
 
-  // Carga inicial con transición suave
+  //Lógica de Carga Inicial (Simulación de Pre-Carga)
   useEffect(() => {
     const initialTimer = setTimeout(() => {
       setFadeOut(true);
@@ -29,7 +30,6 @@ function Login() {
         
         setTimeout(() => {
           setLoadingComplete(true);
-          // ✅ Enfocar el primer campo al cargar
           if (emailInputRef.current) {
             emailInputRef.current.focus();
           }
@@ -40,7 +40,6 @@ function Login() {
     return () => clearTimeout(initialTimer);
   }, []);
 
-  // Configuración del video
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.playbackRate = 1.5;
@@ -64,6 +63,7 @@ function Login() {
     localStorage.setItem("timeLeft", timeLeft);
   }, [attempts, isLocked, timeLeft]);
 
+  //Temporizador de cuenta regresiva para el bloqueo
   useEffect(() => {
     let timer;
     if (isLocked && timeLeft > 0) {
@@ -85,6 +85,7 @@ function Login() {
     return () => clearInterval(timer);
   }, [isLocked, timeLeft]);
 
+  //Función de utilidad para formatear el tiempo restante
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
@@ -98,7 +99,7 @@ function Login() {
     setIsNavigating(true);
 
     try {
-      const res = await fetch("http://localhost:4000/api/auth/login", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ correo_electronico: email, password })
@@ -106,7 +107,7 @@ function Login() {
 
       const data = await res.json();
 
-      if (data.success) {
+       if (data.success) {
         setError(null);
         setAttempts(0);
         localStorage.removeItem("attempts");
@@ -117,23 +118,53 @@ function Login() {
         setTimeout(() => {
           window.location.href = "/inicio";
         }, 2000);
-        
-      } else {
-        setError(data.message || "Correo o contraseña incorrectos");
+      } 
+      else {
+
+        if (res.status === 403) {
+
+          let displayMessage = "";
+
+          if (data.message === "no_verificado") {
+            displayMessage = "Tu cuenta aún no ha sido verificada. Por favor revisa tu correo.";
+          }
+
+          else if (data.message === "Inactivo") {
+            displayMessage = "Tu cuenta está inactiva o ha sido bloqueada. Por favor, contacta a soporte.";
+          }
+
+          else {
+            displayMessage = "Error de autenticación. Contacte a soporte.";
+          }
+
+          setError(displayMessage);
+
+          setTimeout(() => {
+            setIsNavigating(false);
+            setShowContent(true);
+            if (emailInputRef.current) {
+              emailInputRef.current.focus();
+            }
+          }, 500);
+
+          return; 
+        }
+
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
 
         if (newAttempts >= 3) {
           setIsLocked(true);
-          setTimeLeft(60 * 5);
+          setTimeLeft(300);
           localStorage.setItem("isLocked", "true");
-          localStorage.setItem("timeLeft", 60 * 5);
+          localStorage.setItem("timeLeft", 300);
         }
-        
+
+        setError(data.message || "Correo o contraseña incorrectos");
+
         setTimeout(() => {
           setIsNavigating(false);
           setShowContent(true);
-          // ✅ Enfocar el email después de error
           if (emailInputRef.current) {
             emailInputRef.current.focus();
           }
@@ -157,15 +188,15 @@ function Login() {
     return (
       <div 
         className="loading-screen"
-        role="status" // ✅ Indica que es un estado de carga
-        aria-live="polite" // ✅ Anuncia cambios
+        role="status" 
+        aria-live="polite" 
       >
         <span className="sr-only">Cargando, por favor espere...</span>
         <video 
           className="loading-video" 
           autoPlay 
           muted
-          aria-hidden="true" // ✅ Oculta el video de lectores de pantalla
+          aria-hidden="true" 
           onEnded={(e) => {
             e.target.play(); 
           }}

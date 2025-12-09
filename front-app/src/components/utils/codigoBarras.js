@@ -3,6 +3,7 @@ import clienteAxios from '../../config/axios';
 import Swal from 'sweetalert2';
 import styles from './codigoBr.module.css';
 
+// Componente para generar y descargar códigos de barras de productos
 function CodigoBarras() {
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -19,7 +20,6 @@ function CodigoBarras() {
     obtenerProductos();
   }, []);
 
-  // Focus automático en el input
   useEffect(() => {
     if (codigoInputRef.current) {
       codigoInputRef.current.focus();
@@ -33,6 +33,7 @@ function CodigoBarras() {
     setTimeout(() => setMensajeEstado(''), 100);
   };
 
+  // Obtiene la lista de productos desde el servidor
   const obtenerProductos = async () => {
     try {
       setCargando(true);
@@ -68,10 +69,12 @@ function CodigoBarras() {
     }
   };
 
+  // Maneja el cambio en el input del código de barras
   const handleCodigoInput = (value) => {
     setCodigoInput(value);
   };
 
+  // Busca un producto por su código de barras
   const buscarProductoPorCodigo = async (codigo) => {
     if (!codigo.trim()) {
       anunciar('Por favor ingrese un código de barras');
@@ -188,7 +191,6 @@ function CodigoBarras() {
           if (result.isConfirmed) {
             const cantidad = result.value;
             
-            // Agregar el producto tantas veces como la cantidad solicitada
             for (let i = 0; i < cantidad; i++) {
               setProductosSeleccionados(prev => [...prev, { ...producto, uniqueId: `${producto._id}-${Date.now()}-${i}` }]);
             }
@@ -245,12 +247,14 @@ function CodigoBarras() {
     }
   };
 
+  // Elimina un código de la lista de seleccionados
   const eliminarProducto = (uniqueId) => {
     const producto = productosSeleccionados.find(p => p.uniqueId === uniqueId);
     setProductosSeleccionados(prev => prev.filter(p => p.uniqueId !== uniqueId));
     anunciar(`Código de ${producto?.nombre || 'producto'} eliminado. Códigos restantes: ${productosSeleccionados.length - 1}`);
   };
 
+  // Elimina todos los códigos de un producto específico
   const eliminarTodosDeUnProducto = (productoId) => {
     const producto = productosSeleccionados.find(p => p._id === productoId);
     const cantidad = productosSeleccionados.filter(p => p._id === productoId).length;
@@ -331,6 +335,7 @@ function CodigoBarras() {
     }
   };
 
+  // Descarga los códigos de barras seleccionados como imágenes
   const descargarCodigos = async () => {
     if (productosSeleccionados.length === 0) {
       anunciar('No hay productos seleccionados para descargar');
@@ -385,6 +390,7 @@ function CodigoBarras() {
     }
   };
 
+  // Imprime los códigos de barras seleccionados
   const imprimirCodigos = () => {
     if (productosSeleccionados.length === 0) {
       anunciar('No hay productos seleccionados para imprimir');
@@ -491,6 +497,7 @@ function CodigoBarras() {
     ventanaImpresion.document.close();
   };
 
+  // Renderizado del componente
   return (
     <Fragment>
       {/* Región de anuncios en vivo para lectores de pantalla */}
@@ -510,7 +517,6 @@ function CodigoBarras() {
           {/* Título principal oculto visualmente pero accesible */}
           <h1 className="sr-only">Generador de códigos de barras</h1>
           
-          {/* Campo para buscar producto por código */}
           <div className={styles.campo}>
             <label htmlFor="codigoBusqueda">
               {buscando ? (
@@ -562,7 +568,6 @@ function CodigoBarras() {
               <div className={styles.qr} role="region" aria-label="Lista de códigos seleccionados">
                 <div className={styles.previsualizacion}>
                   {(() => {
-                    // Agrupar productos por ID
                     const productosAgrupados = productosSeleccionados.reduce((acc, producto) => {
                       if (!acc[producto._id]) {
                         acc[producto._id] = {

@@ -5,10 +5,11 @@ import Swal from 'sweetalert2';
 import styles from './editarProducto.module.css';
 
 const OPCIONES_PRENDA = [
-  'Camisetas', 'Camisas', 'Pantalones', 'Jeans', 'Vestidos',
-  'Faldas', 'Chaquetas', 'Buzos', 'Ropa interior', 'Accesorios'
+  'Camisetas', 'Camisas', 'Pantalones', 'Vestidos',
+  'Faldas', 'Sacos'
 ];
 
+// Componente para editar o crear un producto
 function EditarProducto() {
   const { idProducto: id } = useParams();
   const navigate = useNavigate();
@@ -26,11 +27,11 @@ function EditarProducto() {
   const [cargando, setCargando] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
 
-  // ✅ Limpieza de popups al montar o cambiar ruta
   useEffect(() => {
     cerrarForzadoSweetAlert();
   }, [location.pathname]);
-
+  
+  // Carga el producto si estamos en modo edición
   useEffect(() => {
     const cargarProducto = async () => {
       if (!id) {
@@ -44,30 +45,10 @@ function EditarProducto() {
       
       try {
         setCargando(true);
-        console.log('🔍 ID capturado de la URL:', id);
-        console.log('🔍 Haciendo petición a:', `/api/productos/${id}`);
         
         const response = await clienteAxios.get(`/api/productos/${id}`);
         
-        console.log('📦 === RESPUESTA COMPLETA ===');
-        console.log('Status:', response.status);
-        console.log('Headers:', response.headers);
-        console.log('Data completo:', response.data);
-        console.log('Tipo de data:', typeof response.data);
-        console.log('Es array?:', Array.isArray(response.data));
-        console.log('Keys de data:', Object.keys(response.data));
-        console.log('========================');
-        
         const data = response.data;
-        
-        console.log('📋 Campos individuales:');
-        console.log('  - nombre:', data.nombre);
-        console.log('  - descripcion:', data.descripcion);
-        console.log('  - descripcion_detallada:', data.descripcion_detallada);
-        console.log('  - tipo_prenda:', data.tipo_prenda, '(tipo:', typeof data.tipo_prenda, ')');
-        console.log('  - cantidad:', data.cantidad, '(tipo:', typeof data.cantidad, ')');
-        console.log('  - precio:', data.precio, '(tipo:', typeof data.precio, ')');
-        console.log('  - descuento:', data.descuento, '(tipo:', typeof data.descuento, ')');
         
         // Procesar tipo_prenda
         let tipoPrendaFinal;
@@ -87,25 +68,17 @@ function EditarProducto() {
           precio: data.precio !== undefined && data.precio !== null ? data.precio : '',
           descuento: data.descuento ? Number(data.descuento) : ''
         };
-        
-        console.log('🎯 Objeto que se va a guardar en el estado:', productoParaEstado);
+      
         
         setProducto(productoParaEstado);
         
         console.log('✅ Estado actualizado correctamente');
         
-        // Verificar después de 100ms que el estado se actualizó
         setTimeout(() => {
           console.log('🔄 Verificación del estado después de actualizar:', producto);
         }, 100);
         
       } catch (err) {
-        console.error('❌ ERROR COMPLETO:', err);
-        console.error('❌ Error response:', err.response);
-        console.error('❌ Status:', err.response?.status);
-        console.error('❌ Data:', err.response?.data);
-        console.error('❌ Message:', err.message);
-        
         Swal.fire('Error', 'No se pudo cargar el producto', 'error');
         navigate('/inventario');
       } finally {
@@ -116,16 +89,24 @@ function EditarProducto() {
     cargarProducto();
   }, [id, navigate]);
 
+  const restaurarScroll = () => {
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    document.body.classList.remove('swal2-shown', 'swal2-height-auto');
+    document.documentElement.classList.remove('swal2-shown', 'swal2-height-auto');
+  };
+
   const cerrarForzadoSweetAlert = () => {
-    try {
-      Swal.close();
-      const containers = document.querySelectorAll('.swal2-container');
-      containers.forEach(c => c.remove());
-      const popups = document.querySelectorAll('.swal2-popup');
-      popups.forEach(p => p.remove());
-    } catch (e) {
-      console.warn("No había popups para cerrar");
-    }
+      try {
+        Swal.close();
+        restaurarScroll(); 
+        const containers = document.querySelectorAll('.swal2-container');
+        containers.forEach(c => c.remove());
+        const popups = document.querySelectorAll('.swal2-popup');
+        popups.forEach(p => p.remove());
+      } catch (e) {
+        console.warn("No había popups para cerrar");
+      }
   };
 
   const manejarCambio = (e) => {
@@ -146,6 +127,7 @@ function EditarProducto() {
     });
   };
 
+  // Muestra un popup de confirmación con los datos del producto
   const mostrarPopupPreview = (datosProducto) => {
     cerrarForzadoSweetAlert();
     
@@ -153,7 +135,6 @@ function EditarProducto() {
       ? datosProducto.precio * (1 - datosProducto.descuento / 100)
       : datosProducto.precio;
 
-    console.log('Mostrando popup de preview con datos:', datosProducto);
 
     Swal.fire({
       title: modoEdicion ? '¿Confirmar modificación?' : '¿Confirmar creación?',
@@ -169,14 +150,12 @@ function EditarProducto() {
           <p><strong>Tipo:</strong> ${datosProducto.tipo_prenda[0] || datosProducto.tipo_prenda}</p>
           <p><strong>Descripción:</strong> ${datosProducto.descripcion_detallada || 'Sin descripción'}</p>
         </div>
-        <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
-          <button id="btnConfirmar" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
-            <i class="fas fa-check"></i> Confirmar
-          </button>
-          <button id="btnCancelar" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
-            <i class="fas fa-times"></i> Cancelar
-          </button>
-        </div>
+        <button id="btnConfirmar" class="${styles.popupButtonConfirm}">
+          <i class="fas fa-check"></i> Confirmar
+        </button>
+        <button id="btnCancelar" class="${styles.popupButtonCancel}">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
       `,
       showConfirmButton: false,
       showCancelButton: false,
@@ -257,12 +236,9 @@ function EditarProducto() {
           <p><strong>Precio:</strong> $${formatearPrecio(productoGuardado.precio)}</p>
           <p><strong>Tipo:</strong> ${productoGuardado.tipo_prenda}</p>
         </div>
-        <div>
-          <button id="btnInventario" class="swal2-custom-btn">
+        <div style="text-align: center; margin-top: 20px;">
+          <button id="btnInventario" class="${styles.popupButtonPrimary}">
             <i class="fas fa-boxes"></i> Ir a Inventario
-          </button>
-          <button id="btnContinuar" class="swal2-custom-btn">
-            <i class="fas fa-plus"></i> ${modoEdicion ? 'Editar Otro' : 'Crear Otro'}
           </button>
         </div>
       `,
@@ -279,27 +255,16 @@ function EditarProducto() {
       didOpen: () => {
         const cerrarYNavegar = (ruta) => {
           cerrarForzadoSweetAlert();
+          document.body.style.overflow = '';
           setTimeout(() => navigate(ruta), 100);
         };
-
-        document.getElementById('btnInventario').addEventListener('click', () => {
-          cerrarYNavegar('/inventario');
-        });
         
-        document.getElementById('btnContinuar').addEventListener('click', () => {
-          cerrarForzadoSweetAlert();
-          if (!modoEdicion) {
-            // Si estamos creando, limpiar el formulario
-            setProducto({
-              nombre: '',
-              descripcion_detallada: '',
-              tipo_prenda: '',
-              cantidad: '',
-              precio: '',
-              descuento: ''
+        const btnInventario = document.getElementById('btnInventario');
+          if (btnInventario) {
+            btnInventario.addEventListener('click', () => {
+              cerrarYNavegar('/inventario');
             });
           }
-        });
       }
     });
   };
@@ -319,6 +284,7 @@ function EditarProducto() {
       tipo_prenda: [producto.tipo_prenda],
       cantidad: Number(producto.cantidad),
       precio: Number(producto.precio),
+      descuento: Number(producto.descuento || 0),
       ...(producto.descuento !== '' ? { descuento: Number(producto.descuento) } : {})
     };
 
@@ -341,8 +307,8 @@ function EditarProducto() {
     );
   }
 
-  console.log('🎨 Renderizando formulario con estado actual:', producto);
 
+  // Renderiza el formulario de edición/creación de producto
   return (
     <Fragment>
       <form className={styles.registerForm} onSubmit={manejarEnvio}>

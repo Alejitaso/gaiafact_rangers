@@ -107,8 +107,8 @@
 }
 
 .stock_normal {
-    color: #32cd32;
-    font-weight: normal;
+    color: var(--color-uno);
+    font-weight: bold;
 }
 
 .loading {

@@ -5,16 +5,20 @@ import { jwtDecode } from 'jwt-decode';
 import styles from './perfil.module.css';
 import { useParams, useNavigate } from 'react-router-dom';
 
+// Componente de perfil de usuario con gestión de permisos
 const Perfil = () => {
     const { idUsuario: idParam } = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [idUsuarioToken, setIdUsuarioToken] = useState(null);
+    const [rolUsuarioToken, setRolUsuarioToken] = useState(null); 
     const [perfil, setPerfil] = useState({
         nombre: "", apellido: "", tipo_documento: "", numero_documento: "",
-        correo_electronico: "", telefono: "", estado: "", tipo_usuario: "", imagen: ""
+        correo_electronico: "", telefono: "", estado: "", tipo_usuario: "", imagen: "", 
+        fecha_registro: null
     });
     const [isEditable, setIsEditable] = useState(false);
+    const [canEditOther, setCanEditOther] = useState(false); 
 
     // ✅ Accesibilidad
     const anuncioRef = useRef(null);
@@ -27,19 +31,42 @@ const Perfil = () => {
         }
     };
 
+    const formatearFecha = (fecha) => {
+        if (!fecha) return "No disponible";
+        // Asume que la fecha viene en formato ISO de la base de datos
+        return new Date(fecha).toLocaleDateString('es-ES', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+    };
+
+    // Decodifica el token JWT para obtener ID y rol del usuario
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
             try {
                 const decoded = jwtDecode(token);
                 const userId = decoded.userId || decoded._id || decoded.id;
+                const userRole = decoded.tipo_usuario?.toUpperCase(); 
                 setIdUsuarioToken(userId);
+                setRolUsuarioToken(userRole); 
+
+                if (userRole === 'SUPERADMIN' || userRole === 'ADMINISTRADOR') { 
+                    setCanEditOther(true);
+                } else {
+                    setCanEditOther(false);
+                }
+
             } catch (error) {
                 console.error("Error decodificando el token. Sesión expirada.", error);
                 localStorage.removeItem('token');
+                navigate('/'); 
             }
+        } else {
+             navigate('/'); 
         }
-    }, []);
+    }, [navigate]); 
 
     const finalUserId = idParam || idUsuarioToken;
 
@@ -56,9 +83,15 @@ const Perfil = () => {
                 nombre: datos.nombre || "", apellido: datos.apellido || "",
                 tipo_documento: datos.tipo_documento || "", numero_documento: datos.numero_documento || "",
                 correo_electronico: datos.correo_electronico || "", telefono: datos.telefono || "",
-                estado: datos.estado || "", tipo_usuario: datos.tipo_usuario || "", imagen: datos.imagen || ""
+                estado: datos.estado || "", tipo_usuario: datos.tipo_usuario || "", imagen: datos.imagen || "",
+                fecha_registro: datos.createdAt || null
             });
-            setIsEditable(finalUserId === idUsuarioToken);
+
+            const isOwnProfile = finalUserId === idUsuarioToken;
+            const canEdit = isOwnProfile || canEditOther;
+
+            setIsEditable(canEdit);
+
             anunciar('Perfil cargado');
         } catch (error) {
             anunciar('Error al cargar perfil');
@@ -75,45 +108,77 @@ const Perfil = () => {
         } finally {
             setLoading(false);
         }
-    }, [finalUserId, idUsuarioToken, navigate]);
+
+    }, [finalUserId, idUsuarioToken, canEditOther, navigate]); 
 
     useEffect(() => {
-        if (finalUserId) obtenerPerfil();
-    }, [obtenerPerfil, finalUserId]);
+        if (idUsuarioToken !== null) { 
+            obtenerPerfil();
+        }
+    }, [obtenerPerfil, idUsuarioToken]);
 
+    // Maneja cambios en los campos editables del perfil
     const handleChange = (e) => {
-        if (isEditable) setPerfil({ ...perfil, [e.target.name]: e.target.value });
+        if (isEditable) {
+            setPerfil({ ...perfil, [e.target.name]: e.target.value });
+        } else {
+             Swal.fire("Acción denegada", "No tienes permisos para editar este perfil.", "warning");
+        }
     };
 
+    // Actualiza el perfil del usuario
     const actualizarPerfil = async () => {
         if (!isEditable) {
-            Swal.fire("Acción denegada", "Solo puedes editar tu propio perfil.", "warning");
+            Swal.fire("Acción denegada", "No tienes permisos para editar este perfil.", "warning");
             return;
         }
+
+        const idToUpdate = finalUserId; 
+
+        if (perfil.tipo_usuario?.toUpperCase() === 'SUPERADMIN' && perfil.estado === 'Inactivo' && idToUpdate === idUsuarioToken) {
+            Swal.fire("Operación no permitida", "Un Superadmin no puede inactivarse a sí mismo.", "error");
+            return;
+        }
+
         try {
             anunciar('Actualizando perfil');
-            await ClientesAxios.put(`/api/Usuario/${idUsuarioToken}`, perfil);
+            await ClientesAxios.put(`/api/Usuario/${idToUpdate}`, perfil); 
             anunciar('Perfil actualizado');
             Swal.fire("¡Perfil actualizado!", "Los cambios se guardaron correctamente", "success");
+            
+            if (idToUpdate !== idUsuarioToken) {
+                 obtenerPerfil();
+            }
+
         } catch (error) {
             anunciar('Error al actualizar perfil');
-            Swal.fire("Error", "No se pudo actualizar el perfil", "error");
+            if (error.response?.status === 403) {
+                 Swal.fire("Acceso Restringido", "No tienes permisos para realizar esta acción.", "error");
+            } else {
+                 Swal.fire("Error", "No se pudo actualizar el perfil", "error");
+            }
         }
     };
 
-    if (loading || !finalUserId) {
+    if (loading || !idUsuarioToken) { 
         return (
             <div className={styles["perfil-container"]} role="main" aria-label="Cargando perfil">
                 <h1>Cargando perfil...</h1>
             </div>
         );
     }
+    const isFieldEditable = isEditable;
 
+    const canEditOtherOnly = canEditOther; 
+    
+    const canEditOwnStatus = idParam === undefined || idParam === null;
+
+    // Renderizado del componente
     return (
         <div className={styles["perfil-container"]} role="main" aria-label={`Perfil de ${perfil.nombre}`}>
             <div ref={anuncioRef} role="status" aria-live="assertive" aria-atomic="true" className="sr-only"></div>
 
-            <h1 className={styles["perfil-title"]}>{isEditable ? 'Mi Perfil' : `Perfil de ${perfil.nombre}`}</h1>
+            <h1 className={styles["perfil-title"]}>{finalUserId === idUsuarioToken ? 'Mi Perfil' : `Perfil de ${perfil.nombre}`}</h1>
 
             <div className={styles["info-perfil"]}>
                 <div className={styles.campo}>
@@ -138,11 +203,11 @@ const Perfil = () => {
                         name="correo_electronico"
                         value={perfil.correo_electronico}
                         onChange={handleChange}
-                        readOnly={!isEditable}
+                        readOnly={!isFieldEditable} 
                         className={styles.input}
-                        aria-describedby={!isEditable ? "correo-locked" : undefined}
+                        aria-describedby={!isFieldEditable ? "correo-locked" : undefined}
                     />
-                    {!isEditable && <span id="correo-locked" className="sr-only">Campo de solo lectura</span>}
+                    {!isFieldEditable && <span id="correo-locked" className="sr-only">Campo de solo lectura</span>}
                 </div>
 
                 <div className={styles.campo}>
@@ -152,11 +217,11 @@ const Perfil = () => {
                         name="telefono"
                         value={perfil.telefono}
                         onChange={handleChange}
-                        readOnly={!isEditable}
+                        readOnly={!isFieldEditable} 
                         className={styles.input}
-                        aria-describedby={!isEditable ? "telefono-locked" : undefined}
+                        aria-describedby={!isFieldEditable ? "telefono-locked" : undefined}
                     />
-                    {!isEditable && <span id="telefono-locked" className="sr-only">Campo de solo lectura</span>}
+                    {!isFieldEditable && <span id="telefono-locked" className="sr-only">Campo de solo lectura</span>}
                 </div>
 
                 <div className={styles.campo}>
@@ -165,11 +230,29 @@ const Perfil = () => {
                 </div>
 
                 <div className={styles.campo}>
-                    <label className={styles.label}>Estado:</label>
-                    <p className={styles.displayValue}>{perfil.estado}</p>
+                    <label className={styles.label}>Fecha de Registro:</label>
+                    <p className={styles.displayValue}>{formatearFecha(perfil.fecha_registro)}</p>
                 </div>
 
-                {(perfil.tipo_usuario?.toUpperCase() === 'SUPERADMIN' || perfil.tipo_usuario?.toUpperCase() === 'ADMINISTRADOR') && (
+                <div className={styles.campo}>
+                    <label className={styles.label}>Estado:</label>
+                    {canEditOtherOnly && !canEditOwnStatus ? ( 
+                        <select
+                            name="estado"
+                            value={perfil.estado}
+                            onChange={handleChange}
+                            className={styles.input}
+                            aria-label="Estado del usuario"
+                        >
+                            <option value="Activo">Activo</option>
+                            <option value="Inactivo">Inactivo</option>
+                        </select>
+                    ) : (
+                        <p className={styles.displayValue}>{perfil.estado}</p> 
+                    )}
+                </div>
+
+                {(rolUsuarioToken === 'SUPERADMIN' || rolUsuarioToken === 'ADMINISTRADOR') && ( 
                     <div className={styles["botones-container"]}>
                         <button onClick={() => navigate('/usuarios')} className={styles.btn} aria-label="Ir a gestión de usuarios">
                             Ir a la Gestión de Usuarios
@@ -177,7 +260,7 @@ const Perfil = () => {
                     </div>
                 )}
 
-                {isEditable && (
+                {isEditable && ( 
                     <div className={styles["botones-container"]}>
                         <button ref={guardarBtnRef} onClick={actualizarPerfil} className={styles.btn} aria-label="Guardar cambios del perfil">
                             Guardar cambios

@@ -2,8 +2,7 @@ const jwt = require('jsonwebtoken');
 const Usuario = require('../models/usuario');
 
 /**
- * Middleware de Autenticación: Verifica la validez del token JWT en el encabezado
- * y adjunta el objeto del usuario a `req.usuario` para su uso posterior.
+ * Middleware de Autenticación: Verifica la validez del token JWT 
  */
 exports.verificarAuth = async (req, res, next) => {
     const token = req.headers['authorization']?.split(' ')[1];
@@ -14,54 +13,60 @@ exports.verificarAuth = async (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        // 1. Obtiene el usuario de la base de datos
-        req.usuario = await Usuario.findById(decoded.id).select('-password');
-        
-        if (!req.usuario) {
+
+        // Obtener usuario desde la BD
+        const usuarioBD = await Usuario.findById(decoded.id).select('-password');
+
+        if (!usuarioBD) {
             return res.status(404).json({ mensaje: 'Usuario no encontrado' });
         }
-        
-        // 2. Adjunta el ID del token (ObjectID) a req.usuario.id para facilitar la comparación
-        req.usuario.id = decoded.userId; 
+
+        // 🔥 FUSIONAR INFO DEL TOKEN + BD
+        req.usuario = {
+            _id: usuarioBD._id,
+            nombre: usuarioBD.nombre,
+            correo_electronico: usuarioBD.correo_electronico,
+
+            // 🔥 El tipo_usuario MÁS CONFIABLE es EL DEL TOKEN
+            tipo_usuario: decoded.tipo_usuario || usuarioBD.tipo_usuario,
+        };
 
         next();
     } catch (error) {
-        // console.error("Error al verificar token:", error);
         return res.status(401).json({ mensaje: 'Token inválido o expirado' });
     }
 };
 
-/**
- * Middleware de Autorización: Requiere que el usuario autenticado tenga el rol de 'SUPERADMIN' o 'ADMINISTRADOR'.
- * Se ejecuta después de verificarAuth.
- */
+// Verifica si el usuario tiene un rol de gestor (Superadmin o Administrador)
 exports.verificarRolGestor = (req, res, next) => {
     // req.usuario es proporcionado por verificarAuth
     const usuarioRol = req.usuario.tipo_usuario?.toUpperCase();
     
+    console.log('🔐 Verificando rol de gestor. Rol del usuario:', usuarioRol);
+    
     if (!req.usuario || !['SUPERADMIN', 'ADMINISTRADOR'].includes(usuarioRol)) {
+        console.log('❌ Acceso denegado. Rol insuficiente');
         return res.status(403).json({ mensaje: 'Acceso denegado. Se requiere un rol de gestor (Superadmin o Administrador).' });
     }
     
-    // El usuario tiene el rol requerido
+    console.log('✅ Rol de gestor verificado');
     next();
 };
 
-/**
- * Middleware de Autorización de Perfil: Permite ver un perfil si:
- * 1. Es el perfil del propio usuario (ID del token coincide con el ID de los parámetros).
- * 2. El usuario autenticado es un gestor (SUPERADMIN o ADMINISTRADOR).
- * Se ejecuta después de verificarAuth.
- */
+// Verifica si el usuario tiene acceso a su propio perfil o es un gestor
 exports.verificarAccesoPerfil = (req, res, next) => {
     // ID del usuario autenticado (del token, gracias a verificarAuth)
-    const userIdFromToken = req.usuario.id.toString(); 
-    // ID del perfil que se intenta ver (de la URL)
+    const userIdFromToken = req.usuario._id.toString(); 
     const userIdFromParams = req.params.idUsuario;
+            
+    console.log('🔍 Verificando acceso a perfil:', { 
+        tokenId: userIdFromToken, 
+        paramsId: userIdFromParams 
+    });
 
     // Caso 1: Es el perfil propio
     if (userIdFromToken === userIdFromParams) {
+        console.log('✅ Acceso permitido: perfil propio');
         return next();
     }
 
@@ -70,9 +75,11 @@ exports.verificarAccesoPerfil = (req, res, next) => {
     const isGestor = ['SUPERADMIN', 'ADMINISTRADOR'].includes(usuarioRol);
 
     if (isGestor) {
+        console.log('✅ Acceso permitido: rol de gestor');
         return next();
     }
 
     // Caso 3: Acceso denegado
+    console.log('❌ Acceso denegado: no es perfil propio ni gestor');
     return res.status(403).json({ mensaje: 'Acceso denegado. Solo puede ver su propio perfil o debe ser un Gestor.' });
 };

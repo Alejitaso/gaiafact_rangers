@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import clienteAxios from "../../config/axios";
 import axios from "axios";
 
+// Componente para subir imágenes al carrusel
 function SubirImagen(props) {
     // Estados del componente
     const [archivo, setArchivo] = useState(null);
@@ -38,7 +39,6 @@ function SubirImagen(props) {
     const procesarArchivo = (archivoSeleccionado) => {
         if (!archivoSeleccionado) return;
 
-        // Validar que sea una imagen
         if (!archivoSeleccionado.type.startsWith('image/')) {
             anunciar('Error: El archivo seleccionado no es una imagen válida');
             Swal.fire({
@@ -50,7 +50,7 @@ function SubirImagen(props) {
         }
 
         // Validar tamaño (máximo 5MB)
-        const tamañoMaximo = 5 * 1024 * 1024; // 5MB
+        const tamañoMaximo = 5 * 1024 * 1024; 
         if (archivoSeleccionado.size > tamañoMaximo) {
             anunciar('Error: El archivo es muy grande, debe ser menor a 5 megabytes');
             Swal.fire({
@@ -113,7 +113,7 @@ function SubirImagen(props) {
             // Actualizar FormData con el nombre único
             formData.set('nombre', nombreUnico);
             formData.set('carpetaDestino', 'onset/img');
-            formData.set('limite', '10'); // Límite de 10 imágenes
+            formData.set('limite', '10'); 
             
             const res = await clienteAxios.post('/api/imagenes/carousel', formData, {
                 headers: {

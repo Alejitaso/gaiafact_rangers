@@ -1,9 +1,12 @@
 import React, { useState, Fragment, useRef } from 'react';
 import Swal from 'sweetalert2';
+import NotificacionesPanel from '../admin/NotifyPanel.js';  
 import clienteAxios from '../../config/axios';
 import styles from './notify.module.css';
 
+// Componente mejorado para enviar notificaciones de facturas por correo
 function NotificacionesMejorado() {
+   // ESTADOS DEL COMPONENTE
   const [numeroFactura, setNumeroFactura] = useState('');
   const [facturaData, setFacturaData] = useState(null);
   const [clienteData, setClienteData] = useState(null);
@@ -28,19 +31,26 @@ function NotificacionesMejorado() {
     setTimeout(() => inputRef.current?.focus(), 300);
   }, []);
 
+  const calcularSubtotalReal = (factura) => {
+    const subtotalConDescuento = factura.subtotal || 0;
+    const descuentoTotal = Math.abs(factura.descuento_total || 0);
+    return subtotalConDescuento + descuentoTotal;
+  };
+
   const buscarFactura = async () => {
     if (!numeroFactura.trim()) {
       setError('Por favor ingrese un número de factura');
       anunciar('Error: por favor ingrese un número de factura');
       return;
     }
-
+    //estado de carga
     setBuscando(true);
     setError('');
     setFacturaData(null);
     setClienteData(null);
     anunciar('Buscando factura...');
 
+    //peticion para buscar la factura
     try {
       const resFactura = await clienteAxios.get(`/api/facturas/buscar-factura/${numeroFactura}`);
       if (!resFactura.data) throw new Error('Factura no encontrada');
@@ -51,10 +61,11 @@ function NotificacionesMejorado() {
       let cliente = factura.usuario;
       if (factura.usuario?.numero_documento) {
         try {
-          const resCliente = await clienteAxios.get(`/Usuario/documento/${factura.usuario.numero_documento}`);
-          cliente = resCliente.data.usuario;
-        } catch {
-          console.warn('Cliente no encontrado, usando datos de factura');
+          const resCliente = await clienteAxios.get(`api/Usuario/documento/${factura.usuario.numero_documento}`);
+          setClienteData(resCliente.data.usuario);
+        } catch (err) {
+          console.warn('Cliente no encontrado en base de datos, usando datos de factura');
+          setClienteData(factura.usuario);
         }
       }
       setClienteData(cliente);
@@ -80,6 +91,7 @@ function NotificacionesMejorado() {
         anunciar(`Factura encontrada. Cliente: ${cliente.nombre} ${cliente.apellido}`);
       }
     } catch (error) {
+      //manejo de errores en la busqueda
       console.error('Error al buscar factura:', error);
       setError(error.response?.data?.mensaje || 'Factura no encontrada');
       anunciar('Error: factura no encontrada');
@@ -94,6 +106,7 @@ function NotificacionesMejorado() {
     }
   };
 
+  //peticion para enviar la notificacion por correo
   const enviarNotificacion = async () => {
     if (!facturaData || !clienteData) return;
 
@@ -140,7 +153,7 @@ function NotificacionesMejorado() {
         emailCliente: correo,
       });
 
-      anunciar('Factura enviada exitosamente');
+      anunciar('Factura enviada exitosamente </br> revise su correo y carpeta de spam');
       Swal.fire({
         icon: 'success',
         title: '¡Enviado!',
@@ -159,6 +172,7 @@ function NotificacionesMejorado() {
       setClienteData(null);
       inputRef.current?.focus();
     } catch (error) {
+      //error al enviar correo 
       console.error('Error al enviar correo:', error);
       anunciar('Error al enviar el correo');
       Swal.fire({
@@ -171,7 +185,7 @@ function NotificacionesMejorado() {
       setEnviando(false);
     }
   };
-
+// peticion para cancelar y reiniciar el formulario
   const cancelarAccion = () => {
     Swal.fire({
       title: '¿Cancelar?',
@@ -184,6 +198,7 @@ function NotificacionesMejorado() {
       cancelButtonColor: '#276177',
     }).then((result) => {
       if (result.isConfirmed) {
+        //reset de todos los estados
         setNumeroFactura('');
         setFacturaData(null);
         setClienteData(null);
@@ -193,7 +208,7 @@ function NotificacionesMejorado() {
       }
     });
   };
-
+//formateadores (precio y fecha)
   const formatearPrecio = (precio) => {
     return precio.toLocaleString('es-CO', {
       minimumFractionDigits: 0,
@@ -208,7 +223,7 @@ function NotificacionesMejorado() {
       day: 'numeric',
     });
   };
-
+//render del componente 
   return (
     <Fragment>
       {/* ✅ Región de anuncios en vivo */}
@@ -220,191 +235,219 @@ function NotificacionesMejorado() {
         className="sr-only"
       ></div>
 
-      <div className={styles.mainContainer} role="main" aria-label="Enviar factura por correo">
-        <h2 className={styles.header}>
-          <i className="fas fa-envelope" aria-hidden="true"></i> Enviar Factura por Correo
-        </h2>
+      <div className={styles.content}>
+          <div className={styles.mainContainer} role="main" aria-label="Enviar factura por correo">
+          <h2 className={styles.header}>
+            <i className="fas fa-envelope" aria-hidden="true"></i> Enviar Factura por Correo
+          </h2>
 
-        {/* Formulario de búsqueda */}
-        <section className={styles.formSection} aria-label="Buscar factura">
-          <div className={styles.inputGroup}>
-            <label htmlFor="numeroFactura" className={styles.label}>
-              <i className="fas fa-file-invoice" aria-hidden="true"></i> Número de Factura:
-            </label>
-            <input
-              ref={inputRef}
-              id="numeroFactura"
-              type="text"
-              className={styles.input}
-              value={numeroFactura}
-              onChange={(e) => {
-                setNumeroFactura(e.target.value);
-                setError('');
-              }}
-              placeholder="Ej: F12345"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') buscarFactura();
-              }}
-              aria-describedby={error ? 'error-message' : undefined}
-              aria-invalid={error ? 'true' : 'false'}
-            />
-            {error && (
-              <p id="error-message" className={styles.errorText} role="alert">
-                {error}
-              </p>
-            )}
-          </div>
-
-          <button
-            className={styles.searchButton}
-            onClick={buscarFactura}
-            disabled={buscando}
-            aria-busy={buscando}
-            aria-label={buscando ? 'Buscando factura' : 'Buscar factura'}
-          >
-            {buscando ? (
-              <>
-                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i> Buscando...
-              </>
-            ) : (
-              <>
-                <i className="fas fa-search" aria-hidden="true"></i> Buscar Factura
-              </>
-            )}
-          </button>
-        </section>
-
-        {/* Cargando */}
-        {buscando && (
-          <div className={styles.loadingContainer} role="status">
-            <div className={styles.spinner} aria-hidden="true">
-              <i className="fa fa-spinner fa-spin"></i>
+          {/* Formulario de búsqueda */}
+          <section className={styles.formSection} aria-label="Buscar factura">
+            <div className={styles.inputGroup}>
+              <label htmlFor="numeroFactura" className={styles.label}>
+                <i className="fas fa-file-invoice" aria-hidden="true"></i> Número de Factura:
+              </label>
+              <input
+                ref={inputRef}
+                id="numeroFactura"
+                type="text"
+                className={styles.input}
+                value={numeroFactura}
+                onChange={(e) => {
+                  setNumeroFactura(e.target.value);
+                  setError('');
+                }}
+                placeholder="Ej: F12345"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') buscarFactura();
+                }}
+                aria-describedby={error ? 'error-message' : undefined}
+                aria-invalid={error ? 'true' : 'false'}
+              />
+              {error && (
+                <p id="error-message" className={styles.errorText} role="alert">
+                  {error}
+                </p>
+              )}
             </div>
-            <p>Cargando información de la factura...</p>
-          </div>
-        )}
 
-        {/* Previsualización */}
-        {facturaData && clienteData && !buscando && (
-          <>
-            <section className={styles.previewSection} aria-label="Datos de la factura">
-              {/* Cliente */}
-              <article className={styles.previewCard}>
+            <button
+              className={styles.searchButton}
+              onClick={buscarFactura}
+              disabled={buscando}
+              aria-busy={buscando}
+              aria-label={buscando ? 'Buscando factura' : 'Buscar factura'}
+            >
+              {buscando ? (
+                <>
+                  <i className="fa fa-spinner fa-spin" aria-hidden="true"></i> Buscando...
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-search" aria-hidden="true"></i> Buscar Factura
+                </>
+              )}
+            </button>
+          </section>
+
+          {/* Cargando */}
+          {buscando && (
+            <div className={styles.loadingContainer} role="status">
+              <div className={styles.spinner} aria-hidden="true">
+                <i className="fa fa-spinner fa-spin"></i>
+              </div>
+              <p>Cargando información de la factura...</p>
+            </div>
+          )}
+
+          {/* Previsualización */}
+          {facturaData && clienteData && !buscando && (
+            <>
+              <section className={styles.previewSection} aria-label="Datos de la factura">
+                {/* Cliente */}
+                <article className={styles.previewCard}>
+                  <h3 className={styles.previewTitle}>
+                    <i className="fas fa-user" aria-hidden="true"></i> Información del Cliente
+                  </h3>
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>Nombre:</span>
+                    <span className={styles.infoValue}>
+                      {clienteData.nombre} {clienteData.apellido}
+                    </span>
+                  </div>
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>Documento:</span>
+                    <span className={styles.infoValue}>
+                      {clienteData.tipo_documento} {clienteData.numero_documento}
+                    </span>
+                  </div>
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>Teléfono:</span>
+                    <span className={styles.infoValue}>
+                      {clienteData.telefono || 'No registrado'}
+                    </span>
+                  </div>
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>Correo:</span>
+                    <span className={styles.infoValue}>
+                      {clienteData.correo_electronico || 'No registrado'}
+                      {clienteData.correo_electronico && (
+                        <span className={styles.successBadge}>✓ Verificado</span>
+                      )}
+                    </span>
+                  </div>
+                </article>
+
+                {/* Factura */}
+                <article className={styles.previewCard}>
+                  <h3 className={styles.previewTitle}>
+                    <i className="fas fa-file-invoice-dollar" aria-hidden="true"></i> Datos de la Factura
+                  </h3>
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>Número:</span>
+                    <span className={styles.infoValue}>{facturaData.numero_factura}</span>
+                  </div>
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>Fecha:</span>
+                    <span className={styles.infoValue}>{formatearFecha(facturaData.fecha_emision)}</span>
+                  </div>
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>Productos:</span>
+                    <span className={styles.infoValue}>{facturaData.productos_factura?.length || 0} items</span>
+                  </div>
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>Subtotal (real):</span>
+                    <span className={styles.infoValue}>
+                      ${formatearPrecio(calcularSubtotalReal(facturaData))}
+                    </span>
+                  </div>
+
+                  {facturaData.descuento_total !== 0 && (
+                    <div className={styles.infoRow}>
+                      <span className={styles.infoLabel}>Descuento total:</span>
+                      <span className={styles.infoValue} style={{ color: '#d9534f' }}>
+                        -${formatearPrecio(Math.abs(facturaData.descuento_total))}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>IVA (19%):</span>
+                    <span className={styles.infoValue}>
+                      ${formatearPrecio(facturaData.iva || 0)}
+                    </span>
+                  </div>
+
+                  <div className={`${styles.infoRow} ${styles.totalRow}`}>
+                    <span className={styles.infoLabel}>TOTAL:</span>
+                    <span className={`${styles.infoValue} ${styles.fontSize18} ${styles.colorPrimary}`}>
+                      ${formatearPrecio(facturaData.total)}
+                    </span>
+                  </div>
+                </article>
+              </section>
+
+              {/* Productos */}
+              <section className={`${styles.previewCard} ${styles.productosCard}`} aria-label="Productos de la factura">
                 <h3 className={styles.previewTitle}>
-                  <i className="fas fa-user" aria-hidden="true"></i> Información del Cliente
+                  <i className="fas fa-shopping-cart" aria-hidden="true"></i> Productos de la Factura
                 </h3>
-                <div className={styles.infoRow}>
-                  <span className={styles.infoLabel}>Nombre:</span>
-                  <span className={styles.infoValue}>
-                    {clienteData.nombre} {clienteData.apellido}
-                  </span>
-                </div>
-                <div className={styles.infoRow}>
-                  <span className={styles.infoLabel}>Documento:</span>
-                  <span className={styles.infoValue}>
-                    {clienteData.tipo_documento} {clienteData.numero_documento}
-                  </span>
-                </div>
-                <div className={styles.infoRow}>
-                  <span className={styles.infoLabel}>Teléfono:</span>
-                  <span className={styles.infoValue}>
-                    {clienteData.telefono || 'No registrado'}
-                  </span>
-                </div>
-                <div className={styles.infoRow}>
-                  <span className={styles.infoLabel}>Correo:</span>
-                  <span className={styles.infoValue}>
-                    {clienteData.correo_electronico || 'No registrado'}
-                    {clienteData.correo_electronico && (
-                      <span className={styles.successBadge}>✓ Verificado</span>
-                    )}
-                  </span>
-                </div>
-              </article>
-
-              {/* Factura */}
-              <article className={styles.previewCard}>
-                <h3 className={styles.previewTitle}>
-                  <i className="fas fa-file-invoice-dollar" aria-hidden="true"></i> Datos de la Factura
-                </h3>
-                <div className={styles.infoRow}>
-                  <span className={styles.infoLabel}>Número:</span>
-                  <span className={styles.infoValue}>{facturaData.numero_factura}</span>
-                </div>
-                <div className={styles.infoRow}>
-                  <span className={styles.infoLabel}>Fecha:</span>
-                  <span className={styles.infoValue}>{formatearFecha(facturaData.fecha_emision)}</span>
-                </div>
-                <div className={styles.infoRow}>
-                  <span className={styles.infoLabel}>Productos:</span>
-                  <span className={styles.infoValue}>{facturaData.productos_factura?.length || 0} items</span>
-                </div>
-                <div className={`${styles.infoRow} ${styles.totalRow}`}>
-                  <span className={styles.infoLabel}>TOTAL:</span>
-                  <span className={`${styles.infoValue} ${styles.fontSize18} ${styles.colorPrimary}`}>
-                    ${formatearPrecio(facturaData.total)}
-                  </span>
-                </div>
-              </article>
-            </section>
-
-            {/* Productos */}
-            <section className={`${styles.previewCard} ${styles.productosCard}`} aria-label="Productos de la factura">
-              <h3 className={styles.previewTitle}>
-                <i className="fas fa-shopping-cart" aria-hidden="true"></i> Productos de la Factura
-              </h3>
-              <table className={styles.productosTable} role="table">
-                <thead>
-                  <tr>
-                    <th scope="col" className={styles.tableHeader}>Producto</th>
-                    <th scope="col" className={`${styles.tableHeader} ${styles.tableHeaderCenter}`}>Cantidad</th>
-                    <th scope="col" className={`${styles.tableHeader} ${styles.tableHeaderRight}`}>Precio Unit.</th>
-                    <th scope="col" className={`${styles.tableHeader} ${styles.tableHeaderRight}`}>Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {facturaData.productos_factura?.map((prod, idx) => (
-                    <tr key={idx}>
-                      <td className={styles.tableCell}>{prod.producto}</td>
-                      <td className={`${styles.tableCell} ${styles.tableCellCenter}`}>{prod.cantidad}</td>
-                      <td className={`${styles.tableCell} ${styles.tableCellRight}`}>${formatearPrecio(prod.precio)}</td>
-                      <td className={`${styles.tableCell} ${styles.tableCellRight}`}>${formatearPrecio(prod.precio * prod.cantidad)}</td>
+                <table className={styles.productosTable} role="table">
+                  <thead>
+                    <tr>
+                      <th scope="col" className={styles.tableHeader}>Producto</th>
+                      <th scope="col" className={`${styles.tableHeader} ${styles.tableHeaderCenter}`}>Cantidad</th>
+                      <th scope="col" className={`${styles.tableHeader} ${styles.tableHeaderRight}`}>Precio Unit.</th>
+                      <th scope="col" className={`${styles.tableHeader} ${styles.tableHeaderRight}`}>Subtotal</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </section>
+                  </thead>
+                  <tbody>
+                    {facturaData.productos_factura?.map((prod, idx) => (
+                      <tr key={idx}>
+                        <td className={styles.tableCell}>{prod.producto}</td>
+                        <td className={`${styles.tableCell} ${styles.tableCellCenter}`}>{prod.cantidad}</td>
+                        <td className={`${styles.tableCell} ${styles.tableCellRight}`}>${formatearPrecio(prod.precio)}</td>
+                        <td className={`${styles.tableCell} ${styles.tableCellRight}`}>${formatearPrecio(prod.precio * prod.cantidad)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
 
-            {/* Botones */}
-            <div className={styles.buttonGroup} role="group" aria-label="Acciones de factura">
-              <button
-                className={`${styles.button} ${styles.cancelButton}`}
-                onClick={cancelarAccion}
-                disabled={enviando}
-                aria-label="Cancelar y limpiar formulario"
-              >
-                <i className="fas fa-times" aria-hidden="true"></i> Cancelar
-              </button>
-              <button
-                className={`${styles.button} ${styles.sendButton}`}
-                onClick={enviarNotificacion}
-                disabled={enviando || !clienteData.correo_electronico}
-                aria-busy={enviando}
-                aria-label={enviando ? 'Enviando factura' : 'Enviar factura por correo'}
-              >
-                {enviando ? (
-                  <>
-                    <i className="fa fa-spinner fa-spin" aria-hidden="true"></i> Enviando...
-                  </>
-                ) : (
-                  <>
-                    <i className="fas fa-paper-plane" aria-hidden="true"></i> Enviar Factura
-                  </>
-                )}
-              </button>
-            </div>
-          </>
-        )}
+              {/* Botones */}
+              <div className={styles.buttonGroup} role="group" aria-label="Acciones de factura">
+                <button
+                  className={`${styles.button} ${styles.cancelButton}`}
+                  onClick={cancelarAccion}
+                  disabled={enviando}
+                  aria-label="Cancelar y limpiar formulario"
+                >
+                  <i className="fas fa-times" aria-hidden="true"></i> Cancelar
+                </button>
+                <button
+                  className={`${styles.button} ${styles.sendButton}`}
+                  onClick={enviarNotificacion}
+                  disabled={enviando || !clienteData.correo_electronico}
+                  aria-busy={enviando}
+                  aria-label={enviando ? 'Enviando factura' : 'Enviar factura por correo'}
+                >
+                  {enviando ? (
+                    <>
+                      <i className="fa fa-spinner fa-spin" aria-hidden="true"></i> Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-paper-plane" aria-hidden="true"></i> Enviar Factura
+                    </>
+                  )}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+        <div>
+          {["ADMINISTRADOR", "SUPERADMIN"].includes((localStorage.getItem("tipo_usuario") || "").toUpperCase()) &&<NotificacionesPanel />}
+        </div>
       </div>
     </Fragment>
   );

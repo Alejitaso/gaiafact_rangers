@@ -7,3 +7,5 @@ como base de datos se uso mongodb
 para los diferentes iconos se uso fontawesome 
 
 para los pop-up se uso la dependencia de sweetalert
+
+para desplegar se utilizo railway y vercel

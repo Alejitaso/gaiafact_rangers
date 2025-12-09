@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import styles from './style_rec_contr.module.css';
 import Swal from 'sweetalert2';
 
+// Componente para recuperar la contraseña del usuario
 function RecoverPassword() {
   const [correo_electronico, setCorreoElectronico] = useState("");
   const [error, setError] = useState(null);
@@ -11,6 +12,7 @@ function RecoverPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Verifica si el campo de correo electrónico está vacío.
     if (!correo_electronico) {
       setError("Por favor ingresa un correo válido");
       return;
@@ -20,20 +22,25 @@ function RecoverPassword() {
     setError(null);
 
     try {
-      const res = await fetch("http://localhost:4000/api/auth/recover", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ correo_electronico })
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/auth/recover`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ correo_electronico })
+        }
+      );
+
 
       const data = await res.json();
 
+      //Bloque de Manejo de Respuesta Exitosa
       if (data.success) {
         // ✅ SweetAlert2 con configuración de accesibilidad
         await Swal.fire({
           icon: 'success',
           title: 'Correo Enviado',
-          text: `Se envió un correo de recuperación a ${correo_electronico}.`,
+          text: `Se envió un correo de recuperación a ${correo_electronico}. Por favor, revisa tu bandeja de entrada y carpeta de spam.`,
           customClass: { 
             popup: 'swal-contorno-interior',
             confirmButton: 'swal-button-focus' // Para mejor focus visible
@@ -102,7 +109,9 @@ function RecoverPassword() {
     }
   };
 
+  // Renderiza el formulario de recuperación de contraseña
   return (
+    // Contenedor principal con estilos.
     <div className={styles.recoveryform}>
       {/* ✅ Región para anuncios en vivo */}
       <div 
@@ -149,6 +158,7 @@ function RecoverPassword() {
           </p>
         )}
 
+        {/* Contenedor para el botón de envío con estilos específicos */}
         <div className={styles.boton}>
           <button 
             type="submit"

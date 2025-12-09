@@ -5,38 +5,67 @@ const express = require("express");
 const routes = require("./routes");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const path = require("path"); // 👈 agregado aquí
+const path = require("path");
 const authcontroller = require("./controllers/authcontroller");
 
 mongoose.set("strictQuery", true);
 
 // Conexión a MongoDB
-const DB_URL = process.env.DB_MONGO || "mongodb://0.0.0.0:27017/tienda";
+const DB_URL = process.env.DB_MONGO;
 
 mongoose
   .connect(DB_URL)
   .then(() => {
-    console.log("✅ Se conectó correctamente a la BD Mongo");
+    console.log("✅ Conectado a MongoDB");
     console.log("📊 Base de datos:", DB_URL.split('/').pop());
   })
   .catch((err) => {
-    console.log("❌ No se conectó correctamente a la BD Mongo", err);
+    console.log("❌ Error conectando a MongoDB:", err);
     process.exit(1);
   });
 
 // Crear servidor
 const app = express();
 
-// Middlewares
+// =========================
+// 🚨 CORS CORREGIDO
+// =========================
+// index.js - Línea donde está app.use(cors(...))
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
+  origin: function (origin, callback) {
+    // Permitir peticiones sin origin (como Postman o apps móviles)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      process.env.FRONTEND_URL,
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:4200'
+    ];
+    
+    // Verificar si el origin está en la lista O si termina en .railway.app
+    if (allowedOrigins.includes(origin) || origin.endsWith('.railway.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 200
 }));
 
+// Middlewares
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 app.use(express.json({ limit: '50mb' }));
+app.use((req, res, next) => {
+  console.log('📡 LLEGÓ petición:', req.method, req.url, 'Content-Length:', req.headers['content-length']);
+  next();
+});
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Ruta de prueba
@@ -44,8 +73,8 @@ app.get('/', (req, res) => {
   res.json({
     mensaje: '🚀 GaiaFact Backend funcionando correctamente',
     version: '1.0.0',
-    puerto: process.env.PORT || 4000,
-    ambiente: process.env.NODE_ENV || 'development'
+    puerto: process.env.PORT,
+    ambiente: process.env.NODE_ENV
   });
 });
 
@@ -55,30 +84,30 @@ app.post("/api/auth/recover", authcontroller.recoverPassword);
 app.post("/api/auth/reset-password", authcontroller.resetPassword);
 
 // Rutas principales
+console.log('📦 Montando rutas en /api');
 app.use("/api", routes());
 
-// 👇👇 Agrega esta parte después de tus rutas API
-// 📸 Servir imágenes desde la carpeta /uploads
+// Servir imágenes
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Manejo de errores
 app.use((err, req, res, next) => {
   console.error('❌ Error:', err);
-  res.status(500).json({ 
-    mensaje: 'Error interno del servidor', 
+  res.status(500).json({
+    mensaje: 'Error interno del servidor',
     error: process.env.NODE_ENV === 'development' ? err.message : 'Error interno'
   });
 });
 
-// Rutas no encontradas
+// 404
 app.use('*', (req, res) => {
   res.status(404).json({ mensaje: 'Ruta no encontrada' });
 });
 
 // Puerto
-const port = process.env.PORT || 4000;
+const port = process.env.PORT;
 app.listen(port, () => {
-  console.log("🚀 El servidor está ejecutándose en el puerto " + port);
-  console.log("🌐 URL: http://localhost:" + port);
-  console.log("📱 Ambiente:", process.env.NODE_ENV || 'development');
+  console.log("🚀 Servidor ejecutándose en el puerto " + port);
+  console.log("🌐 URL pública: proporcionada por Railway");
+  console.log("📱 Ambiente:", process.env.NODE_ENV);
 });

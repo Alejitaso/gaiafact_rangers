@@ -144,32 +144,54 @@
     border-radius: 4px;
 }
 
-/* Botón de añadir */
-.botonAnadir {
-    margin-bottom: 30px;
-    text-align: center;
+/*=========================================*/
+/* BOTONES DE ACCIÓN */
+/*=========================================*/
+    
+.accionesProductos {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.selectorMetodoPago select {
+  padding: 12px 15px;
+  border: 2px solid var(--color-tres);
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: var(--color-dos);
+  color: var(--color-uno);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 180px;
+}
+
+.selectorMetodoPago select:focus {
+  outline: 3px solid var(--color-cinco);
+  outline-offset: 2px;
 }
 
 .botonAnadir button {
-    background-color: var(--color-dos);
-    color: var(--color-uno);
-    padding: 12px 25px;
-    border: 2px solid var(--color-tres);
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    width: auto;
-    min-width: 150px;
+  background-color: var(--color-dos);
+  color: var(--color-uno);
+  padding: 12px 15px;
+  border: 2px solid var(--color-tres);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  min-width: 150px;
 }
 
 .botonAnadir button:hover:not(:disabled) {
-    background-color: var(--color-tres);
-    color: var(--color-dos);
-    border-color: var(--color-uno);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  background-color: var(--color-tres);
+  color: var(--color-dos);
+  border-color: var(--color-uno);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .botonAnadir button:focus {
@@ -587,6 +609,9 @@
     outline-offset: 2px;
 }
 
+
+
+
 /* ======================================== */
 /* MEJORAS DE ACCESIBILIDAD */
 /* ======================================== */
@@ -831,10 +856,16 @@
         font-size: 20px;
         padding: 6px 8px;
     }
+
+    .accionesProductos {
+        flex-direction: column;
+        gap: 10px;
+    }
     
     .botonAnadir button {
         font-size: 18px;
         padding: 12px;
+        width: 180px;
     }
     
     .botonesFinales button {

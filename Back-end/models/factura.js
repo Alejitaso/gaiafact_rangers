@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// Definición del esquema para las facturas
 const facturasSchema = new mongoose.Schema({
     numero_factura: {
         type: String,
@@ -20,6 +21,18 @@ const facturasSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    metodo_pago: {
+        type: String,
+        required: true,
+        enum: [
+            'Efectivo',
+            'Tarjeta débito',
+            'Tarjeta crédito',
+            'Transferencia',
+            'Nequi',
+            'Daviplata'
+        ]
+    },
     usuario: {
         nombre: { type: String, required: true },
         apellido: { type: String, required: true },
@@ -29,8 +42,18 @@ const facturasSchema = new mongoose.Schema({
         telefono: { type: String }
     },
     productos_factura: {
-        type: Array,
-        required: true
+        type: [{
+           producto: String,
+           producto_id: mongoose.Schema.Types.ObjectId,
+           cantidad: Number,
+           precio: Number,
+           descuento: { type: Number, default: 0 },
+           subtotal: Number
+       }],
+       required: true
+    },
+    descuento_total: { 
+        type: Number, default: 0 
     },
     total: {
         type: Number,
@@ -44,6 +67,7 @@ const facturasSchema = new mongoose.Schema({
         type: String, 
         required: false
     }
-});
+    
+}, { timestamps: true }); 
 
 module.exports = mongoose.model('Factura', facturasSchema);

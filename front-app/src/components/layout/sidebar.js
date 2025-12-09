@@ -2,13 +2,11 @@ import React, { Fragment } from 'react';
 import { useLocation } from 'react-router-dom';
 import styles from './sidebar.module.css';
 
-
+// Componente de barra lateral
 const Sidebar = () => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  // ---- <- AQUI definimos tipoUsuario
-  // Lee el tipo de usuario desde localStorage y normaliza a mayúsculas
   const tipoUsuario = (localStorage.getItem("tipo_usuario") || "").toUpperCase();
 
   const toggleNav = () => {
@@ -64,6 +62,8 @@ const Sidebar = () => {
     }
   };
 
+
+  // Funciones para alternar secciones de información
   const toggleContactInfo = (event) => {
     event.preventDefault();
     const contactInfo = document.getElementById("contactInfo");
@@ -79,6 +79,7 @@ const Sidebar = () => {
     }
   };
 
+  // Funciones para alternar secciones de información
   const toggleCodeInfo = (event) => {
     event.preventDefault();
     const codeInfo = document.getElementById("codeInfo");
@@ -94,6 +95,7 @@ const Sidebar = () => {
     }
   };
 
+  // Funciones para alternar secciones de información
   const toggleRegInfo = (event) => {
     event.preventDefault();
     const regInfo = document.getElementById("regInfo");
@@ -109,6 +111,7 @@ const Sidebar = () => {
     }
   };
 
+  // Renderizado del componente
   return (
     <Fragment>
       <div id="mySidebar" className={styles.sidebar}>
@@ -118,7 +121,7 @@ const Sidebar = () => {
 
         {/* Todos los usuarios pueden ver Inicio */}
         <a
-          onClick={(e) => { e.preventDefault(); window.location.href = "/inicio"; }}
+          href='/inicio' onClick={(e) => { e.preventDefault(); window.location.href = "/inicio"; }}
           className={`${styles.sidebarLink} ${currentPath === '/inicio' ? styles.activeLink : ''}`}
         >
           <i className="fa-solid fa-home"></i>
@@ -128,7 +131,7 @@ const Sidebar = () => {
         {/* Solo ADMINISTRADOR y USUARIO */}
         {["SUPERADMIN","ADMINISTRADOR", "USUARIO"].includes(tipoUsuario) && (
           <a
-            onClick={(e) => { e.preventDefault(); window.location.href = "/facturacion"; }}
+            href='/facturacion' onClick={(e) => { e.preventDefault(); window.location.href = "/facturacion"; }}
             className={`${styles.sidebarLink} ${currentPath === '/facturacion' ? styles.activeLink : ''}`}
           >
             <i className="fa-solid fa-money-bills"></i>
@@ -139,11 +142,11 @@ const Sidebar = () => {
         {/* ADMINISTRADOR, USUARIO, CLIENTE y SUPERADMIN pueden ver factura */}
         {["ADMINISTRADOR", "USUARIO", "CLIENTE", "SUPERADMIN"].includes(tipoUsuario) && (
           <a
-            onClick={(e) => { e.preventDefault(); window.location.href = "/vis-factura"; }}
+            href='/vis-factura' onClick={(e) => { e.preventDefault(); window.location.href = "/vis-factura"; }}
             className={`${styles.sidebarLink} ${currentPath === '/vis-factura' ? styles.activeLink : ''}`}
           >
             <i className="fa-solid fa-list-ul"></i>
-            <span className={styles.linkText}>Ver factura</span>
+            <span className={styles.linkText}>Ver facturas</span>
           </a>
         )}
 
@@ -156,14 +159,14 @@ const Sidebar = () => {
             </a>
             <div id="codeInfo" className={`${styles.contactInfo} ${styles.expan}`}>
               <a
-                onClick={(e) => { e.preventDefault(); window.location.href = "/codigoqr"; }}
+                href='/codigoqr' onClick={(e) => { e.preventDefault(); window.location.href = "/codigoqr"; }}
                 className={`${styles.sidebarLink} ${currentPath === '/codigoqr' ? styles.activeLink : ''}`}
               >
                 <i className="fa-solid fa-qrcode"></i>
                 <span className={styles.linkText}>QR</span>
               </a>
               <a
-                onClick={(e) => { e.preventDefault(); window.location.href = "/codigoBarras"; }}
+                href='/codigoBarras' onClick={(e) => { e.preventDefault(); window.location.href = "/codigoBarras"; }}
                 className={`${styles.sidebarLink} ${currentPath === '/codigoBarras' ? styles.activeLink : ''}`}
               >
                 <i className="fa-solid fa-barcode"></i>
@@ -176,27 +179,27 @@ const Sidebar = () => {
         {/* Solo ADMINISTRADOR y SUPERADMIN */}
         {["ADMINISTRADOR", "SUPERADMIN"].includes(tipoUsuario) && (
           <>
-            <a onClick={toggleRegInfo} className={`${styles.sidebarLink} ${currentPath === '/registro' || currentPath === '/registroproduct' || currentPath === '/Img' ? styles.activeLink : ''}`}>
+            <a href='/registro' onClick={toggleRegInfo} className={`${styles.sidebarLink} ${currentPath === '/registro' || currentPath === '/registroproduct' || currentPath === '/Img' ? styles.activeLink : ''}`}>
               <i className="fa-solid fa-folder-plus"></i>
               <span className={styles.linkText}>Registro</span>
             </a>
             <div id="regInfo" className={`${styles.contactInfo} ${styles.expan}`}>
               <a
-                onClick={(e) => { e.preventDefault(); window.location.href = "/registro"; }}
+                href='/registro' onClick={(e) => { e.preventDefault(); window.location.href = "/registro"; }}
                 className={`${styles.sidebarLink} ${currentPath === '/registro' ? styles.activeLink : ''}`}
               >
                 <i className="fa-solid fa-user"></i>
                 <span className={styles.linkText}>Usuario</span>
               </a>
               <a
-                onClick={(e) => { e.preventDefault(); window.location.href = "/registroproduct"; }}
+                href='/registroproduct' onClick={(e) => { e.preventDefault(); window.location.href = "/registroproduct"; }}
                 className={`${styles.sidebarLink} ${currentPath === '/registroproduct' ? styles.activeLink : ''}`}
               >
                 <i className="fa-solid fa-box"></i>
                 <span className={styles.linkText}>Producto</span>
               </a>
               <a
-                onClick={() => (window.location.href = "/Img")}
+                href='/Img' onClick={() => (window.location.href = "/Img")}
                 className={`${styles.sidebarLink} ${currentPath === '/Img' ? styles.activeLink : ''}`}
               >
                 <i className="fa-solid fa-upload"></i>
@@ -210,7 +213,7 @@ const Sidebar = () => {
         {["ADMINISTRADOR", "SUPERADMIN"].includes(tipoUsuario) && (
           <>
             <a
-              onClick={(e) => { e.preventDefault(); window.location.href = "/notify"; }}
+              href='/notify' onClick={(e) => { e.preventDefault(); window.location.href = "/notify"; }}
               className={`${styles.sidebarLink} ${currentPath === '/notify' ? styles.activeLink : ''}`}
             >
               <i className="fa-solid fa-bell"></i>
@@ -218,7 +221,7 @@ const Sidebar = () => {
             </a>
 
             <a
-              onClick={(e) => { e.preventDefault(); window.location.href = "/inventario"; }}
+              href='/inventario' onClick={(e) => { e.preventDefault(); window.location.href = "/inventario"; }}
               className={`${styles.sidebarLink} ${currentPath === '/inventario' ? styles.activeLink : ''}`}
             >
               <i className="fa-solid fa-clipboard-list"></i>
@@ -228,9 +231,9 @@ const Sidebar = () => {
         )}
 
         {/*CLIENTE */}
-        {["USUARIO", "CLIENTE"].includes(tipoUsuario) && (
+        {[ "CLIENTE","USUARIO"].includes(tipoUsuario) && (
           <a
-              onClick={(e) => { e.preventDefault(); window.location.href = "/notify"; }}
+              href='/notify' onClick={(e) => { e.preventDefault(); window.location.href = "/notify"; }}
               className={`${styles.sidebarLink} ${currentPath === '/notify' ? styles.activeLink : ''}`}
             >
               <i className="fa-solid fa-bell"></i>
@@ -238,9 +241,20 @@ const Sidebar = () => {
             </a>
         )}
 
+        {/*USUARIO */}
+        {["USUARIO"].includes(tipoUsuario) && (
+              <a
+                href='/registro' onClick={(e) => { e.preventDefault(); window.location.href = "/registro"; }}
+                className={`${styles.sidebarLink} ${currentPath === '/registro' ? styles.activeLink : ''}`}
+              >
+                <i className="fa-solid fa-user"></i>
+                <span className={styles.linkText}>Usuario</span>
+              </a>
+        )}
+
         {/* Todos pueden ver Perfil */}
         <a
-          onClick={(e) => { e.preventDefault(); window.location.href = "/perfil"; }}
+          href='/perfil' onClick={(e) => { e.preventDefault(); window.location.href = "/perfil"; }}
           className={`${styles.sidebarLink} ${currentPath === '/perfil' ? styles.activeLink : ''}`}
         >
           <i className="fa-solid fa-user-secret"></i>
@@ -261,7 +275,7 @@ const Sidebar = () => {
         {/* Botón de salir visible para todos */}
         <div className={styles.salir}>
           <a
-            onClick={(e) => {
+            href='/login' onClick={(e) => {
               e.preventDefault();
               localStorage.clear();
               window.location.href = "/login";

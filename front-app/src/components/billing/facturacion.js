@@ -3,6 +3,7 @@ import Swal from 'sweetalert2';
 import clienteAxios from '../../config/axios';
 import styles from './Facturacion.module.css';
 
+// Componente principal para la facturación
 const Facturacion = () => {
     const [showPopup, setShowPopup] = useState(false);
     const [showErrorPopup, setShowErrorPopup] = useState(false);
@@ -26,6 +27,8 @@ const Facturacion = () => {
     const [apellidos, setApellidos] = useState('');
     const [telefono, setTelefono] = useState('');
     const [correo, setCorreo] = useState('');
+    const [metodoPago, setMetodoPago] = useState('');
+    const [id, idUsuario] = useState('');
     
     // Estados para el manejo de clientes
     const [buscandoCliente, setBuscandoCliente] = useState(false);
@@ -41,6 +44,7 @@ const Facturacion = () => {
     const previousFocusRef = useRef(null);
     const tipoDocumentoRef = useRef(null);
 
+    // Función para mostrar errores en un popup accesible
     const mostrarError = (titulo, mensaje) => {
         setErrorTitle(titulo);
         setErrorMessage(mensaje);
@@ -48,6 +52,7 @@ const Facturacion = () => {
         setMensajeEstado(`Error: ${titulo}. ${mensaje}`);
     };
 
+    // Función para cerrar el popup de error
     const cerrarErrorPopup = () => {
         setShowErrorPopup(false);
         setErrorTitle('');
@@ -111,6 +116,7 @@ const Facturacion = () => {
         setIsListening(false);
     }, [activeTab]);
 
+    // Función para obtener productos desde el Back-end
     const obtenerProductos = async () => {
         try {
             setCargandoProductos(true);
@@ -136,6 +142,7 @@ const Facturacion = () => {
         }
     };
 
+    // Cargar productos al montar el componente
     useEffect(() => {
         obtenerProductos();
     }, []);
@@ -239,9 +246,11 @@ const Facturacion = () => {
         }, 800);
     };
 
+    // Función para registrar un nuevo cliente
     const registrarNuevoCliente = async () => {
         try {
             const datosCliente = {
+                id: clienteId,
                 nombre: nombres,
                 apellido: apellidos,
                 tipo_documento: tipoDocumento,
@@ -342,6 +351,7 @@ const Facturacion = () => {
                     <h4><i class="fas fa-box"></i> ${producto.nombre}</h4>
                     <p><strong>ID:</strong> ${producto._id.substring(producto._id.length - 6).toUpperCase()}</p>
                     <p><strong>Precio:</strong> $${formatearPrecio(producto.precio)}</p>
+                    <p><strong>Descuento:</strong> ${producto.descuento || 0}%</p>
                     <p><strong>Stock disponible:</strong> ${producto.cantidad} unidades</p>
                     <p><strong>Tipo:</strong> ${producto.tipo_prenda}</p>
                     <div style="margin-top: 15px;">
@@ -402,6 +412,7 @@ const Facturacion = () => {
         });
     };
 
+    // Función para agregar producto a la factura
     const agregarProductoAFactura = (producto, cantidad) => {
         const productoExistente = productosFactura.find(p => p.id === producto._id);
         
@@ -421,7 +432,8 @@ const Facturacion = () => {
                 precio: producto.precio,
                 cantidad: cantidad,
                 stock: producto.cantidad,
-                tipo_prenda: producto.tipo_prenda
+                tipo_prenda: producto.tipo_prenda,
+                descuento: producto.descuento || 0
             };
             
             setProductosFactura(prev => [...prev, nuevoProducto]);
@@ -437,14 +449,31 @@ const Facturacion = () => {
         });
     };
 
+    // Función para generar la factura
     const generarFactura = async () => {
         if (productosFactura.length === 0) {
             mostrarError('Error', 'Debe agregar al menos un producto a la factura');
             return;
         }
 
+        // VALIDACIÓN: Datos del cliente
         if (!tipoDocumento || !numeroDocumento || !nombres || !apellidos || !telefono) {
             mostrarError('Datos incompletos', 'Complete todos los datos del cliente');
+            return;
+        }
+
+        // VALIDACIÓN: Correo obligatorio (según backend)
+        if (!correo || correo.trim() === "") {
+            mostrarError('Correo obligatorio', 'Debe ingresar un correo electrónico válido');
+            return;
+        }
+
+        const productosLimpios = productosFactura.filter(
+            p => p && p.id && p.cantidad > 0
+        );
+
+        if (productosLimpios.length === 0) {
+            mostrarError('Error', 'Hay productos inválidos o sin ID. Elimine y vuelva a agregarlos.');
             return;
         }
 
@@ -452,6 +481,7 @@ const Facturacion = () => {
         setMensajeEstado('Generando factura, por favor espere');
 
         try {
+            // Registrar cliente si no existe
             if (!clienteEncontrado) {
                 const registrado = await registrarNuevoCliente();
                 if (!registrado) {
@@ -460,17 +490,19 @@ const Facturacion = () => {
                 }
             }
 
-            const subtotal = productosFactura.reduce((sum, producto) => {
+            // Calcular valores
+            const subtotal = productosLimpios.reduce((sum, producto) => {
                 return sum + (producto.precio * producto.cantidad);
             }, 0);
 
-            const iva = subtotal * 0.19; // 19% IVA 
+            const iva = subtotal * 0.19;
             const total = subtotal + iva;
 
             const datosFactura = {
                 subtotal,
                 iva,
                 total,
+                metodo_pago: metodoPago,
                 numero_factura: 'F' + Math.floor(Math.random() * 100000),
                 usuario: {
                     nombre: nombres,
@@ -480,27 +512,52 @@ const Facturacion = () => {
                     correo_electronico: correo,
                     telefono: telefono
                 },
-                productos_factura: productosFactura.map(p => ({
+                productos_factura: productosLimpios.map(p => ({
+                    producto_id: p.id,
                     producto: p.nombre,
                     cantidad: p.cantidad,
-                    precio: p.precio
+                    precio: p.precio,
+                    descuento: p.descuento || 0
                 }))
             };
 
-            const res = await clienteAxios.post('/api/facturas', datosFactura);
-            
-            setMensajeEstado('Factura generada exitosamente');
-            Swal.fire('Correcto', 'Factura generada y guardada', 'success');
-            
-            limpiarFormulario();
+            // 4. Enviar al Back-end
+        // Si el Back-end falla por 'Límite de numeración', el error se capturará aquí.
+        const res = await clienteAxios.post('/api/facturas', datosFactura);
+        
+        // 5. Manejar respuesta exitosa
+        const numeroFacturaGenerado = res.data.numeroFactura || 'N/A';
+        
+        setMensajeEstado(`Factura ${numeroFacturaGenerado} generada exitosamente`);
+        
+        Swal.fire({
+            icon: 'success', 
+            title: 'Correcto', 
+            text: `Factura ${numeroFacturaGenerado} generada y guardada, notificación enviada por correo, notificar revision en bandeja de spam`,
+            didOpen: () => {
+                 const popup = Swal.getPopup();
+                 if (popup) {
+                    popup.setAttribute('role', 'alertdialog'); 
+                 }
+            }
+        });
+        
+        limpiarFormulario();
 
-        } catch (error) {
-            console.error('Error al generar la factura:', error.response?.data?.mensaje || error.message);
-            mostrarError('Error de Validación', 'Error al generar la factura. Verifique los datos e intente nuevamente.');
-        } finally {
-            setGenerandoFactura(false);
+    } catch (error) {
+        const mensajeBackEnd = error.response?.data?.message || error.response?.data?.mensaje || 'Error desconocido';
+
+        if (error.response?.status === 400) {
+            mostrarError('Error de Validación', mensajeBackEnd);
+        } else {
+             console.error('Error al generar la factura:', mensajeBackEnd);
+             mostrarError('limite alcanzado, comunicate a la DIAN para una nueva resolucion');
         }
-    };
+    } finally {
+        setGenerandoFactura(false);
+    }
+};
+
 
     const limpiarFormulario = () => {
         setTipoDocumento('');
@@ -547,6 +604,10 @@ const Facturacion = () => {
     };
 
     const abrirPopup = () => {
+         if (!metodoPago) {
+                mostrarError('Método de pago requerido', 'Seleccione un método de pago antes de agregar productos');
+                return;
+            }
         setShowPopup(true);
         setActiveTab('barcode');
         setBarcodeInput('');
@@ -597,11 +658,13 @@ const Facturacion = () => {
     };
 
     const calcularTotal = () => {
-        return productosFactura.reduce((total, producto) => 
-            total + (producto.precio * producto.cantidad), 0
-        );
+    return productosFactura.reduce((total, p) => {
+        const precioConDescuento = p.precio * (1 - (p.descuento || 0) / 100);
+        return total + (precioConDescuento * p.cantidad);
+    }, 0);
     };
 
+    // Renderizado del componente
     return (
         <Fragment>
             {/* Región de anuncios para lectores de pantalla */}
@@ -756,13 +819,34 @@ const Facturacion = () => {
                     )}
                 </section>
                 
-                <div className={styles.botonAnadir}>
-                    <button 
-                        onClick={abrirPopup}
-                        aria-label="Agregar producto a la factura"
-                        className="fa-solid fa-plus"
-                    ></button>
-                </div>
+                <div className={styles.accionesProductos}>
+            <div className={styles.selectorMetodoPago}>
+                <label htmlFor="metodo-pago" className="sr-only">Método de pago</label>
+                <select
+                id="metodo-pago"
+                value={metodoPago}
+                onChange={(e) => setMetodoPago(e.target.value)}
+                aria-required="true"
+                className={styles.metodoPagoSelect}
+                >
+                <option value="">Método de pago</option>
+                <option value="Efectivo">Efectivo</option>
+                <option value="Tarjeta débito">Tarjeta débito</option>
+                <option value="Tarjeta crédito">Tarjeta crédito</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Nequi">Nequi</option>
+                <option value="Daviplata">Daviplata</option>
+                </select>
+            </div>
+
+            <div className={styles.botonAnadir}>
+                <button 
+                onClick={abrirPopup}
+                aria-label="Agregar producto a la factura"
+                className="fa-solid fa-plus"
+                ></button>
+            </div>
+            </div>
                 
                 <section aria-labelledby="productos-table-title">
                     <h2 id="productos-table-title" className="sr-only">Productos en la Factura</h2>
@@ -842,6 +926,12 @@ const Facturacion = () => {
                                             <td>${formatearPrecio(producto.precio)}</td>
                                             <td style={{ fontWeight: 'bold' }}>
                                                 ${formatearPrecio(producto.precio * producto.cantidad)}
+                                            </td>
+                                            <td style={{ fontWeight: 'bold' }}>
+                                                ${formatearPrecio(producto.precio * producto.cantidad)}
+                                                {producto.descuento > 0 && (
+                                                    <small style={{ color: 'green' }}>-{producto.descuento}%</small>
+                                                )}
                                             </td>
                                             <td>
                                                 <button 
@@ -1089,5 +1179,4 @@ const Facturacion = () => {
         </Fragment>
     );
 };
-
 export default Facturacion;

@@ -3,6 +3,7 @@ import Swal from 'sweetalert2';
 import clienteAxios from '../../config/axios';
 import styles from './VisFactura.module.css';
 
+// Componente para visualizar y gestionar facturas
 const VisFactura = () => {
     const [facturas, setFacturas] = useState([]);
     const [facturasFiltradas, setFacturasFiltradas] = useState([]);
@@ -17,14 +18,24 @@ const VisFactura = () => {
     const [anioCalendario, setAnioCalendario] = useState(new Date().getFullYear());
     const [mensajeEstado, setMensajeEstado] = useState('');
     const [descargando, setDescargando] = useState(false);
+    const tipoUsuario = localStorage.getItem("tipo_usuario");
     
     const calendarioRef = useRef(null);
     const filtroTipoRef = useRef(null);
-
+    
+    // Cargar facturas al montar el componente
     useEffect(() => {
         obtenerFacturas();
     }, []);
 
+    // Ajustar filtro por tipo de usuario
+    useEffect(() => {
+        if (tipoUsuario === "USUARIO") {
+            setFiltroTipo("hoy");
+        }
+    }, [tipoUsuario]);
+
+    // Filtrar y ordenar facturas al cambiar criterios
     useEffect(() => {
         filtrarYOrdenarFacturas();
     }, [facturas, filtroTipo, busqueda, ordenamiento, criterioOrden, fechaBusqueda]);
@@ -55,13 +66,14 @@ const VisFactura = () => {
         return () => document.removeEventListener('keydown', handleEscape);
     }, [mostrarCalendario]);
 
+    // Función para obtener facturas desde el Back-end
     const obtenerFacturas = async () => {
         try {
             setCargando(true);
             setMensajeEstado('Cargando facturas del sistema');
             const res = await clienteAxios.get('/api/facturas');
-            setFacturas(Array.isArray(res.data) ? res.data : []);
-            setMensajeEstado(`${res.data.length} facturas cargadas correctamente`);
+            setFacturas(Array.isArray(res.data.facturas) ? res.data.facturas : []);
+            setMensajeEstado(`${res.data.facturas?.length || 0} facturas cargadas correctamente`);
         } catch (error) {
             console.error('Error al obtener facturas:', error);
             setMensajeEstado('Error al cargar las facturas');
@@ -106,7 +118,9 @@ const VisFactura = () => {
         }
 
         // Aplicar filtro por tipo
-        if (filtroTipo !== 'todo') {
+        const filtroAplicado = tipoUsuario === "USUARIO" ? "hoy" : filtroTipo;
+
+        if (filtroAplicado !== 'todo') {
             const ahora = new Date();
             const hace7Dias = new Date(ahora.getTime() - 7 * 24 * 60 * 60 * 1000);
             const hace30Dias = new Date(ahora.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -114,7 +128,7 @@ const VisFactura = () => {
             resultado = resultado.filter(factura => {
                 const fechaFactura = new Date(factura.fecha_emision);
 
-                switch (filtroTipo) {
+                switch (filtroAplicado) {
                     case 'hoy':
                         return fechaFactura.toDateString() === ahora.toDateString();
                     case 'semana':
@@ -126,6 +140,7 @@ const VisFactura = () => {
                 }
             });
         }
+
 
         // Aplicar ordenamiento
         resultado.sort((a, b) => {
@@ -165,10 +180,6 @@ const VisFactura = () => {
     };
 
     const seleccionarFecha = (dia) => {
-        // ❌ ORIGINAL (CREA FECHA LOCAL)
-        // const fecha = new Date(anioCalendario, mesCalendario, dia);
-
-        // ✅ CORRECCIÓN: Creamos la fecha local y luego ajustamos
         // para obtener el formato YYYY-MM-DD sin el desplazamiento.
         const fechaLocal = new Date(anioCalendario, mesCalendario, dia);
         
@@ -189,17 +200,18 @@ const VisFactura = () => {
         setMostrarCalendario(false);
     };
 
-    // ... el resto del código
-
+    // Obtener días del mes para el calendario
     const obtenerDiasDelMes = () => {
         return new Date(anioCalendario, mesCalendario + 1, 0).getDate();
     };
 
+    // Obtener el primer día de la semana del mes
     const obtenerPrimerDia = () => {
         const primerDia = new Date(anioCalendario, mesCalendario, 1).getDay();
-        return primerDia === 0 ? 6 : primerDia - 1; // 0 → 6 (domingo al final), 1 → 0, etc.
+        return primerDia === 0 ? 6 : primerDia - 1; 
     };
 
+    // Nombres de meses y días para el calendario
     const meses = [
         'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
@@ -214,6 +226,7 @@ const VisFactura = () => {
         setMensajeEstado('Filtro de fecha eliminado');
     };
 
+    // Función para descargar factura en PDF
     const descargarPDF = async (idFactura, numeroFactura) => {
         try {
             setDescargando(true);
@@ -269,6 +282,7 @@ const VisFactura = () => {
         }
     };
 
+    // Formatear precio a moneda local
     const formatearPrecio = (precio) => {
         return precio.toLocaleString('es-CO', {
             minimumFractionDigits: 0,
@@ -298,6 +312,7 @@ const VisFactura = () => {
         }
     };
 
+    // Renderizado del componente
     return (
         <Fragment>
             {/* Región de anuncios para lectores de pantalla */}
