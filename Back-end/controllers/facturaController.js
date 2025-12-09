@@ -952,7 +952,7 @@ exports.enviarFacturaPorCorreo = async (req, res, next) => {
     await notificacionController.guardarNotificacion({
         numero_factura: factura.numero_factura,
         documento_emisor: factura.usuario.numero_documento,
-        documento_receptor: factura.cliente.numero_documento,
+        documento_receptor: factura.usuario.numero_documento,
         correo_receptor: factura.usuario.correo_electronico,
         tipo: "automatico",
 
