@@ -72,12 +72,12 @@
 }
 
 @media (max-width: 767px) {
-    .logos .logo-izquierdo img, .logos .logo-derecho img {
+    .logos .logoizquierdo img, .logos .logoderecho img {
         height: 50px; 
         max-width: 50px;
     }
 
-    .logos .nombre-tienda {
+    .logos .nombretienda {
         font-size: 24px; 
     }
 }
