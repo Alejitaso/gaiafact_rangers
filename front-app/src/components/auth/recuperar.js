@@ -22,7 +22,7 @@ function RecoverPassword() {
 
     try {
       const res = await fetch(
-        `${process.env.BACKEND_URL}/api/auth/recover`,
+        `${process.env.REACT_APP_API_URL}/api/auth/recover`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
