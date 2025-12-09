@@ -205,7 +205,7 @@ const Sidebar = () => {
         )}
 
         {/* ADMINISTRADOR y SUPERADMIN */}
-        {["ADMINISTRADOR", "SUPERADMIN"].includes(tipoUsuario) && (
+        {["ADMINISTRADOR", "SUPERADMIN","USUARIO"].includes(tipoUsuario) && (
           <>
             <a
               href='/notify' onClick={(e) => { e.preventDefault(); window.location.href = "/notify"; }}
@@ -216,7 +216,7 @@ const Sidebar = () => {
             </a>
 
             <a
-              onClick={(e) => { e.preventDefault(); window.location.href = "/inventario"; }}
+              href='/inventario' onClick={(e) => { e.preventDefault(); window.location.href = "/inventario"; }}
               className={`${styles.sidebarLink} ${currentPath === '/inventario' ? styles.activeLink : ''}`}
             >
               <i className="fa-solid fa-clipboard-list"></i>
@@ -226,7 +226,7 @@ const Sidebar = () => {
         )}
 
         {/*CLIENTE */}
-        {["USUARIO", "CLIENTE"].includes(tipoUsuario) && (
+        {[ "CLIENTE"].includes(tipoUsuario) && (
           <a
               href='/notify' onClick={(e) => { e.preventDefault(); window.location.href = "/notify"; }}
               className={`${styles.sidebarLink} ${currentPath === '/notify' ? styles.activeLink : ''}`}
@@ -238,7 +238,7 @@ const Sidebar = () => {
 
         {/*USUARIO */}
         {["USUARIO"].includes(tipoUsuario) && (
-          <a
+              <a
                 href='/registro' onClick={(e) => { e.preventDefault(); window.location.href = "/registro"; }}
                 className={`${styles.sidebarLink} ${currentPath === '/registro' ? styles.activeLink : ''}`}
               >
