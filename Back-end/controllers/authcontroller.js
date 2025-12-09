@@ -113,14 +113,14 @@ exports.recoverPassword = async (req, res) => {
     const token = crypto.randomBytes(20).toString("hex");
 
     user.resetToken = token;
-    user.tokenExpiration = Date.now() + 3600000; // 1 hora
+    user.tokenExpiration = Date.now() + 3600000; 
     await user.save();
 
     const resetLink = `${process.env.FRONTEND_URL}/nueva_contra/${token}`;
 
     const msg = {
       to: correo_electronico,
-      from: process.env.FROM_EMAIL, // debe estar verificado en SendGrid
+      from: process.env.FROM_EMAIL, 
       subject: "Recuperación de contraseña",
       html: `
         <!DOCTYPE html>

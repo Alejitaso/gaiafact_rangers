@@ -17,7 +17,7 @@ function Login() {
   
   const videoRef = useRef(null);
   const emailInputRef = useRef(null);
-  const announceRef = useRef(null); // ✅ Para anuncios en vivo
+  const announceRef = useRef(null); 
 
   //Lógica de Carga Inicial (Simulación de Pre-Carga)
   useEffect(() => {
@@ -30,7 +30,6 @@ function Login() {
         
         setTimeout(() => {
           setLoadingComplete(true);
-          // ✅ Enfocar el primer campo al cargar
           if (emailInputRef.current) {
             emailInputRef.current.focus();
           }
@@ -138,7 +137,6 @@ function Login() {
             displayMessage = "Error de autenticación. Contacte a soporte.";
           }
 
-          // ❗ NO cuenta como intento fallido
           setError(displayMessage);
 
           setTimeout(() => {
@@ -149,7 +147,7 @@ function Login() {
             }
           }, 500);
 
-          return; // Salir de la función
+          return; 
         }
 
         const newAttempts = attempts + 1;
@@ -190,15 +188,15 @@ function Login() {
     return (
       <div 
         className="loading-screen"
-        role="status" // ✅ Indica que es un estado de carga
-        aria-live="polite" // ✅ Anuncia cambios
+        role="status" 
+        aria-live="polite" 
       >
         <span className="sr-only">Cargando, por favor espere...</span>
         <video 
           className="loading-video" 
           autoPlay 
           muted
-          aria-hidden="true" // ✅ Oculta el video de lectores de pantalla
+          aria-hidden="true" 
           onEnded={(e) => {
             e.target.play(); 
           }}
