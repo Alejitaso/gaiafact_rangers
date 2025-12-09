@@ -36,6 +36,7 @@ module.exports = function () {
   router.put('/Usuario/:idUsuario', verificarAuth, audit('actualizarUsuario'), usuarioController.actualizarUsuario);
   router.post('/Usuario/reenviar-verificacion/:idUsuario', usuarioController.reenviarVerificacionAdmin);
   router.get('/Usuario/verificar', usuarioController.verificarCuenta);
+  router.get('/verify-email', usuarioController.verificarCuenta);
 
   /* ─────────────── PRODUCTOS ─────────────── */
   router.post('/productos', verificarAuth, verificarRolGestor, audit('crearProducto'), productoController.nuevoProducto);
