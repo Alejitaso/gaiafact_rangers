@@ -183,6 +183,67 @@
     }
 }
 
+/* Botones dentro de popups de confirmación */
+.popupButtonConfirm {
+    background-color: var(--color-dos);
+    color: var(--color-uno);
+    padding: 10px 20px;
+    border: 2px solid var(--color-tres);
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 5px;
+}
+
+.popupButtonConfirm:hover {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    border-color: var(--color-uno);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.popupButtonCancel {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    border: 2px solid #b02a37;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 5px;
+}
+
+.popupButtonCancel:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+.popupButtonPrimary {
+    background-color: var(--color-dos);
+    color: var(--color-uno);
+    padding: 10px 20px;
+    border: 2px solid var(--color-tres);
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 10px auto;
+    display: inline-block;
+}
+
+.popupButtonPrimary:hover {
+    background-color: var(--color-tres);
+    color: var(--color-dos);
+    border-color: var(--color-uno);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
 /* Responsive */
 @media (max-width: 480px) {
     .popup-container,

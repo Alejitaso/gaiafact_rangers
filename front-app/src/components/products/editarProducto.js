@@ -114,16 +114,24 @@ function EditarProducto() {
     cargarProducto();
   }, [id, navigate]);
 
+  const restaurarScroll = () => {
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    document.body.classList.remove('swal2-shown', 'swal2-height-auto');
+    document.documentElement.classList.remove('swal2-shown', 'swal2-height-auto');
+  };
+
   const cerrarForzadoSweetAlert = () => {
-    try {
-      Swal.close();
-      const containers = document.querySelectorAll('.swal2-container');
-      containers.forEach(c => c.remove());
-      const popups = document.querySelectorAll('.swal2-popup');
-      popups.forEach(p => p.remove());
-    } catch (e) {
-      console.warn("No había popups para cerrar");
-    }
+      try {
+        Swal.close();
+        restaurarScroll(); 
+        const containers = document.querySelectorAll('.swal2-container');
+        containers.forEach(c => c.remove());
+        const popups = document.querySelectorAll('.swal2-popup');
+        popups.forEach(p => p.remove());
+      } catch (e) {
+        console.warn("No había popups para cerrar");
+      }
   };
 
   const manejarCambio = (e) => {
@@ -167,14 +175,12 @@ function EditarProducto() {
           <p><strong>Tipo:</strong> ${datosProducto.tipo_prenda[0] || datosProducto.tipo_prenda}</p>
           <p><strong>Descripción:</strong> ${datosProducto.descripcion_detallada || 'Sin descripción'}</p>
         </div>
-        <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
-          <button id="btnConfirmar" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
-            <i class="fas fa-check"></i> Confirmar
-          </button>
-          <button id="btnCancelar" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
-            <i class="fas fa-times"></i> Cancelar
-          </button>
-        </div>
+        <button id="btnConfirmar" class="${styles.popupButtonConfirm}">
+          <i class="fas fa-check"></i> Confirmar
+        </button>
+        <button id="btnCancelar" class="${styles.popupButtonCancel}">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
       `,
       showConfirmButton: false,
       showCancelButton: false,
@@ -255,12 +261,9 @@ function EditarProducto() {
           <p><strong>Precio:</strong> $${formatearPrecio(productoGuardado.precio)}</p>
           <p><strong>Tipo:</strong> ${productoGuardado.tipo_prenda}</p>
         </div>
-        <div>
-          <button id="btnInventario" class="swal2-custom-btn">
+        <div style="text-align: center; margin-top: 20px;">
+          <button id="btnInventario" class="${styles.popupButtonPrimary}">
             <i class="fas fa-boxes"></i> Ir a Inventario
-          </button>
-          <button id="btnContinuar" class="swal2-custom-btn">
-            <i class="fas fa-plus"></i> ${modoEdicion ? 'Editar Otro' : 'Crear Otro'}
           </button>
         </div>
       `,
@@ -277,26 +280,16 @@ function EditarProducto() {
       didOpen: () => {
         const cerrarYNavegar = (ruta) => {
           cerrarForzadoSweetAlert();
+          document.body.style.overflow = '';
           setTimeout(() => navigate(ruta), 100);
         };
-
-        document.getElementById('btnInventario').addEventListener('click', () => {
-          cerrarYNavegar('/inventario');
-        });
         
-        document.getElementById('btnContinuar').addEventListener('click', () => {
-          cerrarForzadoSweetAlert();
-          if (!modoEdicion) {
-            setProducto({
-              nombre: '',
-              descripcion_detallada: '',
-              tipo_prenda: '',
-              cantidad: '',
-              precio: '',
-              descuento: ''
+        const btnInventario = document.getElementById('btnInventario');
+          if (btnInventario) {
+            btnInventario.addEventListener('click', () => {
+              cerrarYNavegar('/inventario');
             });
           }
-        });
       }
     });
   };

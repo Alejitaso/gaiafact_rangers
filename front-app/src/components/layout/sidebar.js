@@ -205,7 +205,7 @@ const Sidebar = () => {
         )}
 
         {/* ADMINISTRADOR y SUPERADMIN */}
-        {["ADMINISTRADOR", "SUPERADMIN","USUARIO"].includes(tipoUsuario) && (
+        {["ADMINISTRADOR", "SUPERADMIN"].includes(tipoUsuario) && (
           <>
             <a
               href='/notify' onClick={(e) => { e.preventDefault(); window.location.href = "/notify"; }}
@@ -226,7 +226,7 @@ const Sidebar = () => {
         )}
 
         {/*CLIENTE */}
-        {[ "CLIENTE"].includes(tipoUsuario) && (
+        {[ "CLIENTE","USUARIO"].includes(tipoUsuario) && (
           <a
               href='/notify' onClick={(e) => { e.preventDefault(); window.location.href = "/notify"; }}
               className={`${styles.sidebarLink} ${currentPath === '/notify' ? styles.activeLink : ''}`}
