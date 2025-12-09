@@ -63,10 +63,6 @@ const usuarioSchema = new Schema({
         type: String,
         default: null,
     },
-    tokenExpiration: {
-        type: Date,
-        required: true,
-    },
     tokenExpiration: {
         type: Date,
         default: null,

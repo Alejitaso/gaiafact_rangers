@@ -1,10 +1,9 @@
-// controllers/logController.js
 const Log = require('../models/log');
 
 exports.obtenerLogs = async (req, res) => {
   try {
     const logs = await Log.find()
-      .populate('usuarioId', 'nombre apellido tipo_usuario') // ✅ campos reales
+      .populate('usuarioId', 'nombre apellido tipo_usuario') 
       .sort({ fecha: -1 })
       .limit(500);
     res.json(logs);

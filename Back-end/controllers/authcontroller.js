@@ -218,21 +218,29 @@ exports.resetPassword = async (req, res) => {
             });
         }
 
+        // Marcar que el campo password SI cambió  
         user.password = nuevaPassword;
+        user.markModified('password');
+
         user.resetToken = null;
         user.tokenExpiration = null;
 
         await user.save();
 
-        return res.json({
+        res.json({
             success: true,
             message: "Contraseña actualizada exitosamente",
         });
+
     } catch (err) {
-        console.error("❌ Error en reestablecer contraseña:", err);
-        res.status(500).json({ success: false, message: "Error en el servidor" });
+        console.error("❌ Error en resetPassword:", err);
+        res.status(500).json({
+            success: false,
+            message: "Error al actualizar la contraseña",
+        });
     }
 };
+
 
 // MIDDLEWARE — Verificar token JWT para proteger rutas
 exports.verifyToken = (req, res, next) => {
