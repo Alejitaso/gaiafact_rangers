@@ -62,7 +62,7 @@ module.exports = function () {
  /* ─────────────── AUTENTICACIÓN ─────────────── */   
   router.post("/login", loginLimiter, audit('inicioSesion'), authController.login);
   router.post("/recover", audit('recuperarContrasena'), authController.recoverPassword);
-  router.get('/verify-email/:token', authController.verifyEmail);
+  router.get('/auth/verify-email/:token', usuarioController.verificarCuenta);
   router.post('/reset/:token', audit('restablecerContrasena'), authController.resetPassword);
 
   /* ─────────────── NOTIFICACIONES ─────────────── */

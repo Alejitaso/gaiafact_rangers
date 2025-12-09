@@ -38,10 +38,10 @@ exports.nuevoUsuario = async (req, res) => {
         const token = jwt.sign(
             { userId: usuario._id },
             process.env.JWT_SECRET,
-            { expiresIn: '1h' }
+            { expiresIn: '24h' }
         );
 
-        const verificationLink = `${process.env.REACT_APP_API_URL}/api/verify-email/${encodeURIComponent(token)}`;
+        const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email/${token}`;
 
         try {
         await sgMail.send({
@@ -191,9 +191,8 @@ exports.reenviarVerificacionAdmin = async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    const verificationLink = `${process.env.REACT_APP_API_URL}/api/verify-email/${encodeURIComponent(token)}`;
+    const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email/${token}`;
 
-    // Mismo HTML que ya tienes
     await sgMail.send({
       to: usuario.correo_electronico,
       from: process.env.EMAIL_USER,
