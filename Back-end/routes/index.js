@@ -34,7 +34,7 @@ module.exports = function () {
   router.get('/Usuario/:idUsuario', verificarAuth, verificarAccesoPerfil, audit('verPerfilUsuario'), usuarioController.mostrarUsuario);
   router.get('/Usuario', verificarAuth, verificarRolGestor, audit('listarUsuarios'), usuarioController.mostrarUsuarios);
   router.put('/Usuario/:idUsuario', verificarAuth, audit('actualizarUsuario'), usuarioController.actualizarUsuario);
-  router.post('/Usuario/reenviar-verificacion/:idUsuario', verificarAuth, verificarRolGestor, usuarioController.reenviarVerificacionAdmin);
+  router.post('/Usuario/reenviar-verificacion/:idUsuario', usuarioController.reenviarVerificacionAdmin);
   router.get('/Usuario/verificar', usuarioController.verificarCuenta);
 
   /* ─────────────── PRODUCTOS ─────────────── */
