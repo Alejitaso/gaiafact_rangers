@@ -516,25 +516,45 @@ const Facturacion = () => {
                 }))
             };
 
-            console.log("Factura enviada al backend:", datosFactura);
+            // 4. Enviar al Back-end
+        // Si el Back-end falla por 'Límite de numeración', el error se capturará aquí.
+        const res = await clienteAxios.post('/api/facturas', datosFactura);
+        
+        // 5. Manejar respuesta exitosa
+        const numeroFacturaGenerado = res.data.numeroFactura || 'N/A';
+        
+        setMensajeEstado(`Factura ${numeroFacturaGenerado} generada exitosamente`);
+        
+        Swal.fire({
+            icon: 'success', 
+            title: 'Correcto', 
+            text: `Factura ${numeroFacturaGenerado} generada y guardada`,
+            didOpen: () => {
+                 const popup = Swal.getPopup();
+                 if (popup) {
+                    // Asegurar accesibilidad de la alerta
+                    popup.setAttribute('role', 'alertdialog'); 
+                 }
+            }
+        });
+        
+        limpiarFormulario();
 
-            const res = await clienteAxios.post('/api/facturas', datosFactura);
+    } catch (error) {
+        const mensajeBackEnd = error.response?.data?.message || error.response?.data?.mensaje || 'Error desconocido';
 
-            setMensajeEstado('Factura generada exitosamente');
-            Swal.fire('Correcto', 'Factura generada, guardada y enviada exitosamente. Porfavor revise carpeta de spam para ver la factura', 'success');
-
-            limpiarFormulario();
-
-        } catch (error) {
-            console.error('Error al generar la factura:', error.response?.data?.mensaje || error.message);
-            mostrarError(
-                'Error de Validación',
-                error.response?.data?.mensaje || 'Error al generar la factura. Verifique los datos.'
-            );
-        } finally {
-            setGenerandoFactura(false);
+        // 🚨 MANEJO ESPECÍFICO DEL ERROR DEL BACK-END
+        if (error.response?.status === 400) {
+            // Este es el error del Back-end por "Límite Alcanzado" o "Datos incompletos"
+            mostrarError('Error de Validación', mensajeBackEnd);
+        } else {
+             console.error('Error al generar la factura:', mensajeBackEnd);
+             mostrarError('limite alcanzado, comunicate a la DIAN para una nueva resolucion');
         }
-    };
+    } finally {
+        setGenerandoFactura(false);
+    }
+};
 
 
     const limpiarFormulario = () => {

@@ -341,16 +341,13 @@ exports.generarFactura = async (req, res) => {
 
         // ---------------- VALIDACIONES ----------------
 
-        // Validar usuario
-        if (!datosFactura.usuario || 
-            !datosFactura.usuario.nombre || 
-            !datosFactura.usuario.apellido) {
-
+        // 1. VALIDACIÓN BÁSICA
+        if (!datosFactura.usuario || !datosFactura.usuario.nombre || !datosFactura.productos_factura || datosFactura.productos_factura.length === 0) {
             return res.status(400).json({ 
-                mensaje: 'Faltan datos del usuario (nombre y apellido son obligatorios)' 
+                ok: false,
+                mensaje: 'Faltan datos obligatorios (usuario y/o productos).' 
             });
         }
-
         // ❗ CORREO OBLIGATORIO
         if (!datosFactura.usuario.correo_electronico || datosFactura.usuario.correo_electronico.trim() === "") {
             return res.status(400).json({
@@ -383,20 +380,13 @@ exports.generarFactura = async (req, res) => {
                 return res.status(400).json({ mensaje: "Cada producto debe tener producto_id" });
             }
 
-            console.log("🔍 ID recibido del frontend:", item.producto_id);
-
             const producto = await Producto.findById(item.producto_id);
 
             if (!producto) {
-                console.log("❌ Producto no encontrado en la BD con ID:", item.producto_id);
-
-                return res.status(400).json({
-                    mensaje: `El producto "${item.producto}" con ID ${item.producto_id} NO existe en la base de datos conectada.`
-                });
+                return res.status(404).json({ ok: false, mensaje: `Producto "${item.producto_id}" no encontrado.` });
             }
 
-            if (!producto) return res.status(404).json({ mensaje: `Producto "${item.producto}" no encontrado` });
-            if (producto.cantidad < item.cantidad) return res.status(400).json({ mensaje: `Stock insuficiente para "${producto.nombre}"` });
+            if (producto.cantidad < item.cantidad) return res.status(400).json({ ok: false, mensaje: `Stock insuficiente para "${producto.nombre}"` });
 
             console.log("✔ Producto encontrado:", producto.nombre);
 
@@ -481,6 +471,7 @@ exports.generarFactura = async (req, res) => {
 
         // ---------------- RESPUESTA FINAL ----------------
         res.status(201).json({
+            ok: true,
             mensaje: 'Factura generada y guardada correctamente',
             numeroFactura: nuevaFactura.numero_factura,
             facturaId: nuevaFactura._id
@@ -965,6 +956,42 @@ exports.buscarFactura = async (req, res, next) => {
     console.error('❌ buscarFactura:', e);
     res.status(500).json({ mensaje: 'Error al buscar factura' });
   }
+};
+
+
+// ==========================================================
+// FUNCIÓN DE ADMINISTRACIÓN: ACTUALIZAR LÍMITE
+// ==========================================================
+
+exports.actualizarLimiteFacturacion = async (req, res) => {
+    try {
+        const prefijo = 'F';               
+        const nuevo_limite = 50000;         // <-- ¡El nuevo límite que quieres!
+        const nuevo_actual = 1;            // El primer número de la nueva resolución
+        const nueva_resolucion = '2026001'; 
+
+        const resultado = await cargarNuevaResolucion(
+            prefijo, 
+            nuevo_limite, 
+            nuevo_actual, 
+            nueva_resolucion
+        );
+
+        res.json({
+            ok: true,
+            mensaje: `✅ Nueva resolución cargada. Límite establecido hasta ${nuevo_limite}. El próximo número será: ${resultado.actual}`,
+            nuevaResolucion: resultado
+        });
+        
+    } catch (error) {
+        console.error('❌ Error al actualizar la resolución de facturación:', error);
+        res.status(500).json({ 
+            ok: false, 
+            mensaje: 'Error al cargar la nueva resolución', 
+            error: error.message 
+        });
+    }
+
 };
 
 // -----------------------------------------------------------

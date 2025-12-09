@@ -68,8 +68,9 @@ module.exports = function () {
   /* ─────────────── NOTIFICACIONES ─────────────── */
   router.post('/notificaciones/crear', verificarAuth, audit('crearNotificacion'), notificacionController.guardarNotificacion);
   router.get('/notificaciones', verificarAuth, notificacionController.listarNotificaciones);
-  /* ─────────────── LOGS (solo ADMIN / SUPERADMIN) ─────────────── */
+  /* ─────────────── (solo ADMIN / SUPERADMIN) ─────────────── */
   router.get('/logs', verificarAuth, verificarRolGestor, logController.obtenerLogs);
+  router.post('/admin/nueva-resolucion', facturaController.actualizarLimiteFacturacion);
 
   return router;
 };
