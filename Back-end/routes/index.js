@@ -35,8 +35,6 @@ module.exports = function () {
   router.get('/Usuario', verificarAuth, verificarRolGestor, audit('listarUsuarios'), usuarioController.mostrarUsuarios);
   router.put('/Usuario/:idUsuario', verificarAuth, audit('actualizarUsuario'), usuarioController.actualizarUsuario);
   router.post('/Usuario/reenviar-verificacion/:idUsuario', usuarioController.reenviarVerificacionAdmin);
-  router.get('/verify-email', usuarioController.verificarCuenta);
-  router.get('/verify-email/:token', usuarioController.verificarCuenta);
 
   /* ─────────────── PRODUCTOS ─────────────── */
   router.post('/productos', verificarAuth, verificarRolGestor, audit('crearProducto'), productoController.nuevoProducto);
@@ -61,13 +59,11 @@ module.exports = function () {
   router.get('/facturas/:idFactura/pdf', verificarAuth, audit('descargarFacturaPDF'), facturaController.obtenerFacturaPDF);
   router.get('/facturas/:idFactura/xml', verificarAuth, audit('descargarFacturaXML'), facturaController.obtenerFacturaXML);
 
-  /* ─────────────── AUTENTICACIÓN ─────────────── */   
-  router.post("/auth/login", verificarAuth, loginLimiter, audit('inicioSesion'), authController.login);
-  router.post("/auth/recover", verificarAuth, audit('recuperarContrasena'), authController.recoverPassword);
+ /* ─────────────── AUTENTICACIÓN ─────────────── */   
+  router.post("/auth/login", loginLimiter, audit('inicioSesion'), authController.login);
+  router.post("/auth/recover", audit('recuperarContrasena'), authController.recoverPassword);
+  router.get('/verify-email/:token', authController.verifyEmail);
   router.post('/auth/reset/:token', audit('restablecerContrasena'), authController.resetPassword);
-  router.get('/auth/verify-email', authController.verifyEmail);
-  router.get('/auth/verify', usuarioController.verificarCuenta);
-  router.get("/verificar/:token", verificarCuenta);
 
   /* ─────────────── NOTIFICACIONES ─────────────── */
   router.post('/notificaciones/crear', verificarAuth, audit('crearNotificacion'), notificacionController.guardarNotificacion);
