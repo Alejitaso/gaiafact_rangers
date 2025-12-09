@@ -421,10 +421,6 @@ exports.mostrarFacturas = async (req, res, next) => {
     const { filtroFecha, puedeVerHistorico } = obtenerFiltroFacturas(usuario.tipo_usuario);
     console.log('🔍 Filtro aplicado:', filtroFecha);   
 
-    if (!puedeVerHistorico) {
-      filtroFecha['usuario.numero_documento'] = usuario.numero_documento;
-    }
-
     console.log('🔍 Usuario:', req.usuario.tipo_usuario);
     console.log('🔍 Filtro final:', filtroFecha);
     console.log('🔍 Colección:', Factura.collection.name);   
