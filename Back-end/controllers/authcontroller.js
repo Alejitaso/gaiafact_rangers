@@ -117,7 +117,7 @@ exports.recoverPassword = async (req, res) => {
     user.tokenExpiration = Date.now() + 3600000; 
     await user.save();
 
-    const resetLink = `${process.env.FRONTEND_URL}/nueva_contra/${token}`;
+    const resetLink = `${process.env.BACKEND_URL}/nueva_contra/${token}`;
 
     const msg = {
       to: correo_electronico,
