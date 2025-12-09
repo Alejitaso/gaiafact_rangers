@@ -64,8 +64,8 @@ module.exports = function () {
   /* ─────────────── AUTENTICACIÓN ─────────────── */   
   router.post("/auth/login", verificarAuth, loginLimiter, audit('inicioSesion'), authController.login);
   router.post("/auth/recover", verificarAuth, audit('recuperarContrasena'), authController.recoverPassword);
-  router.get('/auth/verify-email', verificarAuth, audit('verificarCorreo'), authController.verifyEmail);
   router.post('/auth/reset/:token', audit('restablecerContrasena'), authController.resetPassword);
+  router.get('/auth/verify-email', authController.verifyEmail);
   router.get('/auth/verify', usuarioController.verificarCuenta);
   router.get("/verificar/:token", verificarCuenta);
 
