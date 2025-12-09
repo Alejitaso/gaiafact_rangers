@@ -998,7 +998,7 @@ exports.buscarFactura = async (req, res, next) => {
 exports.actualizarLimiteFacturacion = async (req, res) => {
     try {
         const prefijo = 'F';               
-        const nuevo_limite = 50000;        
+        const nuevo_limite = 60000;        
         const nuevo_actual = 1;            
         const nueva_resolucion = '2026001'; 
 
