@@ -500,6 +500,7 @@ exports.mostrarFacturas = async (req, res, next) => {
       puedeVerHistorico,
       fechaConsulta: new Date()
     });
+    
   } catch (e) {
     console.error('❌ mostrarFacturas:', e);
     res.status(500).json({ mensaje: 'Error al mostrar facturas' });
@@ -966,8 +967,8 @@ exports.buscarFactura = async (req, res, next) => {
 exports.actualizarLimiteFacturacion = async (req, res) => {
     try {
         const prefijo = 'F';               
-        const nuevo_limite = 50000;         // <-- ¡El nuevo límite que quieres!
-        const nuevo_actual = 1;            // El primer número de la nueva resolución
+        const nuevo_limite = 50000;        
+        const nuevo_actual = 1;            
         const nueva_resolucion = '2026001'; 
 
         const resultado = await cargarNuevaResolucion(

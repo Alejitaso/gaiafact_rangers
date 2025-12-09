@@ -461,7 +461,6 @@ const Facturacion = () => {
             return;
         }
 
-        // 🔥🔥🔥 VALIDACIÓN CRÍTICA ----> AQUÍ SE ARREGLA EL ERROR 400
         const productosLimpios = productosFactura.filter(
             p => p && p.id && p.cantidad > 0
         );
@@ -528,11 +527,10 @@ const Facturacion = () => {
         Swal.fire({
             icon: 'success', 
             title: 'Correcto', 
-            text: `Factura ${numeroFacturaGenerado} generada y guardada`,
+            text: `Factura ${numeroFacturaGenerado} generada y guardada, notificación enviada por correo, notificar revision en bandeja de spam`,
             didOpen: () => {
                  const popup = Swal.getPopup();
                  if (popup) {
-                    // Asegurar accesibilidad de la alerta
                     popup.setAttribute('role', 'alertdialog'); 
                  }
             }
@@ -543,9 +541,7 @@ const Facturacion = () => {
     } catch (error) {
         const mensajeBackEnd = error.response?.data?.message || error.response?.data?.mensaje || 'Error desconocido';
 
-        // 🚨 MANEJO ESPECÍFICO DEL ERROR DEL BACK-END
         if (error.response?.status === 400) {
-            // Este es el error del Back-end por "Límite Alcanzado" o "Datos incompletos"
             mostrarError('Error de Validación', mensajeBackEnd);
         } else {
              console.error('Error al generar la factura:', mensajeBackEnd);
