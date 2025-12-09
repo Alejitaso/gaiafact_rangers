@@ -8,7 +8,9 @@ const logSchema = new mongoose.Schema({
   ruta: { type: String, required: true },
   metodo: { type: String, required: true },
   resultado: { type: String, enum: ['éxito', 'error'], default: 'éxito' },
-  fecha: { type: Date, default: Date.now }
+  fecha: { type: Date, default: Date.now },
+  recursoId:   { type: String, default: null },   // _id del producto/factura/otro
+  cambios:     { type: mongoose.Schema.Types.Mixed, default: null } // {antes, despues}
 });
 
 module.exports = mongoose.model('Log', logSchema);

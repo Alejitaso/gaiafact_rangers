@@ -41,8 +41,8 @@ module.exports = function () {
   router.get('/productos', verificarAuth, audit('listarProductos'), productoController.mostrarProductos);
   router.get('/productos/:idProducto', verificarAuth, audit('verProducto'), productoController.mostrarProducto);
   router.get('/productos/:idProducto/codigo', verificarAuth, audit('verCodigoBarras'), productoController.obtenerCodigoBarrasPDF);
-  router.delete('/productos/:idProducto', verificarAuth, verificarRolGestor, audit('eliminarProducto'), productoController.eliminarProducto);
-  router.put('/productos/:idProducto', verificarAuth, verificarRolGestor, audit('actualizarProducto'), productoController.actualizarProducto);
+  router.delete('/productos/:idProducto',verificarAuth,verificarRolGestor,audit('eliminarProducto', { recursoId: ':idProducto' }),productoController.eliminarProducto);
+  router.put('/productos/:idProducto',verificarAuth,verificarRolGestor,audit('actualizarProducto', { recursoId: ':idProducto' }),productoController.actualizarProducto);
 
   /* ─────────────── IMÁGENES ─────────────── */
   router.post('/imagenes/carousel', verificarAuth, verificarRolGestor, imagenesController.upload.single('imagen'), audit('subirImagenCarousel'), imagenesController.subirImagenCarousel);
