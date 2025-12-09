@@ -4,6 +4,7 @@ const Factura = require('../models/factura.js');
 const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
 const nodemailer = require('nodemailer');
+const { generarNumeroFactura, cargarNuevaResolucion } = require('../models/numeraciones.js');
 
 const configurarTransportador = () => {
     return nodemailer.createTransport({
@@ -209,33 +210,29 @@ const generarXMLFactura = (datosFactura) => {
 </Invoice>`;
 };
 
-exports.generarFactura = async (req, res, next) => {
+exports.crearFactura = async (req, res) => {
     try {
         const datosFactura = req.body;
 
-        // Validar datos necesarios
-        if (!datosFactura.usuario || !datosFactura.usuario.nombre || !datosFactura.usuario.apellido) {
+        // 1. VALIDACIÓN BÁSICA
+        if (!datosFactura.usuario || !datosFactura.usuario.nombre || !datosFactura.productos_factura || datosFactura.productos_factura.length === 0) {
             return res.status(400).json({ 
-                mensaje: 'Faltan datos del usuario (nombre y apellido son obligatorios)' 
+                ok: false,
+                mensaje: 'Faltan datos obligatorios (usuario y/o productos).' 
             });
         }
 
-        if (!datosFactura.productos_factura || datosFactura.productos_factura.length === 0) {
-            return res.status(400).json({ 
-                mensaje: 'Debe incluir al menos un producto en la factura' 
-            });
-        }
-
-        // ✅ DESCUENTO DE STOCK
+        // 2. DESCUENTO DE STOCK Y COMPROBACIÓN DE PRODUCTOS
         for (const item of datosFactura.productos_factura) {
             const producto = await Producto.findOne({ nombre: item.producto });
 
             if (!producto) {
-                return res.status(404).json({ mensaje: `Producto "${item.producto}" no encontrado` });
+                return res.status(404).json({ ok: false, mensaje: `Producto "${item.producto}" no encontrado.` });
             }
 
             if (producto.cantidad < item.cantidad) {
                 return res.status(400).json({ 
+                    ok: false,
                     mensaje: `Stock insuficiente para "${item.producto}". Disponible: ${producto.cantidad}, solicitado: ${item.cantidad}` 
                 });
             }
@@ -245,32 +242,89 @@ exports.generarFactura = async (req, res, next) => {
             await producto.save();
         }
 
-        // Crear la instancia de la factura
-        const nuevaFactura = new Factura(datosFactura);
+        // 3. GENERAR NÚMERO DE FACTURA ATÓMICO Y ASIGNARLO
+        let numeroFactura;
+        try {
+            numeroFactura = await generarNumeroFactura('F'); 
+            datosFactura.numero_factura = numeroFactura;
+            datosFactura.fecha_emision = new Date();
+        } catch (error) {
+            // Error de límite de resolución alcanzado
+            return res.status(400).json({ ok: false, message: error.message });
+        }
 
-        // Generar el PDF y el XML
+        // 4. CALCULAR TOTALES Y ASIGNARLOS A LOS DATOS
+        const subtotalCalculado = datosFactura.productos_factura.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        const ivaCalculado = subtotalCalculado * 0.19;
+        const totalFinalCalculado = subtotalCalculado + ivaCalculado;
+
+        datosFactura.subtotal = subtotalCalculado;
+        datosFactura.iva = ivaCalculado;
+        datosFactura.total = totalFinalCalculado;
+
+        // Crear la instancia de la factura con todos los datos y totales
+        const nuevaFactura = new Factura(datosFactura);
+        
+        // 5. GENERAR PDF y XML
         const pdfBuffer = await generarPDFFactura(nuevaFactura);
         const xmlString = generarXMLFactura(nuevaFactura);
 
-        // Guardar el PDF y XML en la factura
+        // 6. GUARDAR PDF y XML en la instancia
         nuevaFactura.pdf_factura = pdfBuffer;
         nuevaFactura.xml_factura = xmlString;
 
-        // Guardar en la base de datos
+        // 7. GUARDAR EN LA BASE DE DATOS
         await nuevaFactura.save();
 
-        console.log('✅ Factura guardada con PDF y XML, stock actualizado');
+        console.log(`✅ Factura ${nuevaFactura.numero_factura} creada y stock actualizado.`);
 
         res.status(201).json({
-            mensaje: 'Factura generada y guardada correctamente',
+            ok: true,
+            message: "Factura generada y guardada correctamente",
             numeroFactura: nuevaFactura.numero_factura,
-            facturaId: nuevaFactura._id
+            facturaId: nuevaFactura._id,
+            factura: nuevaFactura
         });
 
     } catch (error) {
-        console.error('❌ Error al generar la factura:', error);
+        console.error('❌ Error general al crear factura:', error);
+        res.status(500).json({
+            ok: false,
+            message: "Error interno del servidor",
+            error: error.message
+        });
+    }
+};
+
+// ==========================================================
+// FUNCIÓN DE ADMINISTRACIÓN: ACTUALIZAR LÍMITE (NUEVA RUTA)
+// ==========================================================
+
+exports.actualizarLimiteFacturacion = async (req, res) => {
+    try {
+        const prefijo = 'F';               
+        const nuevo_limite = 50000;         // <-- ¡El nuevo límite que quieres!
+        const nuevo_actual = 1;            // El primer número de la nueva resolución
+        const nueva_resolucion = '2026001'; 
+
+        const resultado = await cargarNuevaResolucion(
+            prefijo, 
+            nuevo_limite, 
+            nuevo_actual, 
+            nueva_resolucion
+        );
+
+        res.json({
+            ok: true,
+            mensaje: `✅ Nueva resolución cargada. Límite establecido hasta ${nuevo_limite}. El próximo número será: ${resultado.actual}`,
+            nuevaResolucion: resultado
+        });
+        
+    } catch (error) {
+        console.error('❌ Error al actualizar la resolución de facturación:', error);
         res.status(500).json({ 
-            mensaje: 'Error al generar la factura', 
+            ok: false, 
+            mensaje: 'Error al cargar la nueva resolución', 
             error: error.message 
         });
     }

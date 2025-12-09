@@ -52,7 +52,7 @@ module.exports=function(){
     router.get('/facturas/:idFactura/pdf', facturaController.obtenerFacturaPDF);
     router.get('/facturas/:idFactura/xml', facturaController.obtenerFacturaXML);
     // genera nueva factura
-    router.post('/facturas', facturaController.generarFactura);
+    router.post('/facturas', facturaController.crearFactura);
     // mostrar las facturas
     router.get('/facturas', facturaController.mostrarFacturas);
     // muestra factura por ID
@@ -75,6 +75,8 @@ module.exports=function(){
 
     // Ruta para enviar por correo
     router.post('/enviar-correo', facturaController.enviarFacturaCorreo);
+
+    router.post('/admin/nueva-resolucion', facturaController.actualizarLimiteFacturacion);
 
     // Rutas de autenticación
     router.post("/auth/login", authController.login);

@@ -437,70 +437,101 @@ const Facturacion = () => {
         });
     };
 
-    const generarFactura = async () => {
-        if (productosFactura.length === 0) {
-            mostrarError('Error', 'Debe agregar al menos un producto a la factura');
-            return;
-        }
+  const generarFactura = async () => {
+    // ... (Validaciones iniciales de productos y cliente) ...
+    if (productosFactura.length === 0) {
+        mostrarError('Error', 'Debe agregar al menos un producto a la factura');
+        return;
+    }
 
-        if (!tipoDocumento || !numeroDocumento || !nombres || !apellidos || !telefono) {
-            mostrarError('Datos incompletos', 'Complete todos los datos del cliente');
-            return;
-        }
+    if (!tipoDocumento || !numeroDocumento || !nombres || !apellidos || !telefono) {
+        mostrarError('Datos incompletos', 'Complete todos los datos del cliente');
+        return;
+    }
 
-        setGenerandoFactura(true);
-        setMensajeEstado('Generando factura, por favor espere');
+    setGenerandoFactura(true);
+    setMensajeEstado('Generando factura, por favor espere');
 
-        try {
-            if (!clienteEncontrado) {
-                const registrado = await registrarNuevoCliente();
-                if (!registrado) {
-                    setGenerandoFactura(false);
-                    return;
-                }
+    try {
+        // 1. Registrar cliente si no existe
+        if (!clienteEncontrado) {
+            const registrado = await registrarNuevoCliente();
+            if (!registrado) {
+                setGenerandoFactura(false);
+                return;
             }
-
-            const subtotal = productosFactura.reduce((sum, producto) => {
-                return sum + (producto.precio * producto.cantidad);
-            }, 0);
-
-            const iva = subtotal * 0.19; // 19% IVA 
-            const total = subtotal + iva;
-
-            const datosFactura = {
-                subtotal,
-                iva,
-                total,
-                numero_factura: 'F' + Math.floor(Math.random() * 100000),
-                usuario: {
-                    nombre: nombres,
-                    apellido: apellidos,
-                    tipo_documento: tipoDocumento,
-                    numero_documento: numeroDocumento,
-                    correo_electronico: correo,
-                    telefono: telefono
-                },
-                productos_factura: productosFactura.map(p => ({
-                    producto: p.nombre,
-                    cantidad: p.cantidad,
-                    precio: p.precio
-                }))
-            };
-
-            const res = await clienteAxios.post('/api/facturas', datosFactura);
-            
-            setMensajeEstado('Factura generada exitosamente');
-            Swal.fire('Correcto', 'Factura generada y guardada', 'success');
-            
-            limpiarFormulario();
-
-        } catch (error) {
-            console.error('Error al generar la factura:', error.response?.data?.mensaje || error.message);
-            mostrarError('Error de Validación', 'Error al generar la factura. Verifique los datos e intente nuevamente.');
-        } finally {
-            setGenerandoFactura(false);
         }
-    };
+
+        // 2. Calcular totales
+        const subtotal = productosFactura.reduce((sum, producto) => {
+            return sum + (producto.precio * producto.cantidad);
+        }, 0);
+
+        const iva = subtotal * 0.19; // 19% IVA 
+        const total = subtotal + iva;
+        
+        // 3. Preparar los datos para el Back-end
+        const datosFactura = {
+            // Ya NO se envía el numero_factura. El Back-end lo genera.
+            subtotal,
+            iva,
+            total,
+            // 🚨 Importante: Si su Back-end necesita el ID de usuario, envíelo. 
+            // Si solo necesita los datos, su estructura actual es válida.
+            usuario: { 
+                nombre: nombres,
+                apellido: apellidos,
+                tipo_documento: tipoDocumento,
+                numero_documento: numeroDocumento,
+                correo_electronico: correo,
+                telefono: telefono
+            },
+            productos_factura: productosFactura.map(p => ({
+                producto: p.nombre,
+                cantidad: p.cantidad,
+                precio: p.precio
+            }))
+        };
+
+        // 4. Enviar al Back-end
+        // Si el Back-end falla por 'Límite de numeración', el error se capturará aquí.
+        const res = await clienteAxios.post('/api/facturas', datosFactura);
+        
+        // 5. Manejar respuesta exitosa
+        const numeroFacturaGenerado = res.data.numeroFactura || 'N/A';
+        
+        setMensajeEstado(`Factura ${numeroFacturaGenerado} generada exitosamente`);
+        
+        Swal.fire({
+            icon: 'success', 
+            title: 'Correcto', 
+            text: `Factura ${numeroFacturaGenerado} generada y guardada`,
+            didOpen: () => {
+                 const popup = Swal.getPopup();
+                 if (popup) {
+                    // Asegurar accesibilidad de la alerta
+                    popup.setAttribute('role', 'alertdialog'); 
+                 }
+            }
+        });
+        
+        limpiarFormulario();
+
+    } catch (error) {
+        const mensajeBackEnd = error.response?.data?.message || error.response?.data?.mensaje || 'Error desconocido';
+
+        // 🚨 MANEJO ESPECÍFICO DEL ERROR DEL BACK-END
+        if (error.response?.status === 400) {
+            // Este es el error del Back-end por "Límite Alcanzado" o "Datos incompletos"
+            mostrarError('Error de Validación', mensajeBackEnd);
+        } else {
+             console.error('Error al generar la factura:', mensajeBackEnd);
+             mostrarError('limite alcanzado, comunicate a la DIAN para una nueva resolucion');
+        }
+    } finally {
+        setGenerandoFactura(false);
+    }
+};
 
     const limpiarFormulario = () => {
         setTipoDocumento('');
