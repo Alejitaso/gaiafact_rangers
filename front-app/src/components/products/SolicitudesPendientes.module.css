@@ -4,10 +4,9 @@
 }
 
 .solicitudestitlebox {
-  text-align: right;
+  text-align: left;
   margin-bottom: 20px;
-  margin-left: 30%;
-  background-color: var(--color-cuatrto);
+  background-color: var(--color-cuatro);
   padding: 30px;
 }
 
@@ -130,5 +129,10 @@
   .tablasolicitudes {
     margin: 0 auto;
     width: 70%; /* 100% - 30% de margen total */
+  }
+
+  .solicitudestitlebox {
+    margin: 0 auto;
+    width: 70%;
   }
 }
