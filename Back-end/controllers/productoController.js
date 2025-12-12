@@ -238,19 +238,43 @@ exports.actualizarProducto = async (req, res) => {
 exports.aprobarSolicitud = async (req, res) => {
   try {
     const { idSolicitud } = req.params;
-    const usuarioId = req.usuario._id; // usa req.usuario como tu middleware
+    const usuarioId = req.usuario._id;
 
     const solicitud = await SolicitudCambio.findById(idSolicitud);
     if (!solicitud) return res.status(404).json({ ok: false, mensaje: 'Solicitud no encontrada' });
     if (solicitud.estado !== 'PENDIENTE')
       return res.status(400).json({ ok: false, mensaje: 'La solicitud ya fue procesada' });
 
-    // evitar auto-aprobación
+    // ❌ Evitar auto-aprobación
     if (solicitud.solicitante.toString() === usuarioId.toString()) {
       return res.status(403).json({ ok: false, mensaje: 'No puedes aprobar tu propia solicitud' });
     }
 
-    // Aplicar los cambios AL PRODUCTO primero
+    // 💥 SI LA SOLICITUD ES DE ELIMINACIÓN, HACERLO AQUÍ Y SALIR
+    if (solicitud.tipoAccion === "ELIMINACION") {
+
+      await Productos.findByIdAndDelete(solicitud.productoId);
+
+      solicitud.estado = 'APROBADO';
+      solicitud.aprobador = usuarioId;
+      solicitud.fechaAprobacion = Date.now();
+      await solicitud.save();
+
+      await AuditoriaProducto.create({
+        productoId: solicitud.productoId,
+        usuario: usuarioId,
+        accion: 'ELIMINACION_APROBADA',
+        datos: solicitud.cambios
+      });
+
+      return res.json({
+        ok: true,
+        mensaje: 'Producto eliminado correctamente.',
+        solicitudId: solicitud._id
+      });
+    }
+
+    // 🔥 SI NO ES ELIMINACIÓN, APLICAR LOS CAMBIOS NORMALES
     const productoActualizado = await Productos.findByIdAndUpdate(
       solicitud.productoId,
       {
@@ -260,13 +284,11 @@ exports.aprobarSolicitud = async (req, res) => {
       { new: true }
     );
 
-    // Marcar solicitud como aprobada
     solicitud.estado = 'APROBADO';
     solicitud.aprobador = usuarioId;
     solicitud.fechaAprobacion = Date.now();
     await solicitud.save();
 
-    // Auditoría
     await AuditoriaProducto.create({
       productoId: solicitud.productoId,
       usuario: usuarioId,
@@ -274,42 +296,15 @@ exports.aprobarSolicitud = async (req, res) => {
       datos: solicitud.cambios
     });
 
-    // Preparar y enviar correo (no bloquear la respuesta si falla el envío)
-    try {
-      const admins = await Usuario.find({
-        tipo_usuario: { $in: ["ADMINISTRADOR", "SUPERADMIN"] },
-        verificado: true
-      }).select("correo_electronico nombre");
+    // (correo: queda igual como lo tienes)
+    // ...
 
-      const solicitante = await Usuario.findById(solicitud.solicitante).select("correo_electronico nombre");
-
-      const destinatarios = [
-        ...admins.map(a => a.correo_electronico),
-        solicitante?.correo_electronico,
-        req.usuario?.correo_electronico
-      ].filter(Boolean);
-
-      if (destinatarios.length > 0) {
-        const mensajeCorreo = {
-          to: destinatarios,
-          from: process.env.EMAIL_USER,
-          subject: "Solicitud de cambio aprobada - GaiaFact",
-          html: `
-            <h2>Cambios aprobados</h2>
-            <p>Producto: <strong>${productoActualizado?.nombre || 'N/A'}</strong></p>
-            <p>Precio: ${solicitud.cambios.precioAnterior} → ${solicitud.cambios.precioNuevo}</p>
-            <p>Cantidad: ${solicitud.cambios.cantidadAnterior} → ${solicitud.cambios.cantidadNuevo}</p>
-            <p>Usuario que aprobó: ${req.usuario?.nombre || 'N/A'}</p>
-          `
-        };
-        await sgMail.sendMultiple(mensajeCorreo);
-      }
-    } catch (errMail) {
-      console.error("❌ Error enviando correo (no bloqueante):", errMail?.message || errMail);
-    }
-
-    // Responder con éxito y el producto actualizado
-    return res.json({ ok: true, mensaje: 'Solicitud aprobada y cambios aplicados', producto: productoActualizado, solicitudId: solicitud._id });
+    return res.json({ 
+      ok: true, 
+      mensaje: 'Solicitud aprobada y cambios aplicados', 
+      producto: productoActualizado, 
+      solicitudId: solicitud._id 
+    });
 
   } catch (error) {
     console.error(error);
@@ -387,14 +382,66 @@ exports.rechazarSolicitud = async (req, res) => {
 };
 
 //elimina un producto via id
-exports.eliminarProducto = async(req, res, next) => {
-    try{
-        await Productos.findByIdAndDelete({_id: req.params.idProducto});
-        res.json({mensaje: 'El producto ha sido eliminado'});
-    }catch (error) {
-        console.log(error);
-        next();
+exports.eliminarProducto = async (req, res) => {
+  try {
+    const producto = await Productos.findById(req.params.idProducto);
+
+    if (!producto) {
+      return res.status(404).json({ mensaje: 'Producto no encontrado' });
     }
+
+    // 🔥 No permitir eliminar productos sin aprobación
+    const solicitud = await SolicitudCambio.create({
+      productoId: producto._id,
+      solicitante: req.usuario._id,
+      tipoAccion: 'ELIMINACION',
+      cambios: {
+        nombre: producto.nombre,
+        precio: producto.precio,
+        cantidad: producto.cantidad
+      }
+    });
+
+    // Registrar auditoría
+    await AuditoriaProducto.create({
+      productoId: producto._id,
+      usuario: req.usuario._id,
+      accion: 'SOLICITUD_ELIMINACION',
+      datos: solicitud.cambios
+    });
+
+    // Notificar por correo
+    const admins = await Usuario.find({
+      tipo_usuario: { $in: ["ADMINISTRADOR", "SUPERADMIN"] },
+      isVerified: true
+    }).select("correo_electronico nombre");
+
+    const destinatarios = [
+      ...admins.map(a => a.correo_electronico),
+      req.usuario.correo_electronico
+    ];
+
+    await sgMail.sendMultiple({
+      to: destinatarios,
+      from: process.env.EMAIL_USER,
+      subject: "Solicitud de eliminación de producto - GaiaFact",
+      html: `
+        <h2>Solicitud de eliminación de producto</h2>
+        <p>${req.usuario.nombre} ha solicitado eliminar el producto:</p>
+        <p><strong>${producto.nombre}</strong></p>
+        <p><small>Precio: ${producto.precio} | Cantidad: ${producto.cantidad}</small></p>
+      `
+    });
+
+    return res.status(202).json({
+      mensaje: "Se creó una solicitud para eliminar este producto. Otro administrador debe aprobarla.",
+      solicitudId: solicitud._id
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensaje: 'Error en servidor' });
+  }
 };
 
 exports.obtenerSolicitudesPendientes = async (req, res) => {

@@ -62,8 +62,8 @@ function SolicitudesPendientes() {
       }
   };
 
-  return (
-    <div className={styles.solicitudescontainer}>
+return (
+  <div className={styles.solicitudescontainer}>
     <h2 className="solicitudes-title">Solicitudes Pendientes</h2>
 
     <table className={styles.tablasolicitudes}>
@@ -71,7 +71,8 @@ function SolicitudesPendientes() {
         <tr>
           <th>Producto</th>
           <th>Solicitante</th>
-          <th>Cambio</th>
+          <th>Tipo de Solicitud</th>
+          <th>Detalles</th>
           <th>Estado</th>
           <th>Acciones</th>
         </tr>
@@ -81,15 +82,31 @@ function SolicitudesPendientes() {
         {solicitudes.map(s => (
           <tr key={s._id}>
             <td>{s.productoId.nombre}</td>
+
             <td>{s.solicitante.nombre}</td>
 
+            {/* 🔥 Tipo de solicitud */}
             <td>
-              <div className={styles.cambiosbox}>
-                <div>Precio: {s.cambios.precioAnterior} → <b>{s.cambios.precioNuevo}</b></div>
-                <div>Cantidad: {s.cambios.cantidadAnterior} → <b>{s.cambios.cantidadNuevo}</b></div>
-              </div>
+              {s.tipoAccion === "ELIMINACION" ? (
+                <span className={styles.eliminacionTag}>Eliminación</span>
+              ) : (
+                <span className={styles.cambioTag}>Modificación</span>
+              )}
             </td>
 
+            {/* 🔥 Detalles según tipoAccion */}
+            <td>
+              {s.tipoAccion === "ELIMINACION" ? (
+                <strong>Eliminación del producto</strong>
+              ) : (
+                <div className={styles.cambiosbox}>
+                  <div>Precio: {s.cambios.precioAnterior} → <b>{s.cambios.precioNuevo}</b></div>
+                  <div>Cantidad: {s.cambios.cantidadAnterior} → <b>{s.cambios.cantidadNuevo}</b></div>
+                </div>
+              )}
+            </td>
+
+            {/* 🔥 Estado real de la solicitud */}
             <td className={styles.estadopendiente}>{s.estado}</td>
 
             <td>
@@ -112,7 +129,6 @@ function SolicitudesPendientes() {
       </tbody>
     </table>
   </div>
-  );
+);
 }
-
 export default SolicitudesPendientes;

@@ -24,6 +24,11 @@ const solicitudSchema = new Schema({
     cantidadAnterior: Number,
     cantidadNuevo: Number
   },
+  tipoAccion: {
+  type: String,
+  enum: ['CAMBIO', 'ELIMINACION'],
+  required: true
+  },
   estado: {
     type: String,
     enum: ['PENDIENTE', 'APROBADO', 'RECHAZADO'],
