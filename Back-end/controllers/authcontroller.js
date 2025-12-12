@@ -35,6 +35,23 @@ exports.verifyEmail = async (req, res) => {
     }
 };
 
+exports.verificarCorreoEstado = async (req, res) => {
+  const { email } = req.query;
+
+  if (!email) return res.status(400).json({ success: false });
+
+  try {
+    const user = await Usuario.findOne({ correo_electronico: email.toLowerCase().trim() });
+
+    if (!user) return res.json({ success: true, verificado: false });
+
+    return res.json({ success: true, verificado: user.isVerified });
+  } catch (err) {
+    console.error("❌ Error verificando correo:", err);
+    res.status(500).json({ success: false });
+  }
+};
+
 // LOGIN — Autentica usuario y genera token JWT
 exports.login = async (req, res) => {
     const { correo_electronico, password } = req.body;
