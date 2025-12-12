@@ -1,0 +1,83 @@
+.solicitudescontainer {
+  padding: 20px;
+  background: transparent;
+}
+
+.solicitudes-title {
+  font-size: 26px;
+  font-weight: bold;
+  color: #0a2a43;
+  margin-bottom: 20px;
+}
+
+.tablasolicitudes {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+  backdrop-filter: blur(10px);
+}
+
+.tablasolicitudes th {
+  background: rgba(18, 45, 70, 0.8);
+  color: white;
+  padding: 12px;
+  text-align: left;
+  font-size: 15px;
+}
+
+.tablasolicitudes td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  font-size: 14px;
+  color: #0a2a43;
+}
+
+.tablasolicitudes tr:hover {
+  background: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+}
+
+.estadopendiente {
+  font-weight: bold;
+  color: #d68900;
+}
+
+.btn-accion {
+  padding: 5px 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  transition: 0.2s ease;
+}
+
+.btn-aprobar {
+  background: #055a19;
+}
+
+.btn-aprobar:hover {
+  background: #098a25;
+}
+
+.btn-rechazar {
+  background: #dc3545;
+}
+
+.btn-rechazar:hover {
+  background: #b02a37;
+}
+
+/* Para ver cambios de forma elegante */
+.cambiosbox {
+  background: rgba(255,255,255,0.4);
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1.4;
+}

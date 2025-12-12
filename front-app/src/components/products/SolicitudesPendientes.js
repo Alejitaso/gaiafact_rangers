@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import clienteAxios from '../../config/axios';
 import Swal from 'sweetalert2';
+import styles from "./SolicitudesPendientes.module.css";
 
 function SolicitudesPendientes() {
   const [solicitudes, setSolicitudes] = useState([]);
@@ -37,39 +38,55 @@ function SolicitudesPendientes() {
   };
 
   return (
-    <div>
-      <h2>Solicitudes Pendientes</h2>
+    <div className={styles.solicitudescontainer}>
+    <h2 className="solicitudes-title">Solicitudes Pendientes</h2>
 
-      <table className="tabla-solicitudes">
-        <thead>
-          <tr>
-            <th>Producto</th>
-            <th>Solicitante</th>
-            <th>Cambio</th>
-            <th>Estado</th>
-            <th>Acciones</th>
+    <table className={styles.tablasolicitudes}>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Solicitante</th>
+          <th>Cambio</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {solicitudes.map(s => (
+          <tr key={s._id}>
+            <td>{s.productoId.nombre}</td>
+            <td>{s.solicitante.nombre}</td>
+
+            <td>
+              <div className={styles.cambiosbox}>
+                <div>Precio: {s.cambios.precioAnterior} → <b>{s.cambios.precioNuevo}</b></div>
+                <div>Cantidad: {s.cambios.cantidadAnterior} → <b>{s.cambios.cantidadNuevo}</b></div>
+              </div>
+            </td>
+
+            <td className={styles.estadopendiente}>{s.estado}</td>estado-pendiente
+
+            <td>
+              <button 
+                className="btn-accion btn-aprobar"
+                onClick={() => aprobar(s._id)}
+              >
+                ✔
+              </button>
+
+              <button 
+                className="btn-accion btn-rechazar"
+                onClick={() => rechazar(s._id)}
+              >
+                ✖
+              </button>
+            </td>
           </tr>
-        </thead>
-
-        <tbody>
-          {solicitudes.map(s => (
-            <tr key={s._id}>
-              <td>{s.productoId.nombre}</td>
-              <td>{s.solicitante.nombre}</td>
-              <td>
-                Precio: {s.cambios.precioAnterior} → {s.cambios.precioNuevo} <br />
-                Cantidad: {s.cambios.cantidadAnterior} → {s.cambios.cantidadNuevo}
-              </td>
-              <td>{s.estado}</td>
-              <td>
-                <button onClick={() => aprobar(s._id)}>✔</button>
-                <button onClick={() => rechazar(s._id)}>✖</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </table>
+  </div>
   );
 }
 
