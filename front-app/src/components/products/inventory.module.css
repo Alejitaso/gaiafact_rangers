@@ -431,3 +431,27 @@
     border-radius: 0;
   }
 }
+
+/* =========================================================
+   FIX: Evita que la tabla se "salga" hacia la derecha
+   cuando el inspector está dockado o ventana muy estrecha
+   ========================================================= */
+@media (max-width: 900px) {
+  .table_box {
+    overflow-x: hidden; /* evita que el wrapper se salga */
+    padding: 10px;
+  }
+
+  .tableWrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .inventory_table {
+    min-width: 600px;
+    width: 100%;
+    table-layout: fixed; /* evita que las celdas se deformen */
+  }
+}

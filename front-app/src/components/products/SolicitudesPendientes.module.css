@@ -102,3 +102,25 @@
   font-size: 14px;
   line-height: 1.4;
 }
+
+/* Scroll horizontal en pantallas pequeñas */
+@media (max-width: 768px) {
+  .tablasolicitudes {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin: 0;
+  }
+
+  .solicitudescontainer {
+    padding: 10px;
+  }
+}
+
+/* Margen del 30% en pantallas grandes */
+@media (min-width: 769px) {
+  .tablasolicitudes {
+    margin: 0 auto;
+    width: 70%; /* 100% - 30% de margen total */
+  }
+}
