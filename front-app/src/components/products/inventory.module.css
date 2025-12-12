@@ -333,6 +333,11 @@
     padding: 0 5px;
   }
 
+  .searchArea {
+    flex-direction: column;
+    gap: 20px;
+  }
+
   .table_box {
     padding: 15px 10px;
     width: 100%;

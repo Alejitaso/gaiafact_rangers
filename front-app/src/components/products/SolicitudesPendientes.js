@@ -79,54 +79,59 @@ return (
       </thead>
 
       <tbody>
-        {solicitudes.map(s => (
-          <tr key={s._id}>
-            <td>{s.productoId.nombre}</td>
+      {solicitudes.map(s => (
+        <tr key={s._id}>
+          
+          {/* Producto */}
+          <td>{s.productoId?.nombre || "Producto no disponible"}</td>
 
-            <td>{s.solicitante.nombre}</td>
+          {/* Solicitante */}
+          <td>{s.solicitante?.nombre || "Usuario no disponible"}</td>
 
-            {/* 🔥 Tipo de solicitud */}
-            <td>
-              {s.tipoAccion === "ELIMINACION" ? (
-                <span className={styles.eliminacionTag}>Eliminación</span>
-              ) : (
-                <span className={styles.cambioTag}>Modificación</span>
-              )}
-            </td>
+          {/* Tipo de solicitud */}
+          <td>
+            {s.tipoAccion === "ELIMINACION" ? (
+              <span className={styles.eliminacionTag}>Eliminación</span>
+            ) : (
+              <span className={styles.cambioTag}>Modificación</span>
+            )}
+          </td>
 
-            {/* 🔥 Detalles según tipoAccion */}
-            <td>
-              {s.tipoAccion === "ELIMINACION" ? (
-                <strong>Eliminación del producto</strong>
-              ) : (
-                <div className={styles.cambiosbox}>
-                  <div>Precio: {s.cambios.precioAnterior} → <b>{s.cambios.precioNuevo}</b></div>
-                  <div>Cantidad: {s.cambios.cantidadAnterior} → <b>{s.cambios.cantidadNuevo}</b></div>
-                </div>
-              )}
-            </td>
+          {/* Detalles */}
+          <td>
+            {s.tipoAccion === "ELIMINACION" ? (
+              <strong>Eliminación del producto</strong>
+            ) : (
+              <div className={styles.cambiosbox}>
+                <div>Precio: {s.cambios?.precioAnterior ?? "-"} → <b>{s.cambios?.precioNuevo ?? "-"}</b></div>
+                <div>Cantidad: {s.cambios?.cantidadAnterior ?? "-"} → <b>{s.cambios?.cantidadNuevo ?? "-"}</b></div>
+              </div>
+            )}
+          </td>
 
-            {/* 🔥 Estado real de la solicitud */}
-            <td className={styles.estadopendiente}>{s.estado}</td>
+          {/* Estado */}
+          <td className={styles.estadopendiente}>{s.estado}</td>
 
-            <td>
-              <button 
-                className="btn-accion btn-aprobar"
-                onClick={() => aprobar(s._id)}
-              >
-                ✔
-              </button>
+          {/* Acciones */}
+          <td>
+            <button 
+              className="btn-accion btn-aprobar"
+              onClick={() => aprobar(s._id)}
+            >
+              ✔
+            </button>
 
-              <button 
-                className="btn-accion btn-rechazar"
-                onClick={() => rechazar(s._id)}
-              >
-                ✖
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
+            <button 
+              className="btn-accion btn-rechazar"
+              onClick={() => rechazar(s._id)}
+            >
+              ✖
+            </button>
+          </td>
+
+        </tr>
+      ))}
+    </tbody> 
     </table>
   </div>
 );

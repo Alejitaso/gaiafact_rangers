@@ -28,6 +28,27 @@
   font-size: 15px;
 }
 
+.cambioTag {
+  background: #e7f3ff;
+  color: #1b6dc1;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.eliminacionTag {
+  background: #ffe5e5;
+  color: #c62828;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.estadopendiente {
+  color: #ff9800;
+  font-weight: bold;
+}
+
 .tablasolicitudes td {
   padding: 12px;
   border-bottom: 1px solid rgba(0,0,0,0.1);
