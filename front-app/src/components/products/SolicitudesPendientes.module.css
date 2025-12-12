@@ -1,6 +1,8 @@
 .solicitudescontainer {
   padding: 20px;
   background: transparent;
+  margin: 0 auto;
+  width: 70%;
 }
 
 .solicitudestitlebox {
@@ -8,6 +10,8 @@
   margin-bottom: 20px;
   background-color: var(--color-cuatro);
   padding: 30px;
+  border-radius: 20px;
+  margin-right: 60%;
 }
 
 .solicitudes-title {
@@ -171,15 +175,3 @@
   }
 }
 
-/* Margen del 30% en pantallas grandes */
-@media (min-width: 769px) {
-  .tablasolicitudes {
-    margin: 0 auto;
-    width: 70%; /* 100% - 30% de margen total */
-  }
-
-  .solicitudestitlebox {
-    margin: 0 auto;
-    width: 70%;
-  }
-}
