@@ -128,15 +128,3 @@
   }
 }
 
-/* Margen del 30% en pantallas grandes */
-@media (min-width: 769px) {
-  .tablasolicitudes {
-    margin: 0 auto;
-    width: 70%; /* 100% - 30% de margen total */
-  }
-
-  .solicitudestitlebox {
-    margin: 0 auto;
-    width: 70%;
-  }
-}
