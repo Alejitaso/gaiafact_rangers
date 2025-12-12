@@ -2,6 +2,7 @@ const SolicitudCambio = require('../models/SolicitudCambio');
 const AuditoriaProducto = require('../models/AuditoriaProducto');
 const sgMail = require('@sendgrid/mail');
 const Productos = require('../models/producto');
+const Usuario = require("../models/usuario");
 const shortid = require('shortid');
 const multer = require('multer');
 const path = require('path');
