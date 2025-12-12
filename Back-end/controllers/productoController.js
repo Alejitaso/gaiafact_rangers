@@ -237,7 +237,7 @@ exports.actualizarProducto = async (req, res) => {
 exports.aprobarSolicitud = async (req, res) => {
   try {
     const { idSolicitud } = req.params;
-    const usuarioId = req.user.id;
+    const usuarioId = req.usuario._id;
 
     const solicitud = await SolicitudCambio.findById(idSolicitud);
     if (!solicitud) return res.status(404).json({ mensaje: 'Solicitud no encontrada' });
@@ -307,7 +307,7 @@ exports.aprobarSolicitud = async (req, res) => {
 exports.rechazarSolicitud = async (req, res) => {
   try {
     const { idSolicitud } = req.params;
-    const usuarioId = req.user.id;
+    const usuarioId = req.usuario._id;
 
     const solicitud = await SolicitudCambio.findById(idSolicitud);
     if (!solicitud) return res.status(404).json({ mensaje: 'Solicitud no encontrada' });
