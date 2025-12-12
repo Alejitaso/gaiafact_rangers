@@ -238,82 +238,113 @@ exports.aprobarSolicitud = async (req, res) => {
     const { idSolicitud } = req.params;
     const usuarioId = req.usuario._id;
 
-    const solicitud = await SolicitudCambio.findById(idSolicitud);
+    // 1. Buscar la solicitud
+    const solicitud = await SolicitudCambio.findById(idSolicitud)
+      .populate("productoId");
 
-    if (!solicitud) return res.status(404).json({ mensaje: 'Solicitud no encontrada' });
+    if (!solicitud) 
+      return res.status(404).json({ mensaje: 'Solicitud no encontrada' });
+
     if (solicitud.estado !== 'PENDIENTE')
       return res.status(400).json({ mensaje: 'La solicitud ya fue procesada' });
 
+    // 2. Marcar como aprobada
     solicitud.estado = 'APROBADO';
     solicitud.aprobador = usuarioId;
     solicitud.fechaAprobacion = Date.now();
     await solicitud.save();
 
-    // === 📩 CORREO DE APROBACIÓN ===
-    // Obtener admins y superadmins
-    const admins = await usuarioId.find({
-    tipo_usuario: { $in: ["ADMIN", "SUPERADMIN"] },
-    verificado: true
+    // 3. Obtener admins y superadmins
+    const admins = await Usuario.find({
+      tipo_usuario: { $in: ["ADMIN", "SUPERADMIN"] },
+      verificado: true
     }).select("correo_electronico nombre");
 
-    // Buscar solicitante
+    // 4. Buscar solicitante
     const solicitante = await Usuario.findById(solicitud.solicitante)
-    .select("correo_electronico nombre");
+      .select("correo_electronico nombre");
 
-    // Construir destinatarios
+    // 5. Armar lista de correos
     const destinatarios = [
-    ...admins.map(a => a.correo_electronico),
-    solicitante.correo_electronico,
-    req.usuario.correo_electronico // quien aprobó
+      ...admins.map(a => a.correo_electronico),
+      solicitante.correo_electronico,
+      req.usuario.correo_electronico // quien aprobó
     ];
 
+    // 6. Enviar correo
     const mensajeCorreo = {
-    to: destinatarios,
-    from: process.env.EMAIL_USER,
-    subject: "Solicitud de cambio aprobada - GaiaFact",
-    html: `
+      to: destinatarios,
+      from: process.env.EMAIL_USER,
+      subject: "Solicitud de cambio aprobada - GaiaFact",
+      html: `
         <div style="font-family: Arial, sans-serif; padding: 15px;">
-        <h2 style="color:#28A745;">Cambios aprobados</h2>
+          <h2 style="color:#28A745;">Cambios aprobados</h2>
 
-        <p>El usuario <strong>${req.usuario.nombre}</strong> ha aprobado los cambios del producto:</p>
-        <p><strong>${productoActual.nombre}</strong></p>
+          <p>El usuario <strong>${req.usuario.nombre}</strong> ha aprobado cambios del producto:</p>
+          <p><strong>${solicitud.productoId.nombre}</strong></p>
 
-        <h3>Cambios aplicados:</h3>
-        <ul>
+          <h3>Cambios aplicados:</h3>
+          <ul>
             <li><strong>Precio:</strong> ${solicitud.cambios.precioAnterior} → ${solicitud.cambios.precioNuevo}</li>
             <li><strong>Cantidad:</strong> ${solicitud.cambios.cantidadAnterior} → ${solicitud.cambios.cantidadNuevo}</li>
-        </ul>
+          </ul>
 
-        <p style="color:gray; font-size:12px;">
+          <p style="color:gray; font-size:12px;">
             Fecha: ${new Date().toLocaleString()}
-        </p>
+          </p>
         </div>
-    `
+      `
     };
 
-    sgMail.sendMultiple(mensajeCorreo)
-    .then(() => console.log("📧 Correo enviado (aprobación)"))
-    .catch((err) => console.error("❌ Error enviando correo:", err.message));
+    sgMail.send(mensajeCorreo)
+      .then(() => console.log("📧 Correo enviado (aprobación)"))
+      .catch((err) => console.error("❌ Error enviando correo:", err.message));
 
-
-    // Aplicar el cambio al producto real
+    // 7. Aplicar cambios
     await Productos.findByIdAndUpdate(
-      solicitud.productoId,
+      solicitud.productoId._id,
       {
         precio: solicitud.cambios.precioNuevo,
         cantidad: solicitud.cambios.cantidadNuevo
       }
     );
 
-    // AUDITORÍA
+    // 8. Auditoría
     await AuditoriaProducto.create({
-      productoId: solicitud.productoId,
+      productoId: solicitud.productoId._id,
       usuario: usuarioId,
       accion: 'APROBACION',
       datos: solicitud.cambios
     });
 
-    return res.json({ mensaje: 'Solicitud aprobada correctamente.' });
+    res.json({ mensaje: "Solicitud aprobada correctamente." });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensaje: 'Error en servidor' });
+  }
+};
+
+//funcion para rechazar la solicitud de cambio
+exports.rechazarSolicitud = async (req, res) => {
+  try {
+    const { idSolicitud } = req.params;
+    const usuarioId = req.usuario._id;
+
+    const solicitud = await SolicitudCambio.findById(idSolicitud);
+
+    if (!solicitud)
+      return res.status(404).json({ mensaje: 'Solicitud no encontrada' });
+
+    if (solicitud.estado !== 'PENDIENTE')
+      return res.status(400).json({ mensaje: 'La solicitud ya fue procesada' });
+
+    solicitud.estado = 'RECHAZADO';
+    solicitud.aprobador = usuarioId;
+    solicitud.fechaAprobacion = Date.now();
+    await solicitud.save();
+
+    res.json({ mensaje: "Solicitud rechazada correctamente." });
 
   } catch (error) {
     console.error(error);
