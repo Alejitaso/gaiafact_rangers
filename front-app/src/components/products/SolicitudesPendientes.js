@@ -80,6 +80,18 @@ return (
         </tr>
       </thead>
 
+      {solicitudes.length === 0 && (
+      <div className={styles.noSolicitudesBox}>
+        <div className={styles.noSolicitudesCard}>
+          <span className={styles.noSolicitudesIcon}>✔</span>
+          <h3 className={styles.noSolicitudesTitle}>¡Todo está en orden!</h3>
+          <p className={styles.noSolicitudesText}>
+            No hay solicitudes pendientes por revisar.
+          </p>
+        </div>
+      </div>
+      )}
+
       <tbody>
       {solicitudes.map(s => (
         <tr key={s._id}>
