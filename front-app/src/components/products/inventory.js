@@ -227,7 +227,10 @@ const descargarCodigoBarras = async (idProducto) => {
           </div>
 
           {/* Botón visible solo para ADMIN y SUPERADMIN */}
-          {(UserAuth?.tipo_usuario === "ADMIN" || UserAuth?.tipo_usuario === "SUPERADMIN") && (
+          {(() => {
+            const user = JSON.parse(localStorage.getItem("usuario"));
+            return user && ["ADMIN", "SUPERADMIN"].includes(user.tipo_usuario);
+          })() && (
             <div className={styles.solicitudesBtnContainer}>
               <button 
                 className={styles.solicitudesBtn}
@@ -237,6 +240,7 @@ const descargarCodigoBarras = async (idProducto) => {
               </button>
             </div>
           )}
+
 
           {/* Info inventario */}
           <div className="inventory-info" role="status" id="resultadosCount">
