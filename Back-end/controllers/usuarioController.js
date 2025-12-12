@@ -93,7 +93,7 @@ exports.nuevoUsuario = async (req, res) => {
                             <tr>
                                 <td align="center" style="padding: 20px;">
                                     <a href="${verificationLink}" style="background-color:#276177;color:#ffffff;padding:15px 30px;text-decoration:none;border-radius:5px;font-weight:bold;display:inline-block;font-size:16px;">
-                                      Verificar mi cuenta
+                                        Verificar mi cuenta
                                     </a>
                                 </td>
                             </tr>
@@ -288,5 +288,64 @@ exports.eliminarUsuario = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ mensaje: "Error en el servidor." });
+    }
+};
+
+
+// ---------------------------------------------------
+// 8. REENVIAR VERIFICACIÓN POR ADMIN/GESTOR
+// ---------------------------------------------------
+exports.reenviarVerificacionAdmin = async (req, res) => {
+    try {
+        const { idUsuario } = req.params;
+
+        const usuario = await Usuario.findById(idUsuario);
+
+        if (!usuario) {
+            return res.status(404).json({ success: false, mensaje: 'Usuario no encontrado.' });
+        }
+
+        if (usuario.isVerified) {
+            return res.status(400).json({ success: false, mensaje: 'Este usuario ya está verificado.' });
+        }
+
+        // Crear nuevo token
+        const token = jwt.sign(
+            { userId: usuario._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        // URL de verificación (BACKEND)
+        // Nota: Asegúrate de que esta URL coincida con la ruta definida en index.js (ej. /api/auth/verify)
+        const verificationLink = `http://localhost:4000/api/auth/verify?token=${token}`; 
+
+        // Correo (usando una plantilla simple, puedes usar la plantilla HTML completa de 'nuevoUsuario')
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: usuario.correo_electronico,
+            subject: 'Reenvío de Verificación de cuenta',
+            html: `
+                <p>Hola ${usuario.nombre},</p>
+                <p>Tu cuenta aún no ha sido verificada. Haz clic en el siguiente enlace para verificar tu correo electrónico:</p>
+                <a href="${verificationLink}">Verificar mi cuenta</a>
+                <p>Si no solicitaste esto, ignora este correo.</p>
+            ` 
+        };
+
+        // Enviar correo
+        await transporter.sendMail(mailOptions);
+
+        return res.json({
+            success: true,
+            mensaje: `Correo de verificación reenviado a ${usuario.correo_electronico}.`
+        });
+
+    } catch (error) {
+        console.error("❌ Error en reenviarVerificacionAdmin:", error);
+        return res.status(500).json({
+            success: false,
+            mensaje: "Error en el servidor al reenviar la verificación."
+        });
     }
 };
