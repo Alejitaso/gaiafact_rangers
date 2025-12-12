@@ -63,25 +63,88 @@ function SolicitudesPendientes() {
   };
 
 return (
-  <div className={styles.solicitudescontainer}>
-    <div className={styles.solicitudestitlebox}>
-      <h2 className="solicitudes-title">Solicitudes Pendientes</h2>
+  <>
+    <div className={styles.solicitudescontainer}>
+      <div className={styles.solicitudestitlebox}>
+        <h2 className="solicitudes-title">Solicitudes Pendientes</h2>
+      </div>
+
+      <table className={styles.tablasolicitudes}>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Solicitante</th>
+            <th>Tipo de Solicitud</th>
+            <th>Detalles</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {solicitudes.map(s => (
+            <tr key={s._id}>
+              {/* Producto */}
+              <td>{s.productoId?.nombre || "Producto no disponible"}</td>
+
+              {/* Solicitante */}
+              <td>{s.solicitante?.nombre || "Usuario no disponible"}</td>
+
+              {/* Tipo de solicitud */}
+              <td>
+                {s.tipoAccion === "ELIMINACION" ? (
+                  <span className={styles.eliminacionTag}>Eliminación</span>
+                ) : (
+                  <span className={styles.cambioTag}>Modificación</span>
+                )}
+              </td>
+
+              {/* Detalles */}
+              <td>
+                {s.tipoAccion === "ELIMINACION" ? (
+                  <strong>Eliminación del producto</strong>
+                ) : (
+                  <div className={styles.cambiosbox}>
+                    <div>
+                      Precio: {s.cambios?.precioAnterior ?? "-"} →
+                      <b>{s.cambios?.precioNuevo ?? "-"}</b>
+                    </div>
+                    <div>
+                      Cantidad: {s.cambios?.cantidadAnterior ?? "-"} →
+                      <b>{s.cambios?.cantidadNuevo ?? "-"}</b>
+                    </div>
+                  </div>
+                )}
+              </td>
+
+              {/* Estado */}
+              <td className={styles.estadopendiente}>{s.estado}</td>
+
+              {/* Acciones */}
+              <td>
+                <button
+                  className="btn-accion btn-aprobar"
+                  onClick={() => aprobar(s._id)}
+                >
+                  ✔
+                </button>
+
+                <button
+                  className="btn-accion btn-rechazar"
+                  onClick={() => rechazar(s._id)}
+                >
+                  ✖
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
 
-    <table className={styles.tablasolicitudes}>
-      <thead>
-        <tr>
-          <th>Producto</th>
-          <th>Solicitante</th>
-          <th>Tipo de Solicitud</th>
-          <th>Detalles</th>
-          <th>Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-
-      {solicitudes.length === 0 && (
-      <div className={styles.noSolicitudesBox}>
+    {/* ⭐ MENSAJE CUANDO NO HAY SOLICITUDES ⭐ */}
+    {solicitudes.length === 0 && (
+      <div className={styles.noSolicitudesWrapper}>
         <div className={styles.noSolicitudesCard}>
           <span className={styles.noSolicitudesIcon}>✔</span>
           <h3 className={styles.noSolicitudesTitle}>¡Todo está en orden!</h3>
@@ -90,64 +153,8 @@ return (
           </p>
         </div>
       </div>
-      )}
-
-      <tbody>
-      {solicitudes.map(s => (
-        <tr key={s._id}>
-          
-          {/* Producto */}
-          <td>{s.productoId?.nombre || "Producto no disponible"}</td>
-
-          {/* Solicitante */}
-          <td>{s.solicitante?.nombre || "Usuario no disponible"}</td>
-
-          {/* Tipo de solicitud */}
-          <td>
-            {s.tipoAccion === "ELIMINACION" ? (
-              <span className={styles.eliminacionTag}>Eliminación</span>
-            ) : (
-              <span className={styles.cambioTag}>Modificación</span>
-            )}
-          </td>
-
-          {/* Detalles */}
-          <td>
-            {s.tipoAccion === "ELIMINACION" ? (
-              <strong>Eliminación del producto</strong>
-            ) : (
-              <div className={styles.cambiosbox}>
-                <div>Precio: {s.cambios?.precioAnterior ?? "-"} → <b>{s.cambios?.precioNuevo ?? "-"}</b></div>
-                <div>Cantidad: {s.cambios?.cantidadAnterior ?? "-"} → <b>{s.cambios?.cantidadNuevo ?? "-"}</b></div>
-              </div>
-            )}
-          </td>
-
-          {/* Estado */}
-          <td className={styles.estadopendiente}>{s.estado}</td>
-
-          {/* Acciones */}
-          <td>
-            <button 
-              className="btn-accion btn-aprobar"
-              onClick={() => aprobar(s._id)}
-            >
-              ✔
-            </button>
-
-            <button 
-              className="btn-accion btn-rechazar"
-              onClick={() => rechazar(s._id)}
-            >
-              ✖
-            </button>
-          </td>
-
-        </tr>
-      ))}
-    </tbody> 
-    </table>
-  </div>
+    )}
+  </>
 );
 }
 export default SolicitudesPendientes;
