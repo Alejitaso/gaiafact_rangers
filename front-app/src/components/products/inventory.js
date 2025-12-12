@@ -212,6 +212,9 @@ const descargarCodigoBarras = async (idProducto) => {
       <div className={styles.content} role="main" aria-label="Inventario de productos">
         <div className={styles.table_box}>
           {/* Búsqueda */}
+          <div className={styles.searchArea}>
+  
+          {/* Búsqueda */}
           <div className={styles.search_bar}>
             <label htmlFor="busquedaInv" className="sr-only">Buscar productos</label>
             <input
@@ -225,6 +228,18 @@ const descargarCodigoBarras = async (idProducto) => {
             />
             <i className="fa-solid fa-search" aria-hidden="true"></i>
           </div>
+
+          {/* Botón */}
+          <button 
+            className={styles.solicitudesBtn}
+            onClick={() => navigate("/solicitudes")}
+          >
+            <i className="fa-solid fa-clipboard-check"></i>
+            Solicitudes Pendientes
+          </button>
+
+        </div>
+
 
           {/* Info inventario */}
           <div className="inventory-info" role="status" id="resultadosCount">

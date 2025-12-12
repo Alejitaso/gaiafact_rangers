@@ -7,6 +7,7 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [showFirstTimeWarning, setShowFirstTimeWarning] = useState(false);
 
   // Estados para las transiciones mejoradas
   const [isLoaded, setIsLoaded] = useState(false);
@@ -46,6 +47,27 @@ function Login() {
     }
   }, []);
 
+    useEffect(() => {
+      if (!email) return;
+
+      const timeout = setTimeout(async () => {
+        try {
+          const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/verificar-correo?email=${encodeURIComponent(email)}`);
+          const data = await res.json();
+
+          if (data.success && data.verificado) {
+            setShowFirstTimeWarning(true);
+          } else {
+            setShowFirstTimeWarning(false);
+          }
+        } catch (err) {
+          console.error("❌ Error verificando correo:", err);
+          setShowFirstTimeWarning(false);
+        }
+      }, 500);
+
+      return () => clearTimeout(timeout);
+    }, [email]);
   // Estados para el sistema de bloqueo
   const [attempts, setAttempts] = useState(() => {
     return parseInt(localStorage.getItem("attempts")) || 0;
@@ -226,6 +248,22 @@ function Login() {
       <div className={styles.logog} aria-hidden="true">
         <i className="fa-solid fa-circle-user fa-7x" style={{ color: "#f0f4f8" }}></i>
       </div>
+
+      {showFirstTimeWarning && (
+        <div className={styles.firstTimeWarning}>
+          <span>
+            ⚠️ Si es tu primera vez, tu contraseña es tu documento. Si ya la cambiaste, ignora esto.
+          </span>
+          <button
+            type="button"
+            className={styles.closeWarning}
+            onClick={() => setShowFirstTimeWarning(false)}
+            aria-label="Cerrar aviso"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       <form 
         className={styles.loginform} 

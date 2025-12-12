@@ -113,6 +113,7 @@ const LogsViewer = () => {
                   </span>
                   <span className={styles.accion}>{l.accion}</span>
                 </div>
+
                 <div className={styles.fila}>
                   <span className={styles.rol}>
                     {l.usuarioId?.tipo_usuario || 'N/A'}
@@ -123,6 +124,18 @@ const LogsViewer = () => {
                       : 'Anónimo'}
                   </span>
                 </div>
+
+                {l.recursoId && (
+                  <div className={styles.fila}>
+                    <span className={styles.recurso}>Recurso: {l.recursoId}</span>
+                  </div>
+                )}
+
+                {l.cambios && (
+                  <div className={styles.fila}>
+                    <pre className={styles.cambios}>{JSON.stringify(l.cambios, null, 2)}</pre>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

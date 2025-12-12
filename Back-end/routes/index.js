@@ -35,15 +35,19 @@ module.exports = function () {
   router.get('/Usuario', verificarAuth, verificarRolGestor, audit('listarUsuarios'), usuarioController.mostrarUsuarios);
   router.put('/Usuario/:idUsuario', verificarAuth, audit('actualizarUsuario'), usuarioController.actualizarUsuario);
   router.post('/Usuario/reenviar-verificacion/:idUsuario', usuarioController.reenviarVerificacionAdmin);
+  router.get('/auth/verificar-correo', authController.verificarCorreoEstado);
 
   /* ─────────────── PRODUCTOS ─────────────── */
   router.post('/productos', verificarAuth, verificarRolGestor, audit('crearProducto'), productoController.nuevoProducto);
   router.get('/productos', verificarAuth, audit('listarProductos'), productoController.mostrarProductos);
   router.get('/productos/:idProducto', verificarAuth, audit('verProducto'), productoController.mostrarProducto);
   router.get('/productos/:idProducto/codigo', verificarAuth, audit('verCodigoBarras'), productoController.obtenerCodigoBarrasPDF);
-  router.delete('/productos/:idProducto', verificarAuth, verificarRolGestor, audit('eliminarProducto'), productoController.eliminarProducto);
-  router.put('/productos/:idProducto', verificarAuth, verificarRolGestor, audit('actualizarProducto'), productoController.actualizarProducto);
-
+  router.delete('/productos/:idProducto',verificarAuth,verificarRolGestor,audit('eliminarProducto'),productoController.eliminarProducto);
+  router.put('/productos/:idProducto',verificarAuth,verificarRolGestor,audit('actualizarProducto'),productoController.actualizarProducto);
+  router.get("/solicitudes", verificarAuth,verificarRolGestor, productoController.obtenerSolicitudesPendientes);
+  router.post("/solicitudes/:idSolicitud/aprobar",verificarAuth,verificarRolGestor, productoController.aprobarSolicitud);
+  router.post("/solicitudes/:idSolicitud/rechazar", verificarAuth,verificarRolGestor, productoController.rechazarSolicitud);
+  
   /* ─────────────── IMÁGENES ─────────────── */
   router.post('/imagenes/carousel', verificarAuth, verificarRolGestor, imagenesController.upload.single('imagen'), audit('subirImagenCarousel'), imagenesController.subirImagenCarousel);
   router.get('/imagenes/carousel', imagenesController.obtenerImagenesCarousel);

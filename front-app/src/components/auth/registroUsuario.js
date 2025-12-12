@@ -211,12 +211,12 @@ function RegistroUsuario() {
     try {
       await clienteAxios.post('/api/Usuario', usuario);
       
-      setMensajeEstado('Usuario registrado exitosamente <br> Por favor verifica tu correo electrónico para activar la cuenta.');
+      setMensajeEstado('Usuario registrado exitosamente <br> Por favor notificar revision de correo electronico y bandeja de spam para verificar la cuenta.');
       
       await Swal.fire({
         icon: 'success',
         title: 'Correcto',
-        text: 'Usuario registrado correctamente. Por favor, verifica el correo electrónico para activar la cuenta.',
+        text: 'Usuario registrado correctamente. Por favor, Notificar revision de correo electronico y bandeja de spam para verificar la cuenta.',
         customClass: { 
           popup: 'swal-contorno-interior',
           confirmButton: 'swal-button-focus'

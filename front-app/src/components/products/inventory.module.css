@@ -88,6 +88,34 @@
     background-color: rgba(255, 255, 255, 0.05);
 }
 
+.searchArea {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-top: 10px;
+}
+
+.solicitudesBtn {
+  background-color: #276177;
+  color: white;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  transition: 0.2s ease-in-out;
+}
+
+.solicitudesBtn:hover {
+  background-color: #1f4f5c;
+  transform: scale(1.03);
+}
+
 /* Nuevas clases añadidas */
 .no_productos {
     text-align: center;
@@ -305,6 +333,11 @@
     padding: 0 5px;
   }
 
+  .searchArea {
+    flex-direction: column;
+    gap: 20px;
+  }
+
   .table_box {
     padding: 15px 10px;
     width: 100%;
@@ -396,5 +429,29 @@
     min-width: 600px; /* obliga scroll horizontal */
     margin: 0;
     border-radius: 0;
+  }
+}
+
+/* =========================================================
+   FIX: Evita que la tabla se "salga" hacia la derecha
+   cuando el inspector está dockado o ventana muy estrecha
+   ========================================================= */
+@media (max-width: 900px) {
+  .table_box {
+    overflow-x: hidden; /* evita que el wrapper se salga */
+    padding: 10px;
+  }
+
+  .tableWrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .inventory_table {
+    min-width: 600px;
+    width: 100%;
+    table-layout: fixed; /* evita que las celdas se deformen */
   }
 }
