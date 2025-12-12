@@ -11,7 +11,7 @@ function SolicitudesPendientes() {
   useEffect(() => {
       const cargar = async () => {
         try {
-          const res = await clienteAxios.get('/solicitudes', {
+          const res = await clienteAxios.get('/api/solicitudes', {
             headers: { Authorization: `Bearer ${token}` }
           });
           console.log("📌 SOLICITUDES RECIBIDAS:", res.data);
@@ -26,7 +26,7 @@ function SolicitudesPendientes() {
 
   const aprobar = async (id) => {
       try {
-        const res = await clienteAxios.post(`/solicitudes/${id}/aprobar`, {}, {
+        const res = await clienteAxios.post(`/api/solicitudes/${id}/aprobar`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
   
@@ -45,7 +45,7 @@ function SolicitudesPendientes() {
 
   const rechazar = async (id) => {
       try {
-        const res = await clienteAxios.post(`/solicitudes/${id}/rechazar`, {}, {
+        const res = await clienteAxios.post(`/api/solicitudes/${id}/rechazar`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
   
@@ -61,7 +61,7 @@ function SolicitudesPendientes() {
         Swal.fire('Error', msg, 'error');
       }
   };
-  
+
   return (
     <div className={styles.solicitudescontainer}>
     <h2 className="solicitudes-title">Solicitudes Pendientes</h2>
