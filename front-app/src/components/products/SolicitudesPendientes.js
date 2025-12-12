@@ -66,7 +66,7 @@ return (
   <>
     <div className={styles.solicitudescontainer}>
       <div className={styles.solicitudestitlebox}>
-        <h2 className="solicitudes-title">Solicitudes Pendientes</h2>
+        <h2 className={styles.solicitudestitle}>Solicitudes Pendientes</h2>
       </div>
 
       <table className={styles.tablasolicitudes}>

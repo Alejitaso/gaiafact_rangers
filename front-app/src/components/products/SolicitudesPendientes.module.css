@@ -6,72 +6,20 @@
 }
 
 .solicitudestitlebox {
-  text-align: right;
+  text-align: left;
   margin-bottom: 20px;
-  margin-left: 30%;
-  background-color: var(--color-cuatrto);
-  padding: 30px;
+  background-color: var(--color-cuatro);
+  padding: 10px;
   border-radius: 20px;
   margin-right: 60%;
 }
 
-.solicitudes-title {
+.solicitudestitle {
   font-size: 26px;
   font-weight: bold;
   color: #0a2a43;
   margin-bottom: 20px;
 }
-
-.noSolicitudesWrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding-top: 20px;
-  padding-bottom: 40px;
-}
-
-.noSolicitudesCard {
-  background: #f7f9fc;
-  border: 2px dashed #b7c8e0;
-  padding: 30px 40px;
-  border-radius: 15px;
-  text-align: center;
-  max-width: 420px;
-  width: 90%;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.08);
-  animation: fadeIn 0.4s ease-in-out;
-}
-
-.noSolicitudesIcon {
-  font-size: 40px;
-  color: #41a86e;
-  display: block;
-  margin-bottom: 10px;
-}
-
-.noSolicitudesTitle {
-  font-size: 22px;
-  font-weight: bold;
-  color: #2a4158;
-  margin: 5px 0;
-}
-
-.noSolicitudesText {
-  font-size: 16px;
-  color: #556577;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 
 .tablasolicitudes {
   width: 100%;
@@ -185,5 +133,10 @@
   .tablasolicitudes {
     margin: 0 auto;
     width: 70%; /* 100% - 30% de margen total */
+  }
+
+  .solicitudestitlebox {
+    margin: 0 auto;
+    width: 70%;
   }
 }
