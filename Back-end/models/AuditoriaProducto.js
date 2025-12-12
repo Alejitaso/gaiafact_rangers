@@ -14,16 +14,8 @@ const auditoriaSchema = new Schema({
   },
   accion: {
     type: String,
-    enum: [
-      "CREACION",
-      "ACTUALIZACION",
-      "APROBACION",
-      "RECHAZO",
-      "ELIMINACION_SOLICITADA",
-      "ELIMINACION_APROBADA",
-      "ELIMINACION_RECHAZADA"
-    ],
-  required: true
+    enum: ['SOLICITUD_CAMBIO', 'APROBACION', 'RECHAZO','SOLICITUD_ELIMINACION','ELIMINACION_APROBADA'],
+    required: true
   },
   datos: {
     precioAnterior: Number,

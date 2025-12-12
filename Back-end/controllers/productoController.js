@@ -158,6 +158,7 @@ exports.actualizarProducto = async (req, res) => {
     const solicitud = new SolicitudCambio({
       productoId: productoActual._id,
       solicitante: usuarioId,
+      tipoAccion: "CAMBIO",
       cambios: {
         precioAnterior: productoActual.precio,
         precioNuevo: nuevoProducto.precio,
@@ -296,8 +297,39 @@ exports.aprobarSolicitud = async (req, res) => {
       datos: solicitud.cambios
     });
 
-    // (correo: queda igual como lo tienes)
-    // ...
+    // Preparar y enviar correo (no bloquear la respuesta si falla el envío) 
+    try { 
+      const admins = await Usuario.find({ 
+        tipo_usuario: { $in: ["ADMINISTRADOR", "SUPERADMIN"] }, 
+        verificado: true 
+      }).select("correo_electronico nombre"); 
+      
+      const solicitante = await 
+      Usuario.findById(solicitud.solicitante).select("correo_electronico nombre"); 
+      
+      const destinatarios = [ 
+        ...admins.map(a => a.correo_electronico), 
+        solicitante?.correo_electronico, 
+        req.usuario?.correo_electronico 
+      ].filter(Boolean); 
+      
+      if (destinatarios.length > 0) { 
+        const mensajeCorreo = { 
+          to: destinatarios, from: process.env.EMAIL_USER, 
+          subject: "Solicitud de cambio aprobada - GaiaFact", 
+          html: `
+          <h2>Cambios aprobados</h2> 
+          <p>Producto: <strong>${productoActualizado?.nombre || 'N/A'}</strong></p> 
+          <p>Precio: ${solicitud.cambios.precioAnterior} → ${solicitud.cambios.precioNuevo}</p> 
+          <p>Cantidad: ${solicitud.cambios.cantidadAnterior} → ${solicitud.cambios.cantidadNuevo}</p> 
+          <p>Usuario que aprobó: ${req.usuario?.nombre || 'N/A'}</p> 
+          `,
+        }; 
+          await sgMail.sendMultiple(mensajeCorreo); 
+        } 
+      } catch (errMail) { 
+        console.error("❌ Error enviando correo (no bloqueante):", errMail?.message || errMail); 
+      }
 
     return res.json({ 
       ok: true, 
@@ -396,9 +428,10 @@ exports.eliminarProducto = async (req, res) => {
       solicitante: req.usuario._id,
       tipoAccion: 'ELIMINACION',
       cambios: {
-        nombre: producto.nombre,
-        precio: producto.precio,
-        cantidad: producto.cantidad
+        precioAnterior: producto.precio,
+        precioNuevo: null,
+        cantidadAnterior: producto.cantidad,
+        cantidadNuevo: null
       }
     });
 
