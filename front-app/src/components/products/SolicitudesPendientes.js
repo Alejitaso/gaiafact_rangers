@@ -5,22 +5,33 @@ import Swal from 'sweetalert2';
 function SolicitudesPendientes() {
   const [solicitudes, setSolicitudes] = useState([]);
 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     const cargar = async () => {
-      const res = await clienteAxios.get('/api/solicitudes');
+      const res = await clienteAxios.get('/api/solicitudes', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
       setSolicitudes(res.data);
     };
     cargar();
   }, []);
 
   const aprobar = async (id) => {
-    await clienteAxios.post(`/api/solicitudes/${id}/aprobar`);
+    await clienteAxios.post(`/api/solicitudes/${id}/aprobar`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
     Swal.fire('Aprobado', 'Los cambios fueron aplicados', 'success');
     setSolicitudes(solicitudes.filter(s => s._id !== id));
   };
 
   const rechazar = async (id) => {
-    await clienteAxios.post(`/api/solicitudes/${id}/rechazar`);
+    await clienteAxios.post(`/api/solicitudes/${id}/rechazar`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
     Swal.fire('Rechazado', 'La solicitud fue descartada', 'info');
     setSolicitudes(solicitudes.filter(s => s._id !== id));
   };
