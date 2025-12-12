@@ -9,9 +9,13 @@ async function tieneRegistrosMX(email) {
     const response = await axios.get(url);
     const data = response.data;
 
-    return data.email_deliverability?.is_mx_valid === true;
+    // ✅ Debe tener MX válido Y dominio registrado
+    const tieneMX = data.email_deliverability?.is_mx_valid === true;
+    const dominioRegistrado = data.email_domain?.registrar && data.email_domain?.date_registered;
+
+    return tieneMX && dominioRegistrado;
   } catch (err) {
-    console.error("❌ Error verificando MX:", err.message);
+    console.error('❌ Error verificando MX:', err.message);
     return false;
   }
 }

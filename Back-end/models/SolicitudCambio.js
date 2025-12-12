@@ -9,12 +9,12 @@ const solicitudSchema = new Schema({
   },
   solicitante: {
     type: Schema.Types.ObjectId,
-    ref: 'Usuarios',
+    ref: 'Usuario',
     required: true
   },
   aprobador: {
     type: Schema.Types.ObjectId,
-    ref: 'Usuarios',
+    ref: 'Usuario',
     default: null
   },
   cambios: {
