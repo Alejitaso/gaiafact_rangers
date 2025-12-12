@@ -65,7 +65,7 @@ function SolicitudesPendientes() {
               </div>
             </td>
 
-            <td className={styles.estadopendiente}>{s.estado}</td>estado-pendiente
+            <td className={styles.estadopendiente}>{s.estado}</td>
 
             <td>
               <button 

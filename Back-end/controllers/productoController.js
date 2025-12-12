@@ -231,99 +231,78 @@ exports.actualizarProducto = async (req, res) => {
         console.error(error);
         res.status(500).json({ mensaje: 'Error en servidor' });
     }
-    };
+};
 
+//funcion para aprobar la solicitud de actualizacion de precio o cantidad
 exports.aprobarSolicitud = async (req, res) => {
   try {
     const { idSolicitud } = req.params;
-    const usuarioId = req.usuario._id;
+    const usuarioId = req.user.id;
 
-    // 1. Buscar la solicitud
-    const solicitud = await SolicitudCambio.findById(idSolicitud)
-      .populate("productoId");
-
-    if (!solicitud) 
-      return res.status(404).json({ mensaje: 'Solicitud no encontrada' });
-
+    // Buscar solicitud
+    const solicitud = await SolicitudCambio.findById(idSolicitud);
+    if (!solicitud) return res.status(404).json({ mensaje: 'Solicitud no encontrada' });
     if (solicitud.estado !== 'PENDIENTE')
       return res.status(400).json({ mensaje: 'La solicitud ya fue procesada' });
 
-    // 2. Marcar como aprobada
+    // Buscar producto
+    const productoActual = await Productos.findById(solicitud.productoId);
+
+    // Marcar aprobada
     solicitud.estado = 'APROBADO';
     solicitud.aprobador = usuarioId;
     solicitud.fechaAprobacion = Date.now();
     await solicitud.save();
 
-    // 3. Obtener admins y superadmins
+    // Obtener admins
     const admins = await Usuario.find({
-      tipo_usuario: { $in: ["ADMIN", "SUPERADMIN"] },
-      verificado: true
+      tipo_usuario: { $in: ["ADMINISTRADOR", "SUPERADMIN"] },
+      isVerified: true
     }).select("correo_electronico nombre");
 
-    // 4. Buscar solicitante
+    // Obtener solicitante
     const solicitante = await Usuario.findById(solicitud.solicitante)
       .select("correo_electronico nombre");
 
-    // 5. Armar lista de correos
+    // Destinatarios
     const destinatarios = [
       ...admins.map(a => a.correo_electronico),
       solicitante.correo_electronico,
-      req.usuario.correo_electronico // quien aprobó
-    ];
+      req.user.correo_electronico
+    ].filter(Boolean); // evita valores null y undefined
 
-    // 6. Enviar correo
+    // CORREO DE APROBACIÓN
     const mensajeCorreo = {
       to: destinatarios,
       from: process.env.EMAIL_USER,
       subject: "Solicitud de cambio aprobada - GaiaFact",
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 15px;">
-          <h2 style="color:#28A745;">Cambios aprobados</h2>
-
-          <p>El usuario <strong>${req.usuario.nombre}</strong> ha aprobado cambios del producto:</p>
-          <p><strong>${solicitud.productoId.nombre}</strong></p>
-
-          <h3>Cambios aplicados:</h3>
-          <ul>
-            <li><strong>Precio:</strong> ${solicitud.cambios.precioAnterior} → ${solicitud.cambios.precioNuevo}</li>
-            <li><strong>Cantidad:</strong> ${solicitud.cambios.cantidadAnterior} → ${solicitud.cambios.cantidadNuevo}</li>
-          </ul>
-
-          <p style="color:gray; font-size:12px;">
-            Fecha: ${new Date().toLocaleString()}
-          </p>
-        </div>
+        <h2>Cambios aprobados</h2>
+        <p>Producto: <strong>${productoActual.nombre}</strong></p>
+        <p>Precio: ${solicitud.cambios.precioAnterior} → ${solicitud.cambios.precioNuevo}</p>
+        <p>Cantidad: ${solicitud.cambios.cantidadAnterior} → ${solicitud.cambios.cantidadNuevo}</p>
       `
     };
 
-    sgMail.send(mensajeCorreo)
-      .then(() => console.log("📧 Correo enviado (aprobación)"))
-      .catch((err) => console.error("❌ Error enviando correo:", err.message));
+    await sgMail.sendMultiple(mensajeCorreo);
 
-    // 7. Aplicar cambios
+    // Aplicar cambios al producto
     await Productos.findByIdAndUpdate(
-      solicitud.productoId._id,
+      solicitud.productoId,
       {
         precio: solicitud.cambios.precioNuevo,
         cantidad: solicitud.cambios.cantidadNuevo
       }
     );
 
-    // 8. Auditoría
-    await AuditoriaProducto.create({
-      productoId: solicitud.productoId._id,
-      usuario: usuarioId,
-      accion: 'APROBACION',
-      datos: solicitud.cambios
-    });
-
-    res.json({ mensaje: "Solicitud aprobada correctamente." });
+    return res.json({ mensaje: 'Solicitud aprobada correctamente.' });
 
   } catch (error) {
     console.error(error);
     res.status(500).json({ mensaje: 'Error en servidor' });
   }
 };
+
 
 //funcion para rechazar la solicitud de cambio
 exports.rechazarSolicitud = async (req, res) => {
