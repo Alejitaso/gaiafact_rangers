@@ -1,6 +1,8 @@
 .solicitudescontainer {
   padding: 20px;
   background: transparent;
+  margin: 0 auto;
+  width: 70%;
 }
 
 .solicitudestitlebox {
@@ -9,6 +11,8 @@
   margin-left: 30%;
   background-color: var(--color-cuatrto);
   padding: 30px;
+  border-radius: 20px;
+  margin-right: 60%;
 }
 
 .solicitudes-title {
