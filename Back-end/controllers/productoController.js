@@ -332,3 +332,18 @@ exports.eliminarProducto = async(req, res, next) => {
     }
 };
 
+exports.obtenerSolicitudesPendientes = async (req, res) => {
+  try {
+    const solicitudes = await SolicitudCambio.find({ estado: "PENDIENTE" })
+      .populate("productoId")
+      .populate("solicitante");
+
+    res.json(solicitudes);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensaje: "Error obteniendo solicitudes" });
+  }
+};
+
+

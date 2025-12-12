@@ -22,6 +22,7 @@ import ListadoUsuarios from './components/user/listadoUsuarios.js';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts.js';
 import KeyboardShortcutsHelp from './components/utils/KeyboardShortcutsHelp';
 import ColorBlindToggle from './components/utils/ColorBlindToggle';
+import SolicitudesPendientes from "./components/products/SolicitudesPendientes";
 import './colorblind-themes.css';
 import Swal from 'sweetalert2';
 import './App.css';
@@ -122,6 +123,7 @@ function AppContent() {
     { path: "/registroproduct", element: <Registro_product />, roles: ['ADMINISTRADOR', 'SUPERADMIN'] },
     { path: "/productos/editar/:idProducto", element: <EditProduct />, roles: ['ADMINISTRADOR', 'SUPERADMIN'] },
     { path: "/usuarios", element: <ListadoUsuarios />, roles: ['ADMINISTRADOR', 'SUPERADMIN'] },
+    { path: "/solicitudes", element: <SolicitudesPendientes />, roles: ['ADMINISTRADOR', 'SUPERADMIN']} 
   ];
 
   return (
