@@ -239,39 +239,40 @@ exports.aprobarSolicitud = async (req, res) => {
     const { idSolicitud } = req.params;
     const usuarioId = req.user.id;
 
-    // Buscar solicitud
     const solicitud = await SolicitudCambio.findById(idSolicitud);
     if (!solicitud) return res.status(404).json({ mensaje: 'Solicitud no encontrada' });
     if (solicitud.estado !== 'PENDIENTE')
       return res.status(400).json({ mensaje: 'La solicitud ya fue procesada' });
 
-    // Buscar producto
+    // ❌ No permitir aprobar su propia solicitud
+    if (solicitud.solicitante.toString() === usuarioId.toString()) {
+      return res.status(403).json({
+        mensaje: "No puedes aprobar tu propia solicitud. Debe hacerlo otro administrador."
+      });
+    }
+
     const productoActual = await Productos.findById(solicitud.productoId);
 
-    // Marcar aprobada
     solicitud.estado = 'APROBADO';
     solicitud.aprobador = usuarioId;
     solicitud.fechaAprobacion = Date.now();
     await solicitud.save();
 
-    // Obtener admins
+    // Admins y correos
     const admins = await Usuario.find({
       tipo_usuario: { $in: ["ADMINISTRADOR", "SUPERADMIN"] },
       isVerified: true
     }).select("correo_electronico nombre");
 
-    // Obtener solicitante
     const solicitante = await Usuario.findById(solicitud.solicitante)
       .select("correo_electronico nombre");
 
-    // Destinatarios
     const destinatarios = [
       ...admins.map(a => a.correo_electronico),
       solicitante.correo_electronico,
       req.user.correo_electronico
-    ].filter(Boolean); // evita valores null y undefined
+    ].filter(Boolean);
 
-    // CORREO DE APROBACIÓN
     const mensajeCorreo = {
       to: destinatarios,
       from: process.env.EMAIL_USER,
@@ -286,7 +287,6 @@ exports.aprobarSolicitud = async (req, res) => {
 
     await sgMail.sendMultiple(mensajeCorreo);
 
-    // Aplicar cambios al producto
     await Productos.findByIdAndUpdate(
       solicitud.productoId,
       {
@@ -303,27 +303,30 @@ exports.aprobarSolicitud = async (req, res) => {
   }
 };
 
-
 //funcion para rechazar la solicitud de cambio
 exports.rechazarSolicitud = async (req, res) => {
   try {
     const { idSolicitud } = req.params;
-    const usuarioId = req.usuario._id;
+    const usuarioId = req.user.id;
 
     const solicitud = await SolicitudCambio.findById(idSolicitud);
-
-    if (!solicitud)
-      return res.status(404).json({ mensaje: 'Solicitud no encontrada' });
-
+    if (!solicitud) return res.status(404).json({ mensaje: 'Solicitud no encontrada' });
     if (solicitud.estado !== 'PENDIENTE')
       return res.status(400).json({ mensaje: 'La solicitud ya fue procesada' });
+
+    // ❌ No permitir rechazar su propia solicitud
+    if (solicitud.solicitante.toString() === usuarioId.toString()) {
+      return res.status(403).json({
+        mensaje: "No puedes rechazar tu propia solicitud."
+      });
+    }
 
     solicitud.estado = 'RECHAZADO';
     solicitud.aprobador = usuarioId;
     solicitud.fechaAprobacion = Date.now();
     await solicitud.save();
 
-    res.json({ mensaje: "Solicitud rechazada correctamente." });
+    return res.json({ mensaje: 'Solicitud rechazada correctamente.' });
 
   } catch (error) {
     console.error(error);
