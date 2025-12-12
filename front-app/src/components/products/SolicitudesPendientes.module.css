@@ -44,6 +44,53 @@
   font-weight: bold;
 }
 
+.noSolicitudesBox {
+  display: flex;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+.noSolicitudesCard {
+  background: #f7f9fc;
+  border: 2px dashed #b7c8e0;
+  padding: 30px 40px;
+  border-radius: 15px;
+  text-align: center;
+  max-width: 380px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.noSolicitudesIcon {
+  font-size: 40px;
+  color: #41a86e;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.noSolicitudesTitle {
+  font-size: 20px;
+  font-weight: bold;
+  color: #2a4158;
+  margin: 5px 0;
+}
+
+.noSolicitudesText {
+  font-size: 15px;
+  color: #556577;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .eliminacionTag {
   background: #ffe5e5;
   color: #c62828;
