@@ -9,7 +9,7 @@ async function tieneRegistrosMX(email) {
     const response = await axios.get(url);
     const data = response.data;
 
-    return data.deliverability === "DELIVERABLE" && data.is_mx_found === true;
+    return data.email_deliverability?.is_mx_valid === true;
   } catch (err) {
     console.error("❌ Error verificando MX:", err.message);
     return false;
