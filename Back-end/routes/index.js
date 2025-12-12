@@ -43,7 +43,10 @@ module.exports = function () {
   router.get('/productos/:idProducto/codigo', verificarAuth, audit('verCodigoBarras'), productoController.obtenerCodigoBarrasPDF);
   router.delete('/productos/:idProducto',verificarAuth,verificarRolGestor,audit('eliminarProducto'),productoController.eliminarProducto);
   router.put('/productos/:idProducto',verificarAuth,verificarRolGestor,audit('actualizarProducto'),productoController.actualizarProducto);
-
+  router.get("/solicitudes", verificarAuth,verificarRolGestor, productoController.obtenerSolicitudesPendientes);
+  router.post("/solicitudes/:idSolicitud/aprobar",verificarAuth,verificarRolGestor, productoController.aprobarSolicitud);
+  router.post("/solicitudes/:idSolicitud/rechazar", verificarAuth,verificarRolGestor, productoController.rechazarSolicitud);
+  
   /* ─────────────── IMÁGENES ─────────────── */
   router.post('/imagenes/carousel', verificarAuth, verificarRolGestor, imagenesController.upload.single('imagen'), audit('subirImagenCarousel'), imagenesController.subirImagenCarousel);
   router.get('/imagenes/carousel', imagenesController.obtenerImagenesCarousel);

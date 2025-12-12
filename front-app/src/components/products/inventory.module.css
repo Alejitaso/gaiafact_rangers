@@ -88,6 +88,35 @@
     background-color: rgba(255, 255, 255, 0.05);
 }
 
+.solicitudesBtnContainer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.solicitudesBtn {
+  background-color: var(--color-uno);
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.2s ease-in-out;
+}
+
+.solicitudesBtn:hover {
+  background-color: var(--color-cuatro);
+  transform: scale(1.03);
+}
+
+
 /* Nuevas clases añadidas */
 .no_productos {
     text-align: center;

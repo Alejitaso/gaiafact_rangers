@@ -203,10 +203,19 @@ function EditarProducto() {
       setCargando(true);
 
       if (modoEdicion) {
-        console.log('📤 Enviando PUT a:', `/api/productos/${id}`);
-        console.log('📤 Datos enviados:', datosProducto);
-        await clienteAxios.put(`/api/productos/${id}`, datosProducto);
+        const respuesta = await clienteAxios.put(`/api/productos/${id}`, datosProducto);
+
+        if (respuesta.status === 202) {
+            Swal.fire(
+                'Solicitud enviada',
+                'Otro administrador debe aprobar este cambio antes de aplicarse.',
+                'info'
+            );
+            navigate('/inventario');
+            return; 
+        }
         mostrarPopupExito(datosProducto);
+
       } else {
         console.log('📤 Enviando POST a:', '/api/productos');
         console.log('📤 Datos enviados:', datosProducto);

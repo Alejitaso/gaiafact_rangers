@@ -226,6 +226,22 @@ const descargarCodigoBarras = async (idProducto) => {
             <i className="fa-solid fa-search" aria-hidden="true"></i>
           </div>
 
+          {/* Botón visible solo para ADMIN y SUPERADMIN */}
+          {(() => {
+            const user = JSON.parse(localStorage.getItem("usuario"));
+            return user && ["ADMIN", "SUPERADMIN"].includes(user.tipo_usuario);
+          })() && (
+            <div className={styles.solicitudesBtnContainer}>
+              <button 
+                className={styles.solicitudesBtn}
+                onClick={() => navigate("/inventario/solicitudes")}
+              >
+                <i className="fa-solid fa-clipboard-check"></i> Solicitudes Pendientes
+              </button>
+            </div>
+          )}
+
+
           {/* Info inventario */}
           <div className="inventory-info" role="status" id="resultadosCount">
             <p>Total de productos: <strong>{productosFiltrados.length}</strong></p>
