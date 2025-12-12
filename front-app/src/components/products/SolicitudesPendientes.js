@@ -64,7 +64,9 @@ function SolicitudesPendientes() {
 
 return (
   <div className={styles.solicitudescontainer}>
-    <h2 className="solicitudes-title">Solicitudes Pendientes</h2>
+    <div className={styles.solicitudestitlebox}>
+      <h2 className="solicitudes-title">Solicitudes Pendientes</h2>
+    </div>
 
     <table className={styles.tablasolicitudes}>
       <thead>

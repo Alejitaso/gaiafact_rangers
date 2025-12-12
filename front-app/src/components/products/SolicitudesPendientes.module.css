@@ -3,6 +3,14 @@
   background: transparent;
 }
 
+.solicitudestitlebox {
+  text-align: right;
+  margin-bottom: 20px;
+  margin-left: 30%;
+  background-color: var(--color-cuatrto);
+  padding: 30px;
+}
+
 .solicitudes-title {
   font-size: 26px;
   font-weight: bold;
