@@ -232,7 +232,7 @@ const descargarCodigoBarras = async (idProducto) => {
           {/* Botón */}
           <button 
             className={styles.solicitudesBtn}
-            onClick={() => navigate("/inventario/solicitudes")}
+            onClick={() => navigate("/products/solicitudes")}
           >
             <i className="fa-solid fa-clipboard-check"></i>
             Solicitudes Pendientes
