@@ -6,16 +6,7 @@ const notificacionController = require('./notificacionController');
 const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
 const nodemailer = require('nodemailer');
-<<<<<<< HEAD
 const { generarNumeroFactura, cargarNuevaResolucion } = require('../models/numeraciones.js');
-=======
-const crypto = require('crypto');
-
-const CERTIFICADO_DUMMY = 'MIID+zCCAuOgAwIBAgIQN+J/r...[CERTIFICADO SIMULADO LARGO]...T/TjX2A9T7tW/8Xb3';
-const SIGNATURE_VALUE_DUMMY = 'QkFzZTY0IEZpcm1hIHJlYWxpemFkYSBwb3IgR2FpYUZhY3QgZGUgbW9kbyBhY2FkZW1pY28...';
-
-
->>>>>>> 8d09379a0de49d31afe21bc4b41e98374f122b84
 
 const configurarTransportador = () => {
     return nodemailer.createTransport({
@@ -329,22 +320,12 @@ exports.crearFactura = async (req, res) => {
             });
         }
 
-<<<<<<< HEAD
         // 2. DESCUENTO DE STOCK Y COMPROBACIÓN DE PRODUCTOS
-=======
-        if (!datosFactura.productos_factura || datosFactura.productos_factura.length === 0) {
-            return res.status(400).json({ 
-                mensaje: 'Debe incluir al menos un producto en la factura' 
-            });
-        }
-
->>>>>>> 8d09379a0de49d31afe21bc4b41e98374f122b84
         for (const item of datosFactura.productos_factura) {
             const producto = await Producto.findOne({ nombre: item.producto });
             if (!producto) return res.status(404).json({ mensaje: `Producto "${item.producto}" no encontrado` });
             if (producto.cantidad < item.cantidad) return res.status(400).json({ mensaje: `Stock insuficiente para "${producto.nombre}"` });
 
-<<<<<<< HEAD
             if (!producto) {
                 return res.status(404).json({ ok: false, mensaje: `Producto "${item.producto}" no encontrado.` });
             }
@@ -355,20 +336,11 @@ exports.crearFactura = async (req, res) => {
                     mensaje: `Stock insuficiente para "${item.producto}". Disponible: ${producto.cantidad}, solicitado: ${item.cantidad}` 
                 });
             }
-=======
-            const descuento = Number(item.descuento) || 0;
-            const precioConDescuento = producto.precio * (1 - descuento / 100);
-
-            item.precio = producto.precio;
-            item.descuento = descuento;
-            item.subtotal = precioConDescuento * item.cantidad;
->>>>>>> 8d09379a0de49d31afe21bc4b41e98374f122b84
 
             producto.cantidad -= item.cantidad;
             await producto.save();
         }
 
-<<<<<<< HEAD
         // 3. GENERAR NÚMERO DE FACTURA ATÓMICO Y ASIGNARLO
         let numeroFactura;
         try {
@@ -397,83 +369,13 @@ exports.crearFactura = async (req, res) => {
         const xmlString = generarXMLFactura(nuevaFactura);
 
         // 6. GUARDAR PDF y XML en la instancia
-=======
-            // ✅ Primero: validar TODOS los productos sin tocar el stock
-            for (const item of datosFactura.productos_factura) {
-                const producto = await Producto.findOne({ nombre: item.producto });
-                if (!producto) return res.status(404).json({ mensaje: `Producto "${item.producto}" no encontrado` });
-                if (producto.cantidad < item.cantidad) return res.status(400).json({ mensaje: `Stock insuficiente para "${producto.nombre}". Disponible: ${producto.cantidad}, solicitado: ${item.cantidad}` });
-
-                const descuento = Number(item.descuento) || 0;
-                const precioConDescuento = producto.precio * (1 - descuento / 100);
-
-                item.precio = producto.precio;
-                item.descuento = descuento;
-                item.subtotal = precioConDescuento * item.cantidad;
-            }
-
-            // ✅ Segundo: recién AHORA descontar stock
-            for (const item of datosFactura.productos_factura) {
-                const producto = await Producto.findOne({ nombre: item.producto });
-                producto.cantidad -= item.cantidad;
-                await producto.save();
-            }
-
-        // Crear la instancia de la factura
-        const nuevaFactura = new Factura(datosFactura);
-
-        // Generar el PDF y el XML
-        const contentToSign = JSON.stringify({
-            numero: nuevaFactura.numero_factura,
-            fecha: nuevaFactura.fecha_emision,
-            total: nuevaFactura.total
-            // En un caso real, esto sería el XML normalizado
-        });
-
-
-        const digestValue = crypto.createHash('sha256').update(contentToSign).digest('base64');
-        console.log(`🔑 Digest Value generado: ${digestValue}`);
-
-        const pdfBuffer = await generarPDFFactura(nuevaFactura);
-
-        const xmlString = generarXMLFactura(nuevaFactura, digestValue);
-        // Guardar el PDF y XML en la factura
->>>>>>> 8d09379a0de49d31afe21bc4b41e98374f122b84
         nuevaFactura.pdf_factura = pdfBuffer;
         nuevaFactura.xml_factura = xmlString;
 
         // 7. GUARDAR EN LA BASE DE DATOS
         await nuevaFactura.save();
 
-<<<<<<< HEAD
         console.log(`✅ Factura ${nuevaFactura.numero_factura} creada y stock actualizado.`);
-=======
-         try {
-            await exports.enviarFacturaCorreo(
-                {
-                body: {
-                    idFactura: nuevaFactura._id,
-                    emailCliente: nuevaFactura.usuario.correo_electronico
-                }
-                },
-                {
-                json: () => {},
-                status: () => ({ json: () => {} })
-                }
-            );
-            await notificacionController.guardarNotificacion({
-                numero_factura: nuevaFactura.numero_factura,
-                documento_emisor: 'Sistema',
-                documento_receptor: nuevaFactura.usuario.numero_documento,
-                correo_receptor: nuevaFactura.usuario.correo_electronico,
-                tipo: 'automatico',
-            });  
-        } catch (error) {
-        console.warn("⚠️ No se pudo enviar el correo automáticamente:", error.message);
-        }
-
-        console.log('✅ Factura guardada con PDF y XML, stock actualizado');
->>>>>>> 8d09379a0de49d31afe21bc4b41e98374f122b84
 
         res.status(201).json({
             ok: true,
@@ -485,7 +387,6 @@ exports.crearFactura = async (req, res) => {
 
 
     } catch (error) {
-<<<<<<< HEAD
         console.error('❌ Error general al crear factura:', error);
         res.status(500).json({
             ok: false,
@@ -526,10 +427,6 @@ exports.actualizarLimiteFacturacion = async (req, res) => {
             mensaje: 'Error al cargar la nueva resolución', 
             error: error.message 
         });
-=======
-        console.error('❌ Error al generar la factura:', error);
-        res.status(500).json({ mensaje: "Error en el servidor. Intente más tarde." });
->>>>>>> 8d09379a0de49d31afe21bc4b41e98374f122b84
     }
 
 };
