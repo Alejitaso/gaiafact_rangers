@@ -234,91 +234,103 @@ exports.actualizarProducto = async (req, res) => {
 };
 
 //funcion para aprobar la solicitud de actualizacion de precio o cantidad
+// APROBAR SOLICITUD
 exports.aprobarSolicitud = async (req, res) => {
   try {
     const { idSolicitud } = req.params;
-    const usuarioId = req.usuario._id;
+    const usuarioId = req.usuario._id; // usa req.usuario como tu middleware
 
     const solicitud = await SolicitudCambio.findById(idSolicitud);
-    if (!solicitud) return res.status(404).json({ mensaje: 'Solicitud no encontrada' });
+    if (!solicitud) return res.status(404).json({ ok: false, mensaje: 'Solicitud no encontrada' });
     if (solicitud.estado !== 'PENDIENTE')
-      return res.status(400).json({ mensaje: 'La solicitud ya fue procesada' });
+      return res.status(400).json({ ok: false, mensaje: 'La solicitud ya fue procesada' });
 
-    // ❌ No permitir aprobar su propia solicitud
+    // evitar auto-aprobación
     if (solicitud.solicitante.toString() === usuarioId.toString()) {
-      return res.status(403).json({
-        mensaje: "No puedes aprobar tu propia solicitud. Debe hacerlo otro administrador."
-      });
+      return res.status(403).json({ ok: false, mensaje: 'No puedes aprobar tu propia solicitud' });
     }
 
-    const productoActual = await Productos.findById(solicitud.productoId);
+    // Aplicar los cambios AL PRODUCTO primero
+    const productoActualizado = await Productos.findByIdAndUpdate(
+      solicitud.productoId,
+      {
+        precio: solicitud.cambios.precioNuevo,
+        cantidad: solicitud.cambios.cantidadNuevo
+      },
+      { new: true }
+    );
 
+    // Marcar solicitud como aprobada
     solicitud.estado = 'APROBADO';
     solicitud.aprobador = usuarioId;
     solicitud.fechaAprobacion = Date.now();
     await solicitud.save();
 
-    // Admins y correos
-    const admins = await Usuario.find({
-      tipo_usuario: { $in: ["ADMINISTRADOR", "SUPERADMIN"] },
-      isVerified: true
-    }).select("correo_electronico nombre");
+    // Auditoría
+    await AuditoriaProducto.create({
+      productoId: solicitud.productoId,
+      usuario: usuarioId,
+      accion: 'APROBACION',
+      datos: solicitud.cambios
+    });
 
-    const solicitante = await Usuario.findById(solicitud.solicitante)
-      .select("correo_electronico nombre");
+    // Preparar y enviar correo (no bloquear la respuesta si falla el envío)
+    try {
+      const admins = await Usuario.find({
+        tipo_usuario: { $in: ["ADMINISTRADOR", "SUPERADMIN"] },
+        verificado: true
+      }).select("correo_electronico nombre");
 
-    const destinatarios = [
-      ...admins.map(a => a.correo_electronico),
-      solicitante.correo_electronico,
-      req.user.correo_electronico
-    ].filter(Boolean);
+      const solicitante = await Usuario.findById(solicitud.solicitante).select("correo_electronico nombre");
 
-    const mensajeCorreo = {
-      to: destinatarios,
-      from: process.env.EMAIL_USER,
-      subject: "Solicitud de cambio aprobada - GaiaFact",
-      html: `
-        <h2>Cambios aprobados</h2>
-        <p>Producto: <strong>${productoActual.nombre}</strong></p>
-        <p>Precio: ${solicitud.cambios.precioAnterior} → ${solicitud.cambios.precioNuevo}</p>
-        <p>Cantidad: ${solicitud.cambios.cantidadAnterior} → ${solicitud.cambios.cantidadNuevo}</p>
-      `
-    };
+      const destinatarios = [
+        ...admins.map(a => a.correo_electronico),
+        solicitante?.correo_electronico,
+        req.usuario?.correo_electronico
+      ].filter(Boolean);
 
-    await sgMail.sendMultiple(mensajeCorreo);
-
-    await Productos.findByIdAndUpdate(
-      solicitud.productoId,
-      {
-        precio: solicitud.cambios.precioNuevo,
-        cantidad: solicitud.cambios.cantidadNuevo
+      if (destinatarios.length > 0) {
+        const mensajeCorreo = {
+          to: destinatarios,
+          from: process.env.EMAIL_USER,
+          subject: "Solicitud de cambio aprobada - GaiaFact",
+          html: `
+            <h2>Cambios aprobados</h2>
+            <p>Producto: <strong>${productoActualizado?.nombre || 'N/A'}</strong></p>
+            <p>Precio: ${solicitud.cambios.precioAnterior} → ${solicitud.cambios.precioNuevo}</p>
+            <p>Cantidad: ${solicitud.cambios.cantidadAnterior} → ${solicitud.cambios.cantidadNuevo}</p>
+            <p>Usuario que aprobó: ${req.usuario?.nombre || 'N/A'}</p>
+          `
+        };
+        await sgMail.sendMultiple(mensajeCorreo);
       }
-    );
+    } catch (errMail) {
+      console.error("❌ Error enviando correo (no bloqueante):", errMail?.message || errMail);
+    }
 
-    return res.json({ mensaje: 'Solicitud aprobada correctamente.' });
+    // Responder con éxito y el producto actualizado
+    return res.json({ ok: true, mensaje: 'Solicitud aprobada y cambios aplicados', producto: productoActualizado, solicitudId: solicitud._id });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ mensaje: 'Error en servidor' });
+    return res.status(500).json({ ok: false, mensaje: 'Error en servidor' });
   }
 };
 
-//funcion para rechazar la solicitud de cambio
+// RECHAZAR SOLICITUD
 exports.rechazarSolicitud = async (req, res) => {
   try {
     const { idSolicitud } = req.params;
     const usuarioId = req.usuario._id;
 
     const solicitud = await SolicitudCambio.findById(idSolicitud);
-    if (!solicitud) return res.status(404).json({ mensaje: 'Solicitud no encontrada' });
+    if (!solicitud) return res.status(404).json({ ok: false, mensaje: 'Solicitud no encontrada' });
     if (solicitud.estado !== 'PENDIENTE')
-      return res.status(400).json({ mensaje: 'La solicitud ya fue procesada' });
+      return res.status(400).json({ ok: false, mensaje: 'La solicitud ya fue procesada' });
 
-    // ❌ No permitir rechazar su propia solicitud
+    // evitar auto-rechazo
     if (solicitud.solicitante.toString() === usuarioId.toString()) {
-      return res.status(403).json({
-        mensaje: "No puedes rechazar tu propia solicitud."
-      });
+      return res.status(403).json({ ok: false, mensaje: 'No puedes rechazar tu propia solicitud' });
     }
 
     solicitud.estado = 'RECHAZADO';
@@ -326,11 +338,51 @@ exports.rechazarSolicitud = async (req, res) => {
     solicitud.fechaAprobacion = Date.now();
     await solicitud.save();
 
-    return res.json({ mensaje: 'Solicitud rechazada correctamente.' });
+    // Auditoría
+    await AuditoriaProducto.create({
+      productoId: solicitud.productoId,
+      usuario: usuarioId,
+      accion: 'RECHAZO',
+      datos: solicitud.cambios
+    });
+
+    // Notificar (intento, no bloqueante)
+    try {
+      const admins = await Usuario.find({
+        tipo_usuario: { $in: ["ADMINISTRADOR", "SUPERADMIN"] },
+        verificado: true
+      }).select("correo_electronico nombre");
+
+      const solicitante = await Usuario.findById(solicitud.solicitante).select("correo_electronico nombre");
+
+      const destinatarios = [
+        ...admins.map(a => a.correo_electronico),
+        solicitante?.correo_electronico,
+        req.usuario?.correo_electronico
+      ].filter(Boolean);
+
+      if (destinatarios.length > 0) {
+        const mensajeCorreo = {
+          to: destinatarios,
+          from: process.env.EMAIL_USER,
+          subject: "Solicitud de cambio rechazada - GaiaFact",
+          html: `
+            <h2>Solicitud rechazada</h2>
+            <p>Producto: <strong>${solicitud.productoId?.nombre || solicitud.productoId}</strong></p>
+            <p>Usuario que rechazó: ${req.usuario?.nombre || 'N/A'}</p>
+          `
+        };
+        await sgMail.sendMultiple(mensajeCorreo);
+      }
+    } catch (errMail) {
+      console.error("❌ Error enviando correo (no bloqueante):", errMail?.message || errMail);
+    }
+
+    return res.json({ ok: true, mensaje: 'Solicitud rechazada correctamente.', solicitudId: solicitud._id });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ mensaje: 'Error en servidor' });
+    return res.status(500).json({ ok: false, mensaje: 'Error en servidor' });
   }
 };
 

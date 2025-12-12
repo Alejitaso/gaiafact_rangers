@@ -9,34 +9,59 @@ function SolicitudesPendientes() {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const cargar = async () => {
-      const res = await clienteAxios.get('/api/solicitudes', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      setSolicitudes(res.data);
-    };
-    cargar();
-  }, []);
+      const cargar = async () => {
+        try {
+          const res = await clienteAxios.get('/solicitudes', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          console.log("📌 SOLICITUDES RECIBIDAS:", res.data);
+          setSolicitudes(res.data);
+        } catch (e) {
+          console.error("❌ ERROR CARGANDO SOLICITUDES", e.response?.status, e.response?.data);
+          Swal.fire('Error','No se pudieron cargar las solicitudes','error');
+        }
+      };
+      cargar();
+    }, []);
 
   const aprobar = async (id) => {
-    await clienteAxios.post(`/api/solicitudes/${id}/aprobar`, {}, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    Swal.fire('Aprobado', 'Los cambios fueron aplicados', 'success');
-    setSolicitudes(solicitudes.filter(s => s._id !== id));
+      try {
+        const res = await clienteAxios.post(`/solicitudes/${id}/aprobar`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+  
+        if (res.data?.ok) {
+          Swal.fire('Aprobado', res.data.mensaje || 'Solicitud aprobada', 'success');
+          setSolicitudes(prev => prev.filter(s => s._id !== id));
+        } else {
+          Swal.fire('Error', res.data?.mensaje || 'No se pudo aprobar', 'error');
+        }
+      } catch (err) {
+        console.error("Error aprobar:", err.response?.status, err.response?.data);
+        const msg = err.response?.data?.mensaje || 'Error al aprobar';
+        Swal.fire('Error', msg, 'error');
+      }
   };
 
   const rechazar = async (id) => {
-    await clienteAxios.post(`/api/solicitudes/${id}/rechazar`, {}, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    Swal.fire('Rechazado', 'La solicitud fue descartada', 'info');
-    setSolicitudes(solicitudes.filter(s => s._id !== id));
+      try {
+        const res = await clienteAxios.post(`/solicitudes/${id}/rechazar`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+  
+        if (res.data?.ok) {
+          Swal.fire('Rechazado', res.data.mensaje || 'Solicitud rechazada', 'info');
+          setSolicitudes(prev => prev.filter(s => s._id !== id));
+        } else {
+          Swal.fire('Error', res.data?.mensaje || 'No se pudo rechazar', 'error');
+        }
+      } catch (err) {
+        console.error("Error rechazar:", err.response?.status, err.response?.data);
+        const msg = err.response?.data?.mensaje || 'Error al rechazar';
+        Swal.fire('Error', msg, 'error');
+      }
   };
-
+  
   return (
     <div className={styles.solicitudescontainer}>
     <h2 className="solicitudes-title">Solicitudes Pendientes</h2>
