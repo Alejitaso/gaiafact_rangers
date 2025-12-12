@@ -20,10 +20,12 @@ const transporter = nodemailer.createTransport({
 // ---------------------------------------------------
 exports.nuevoUsuario = async (req, res) => {
 
+    req.body.password = req.body.numero_documento;
+
     const usuario = new Usuario(req.body);
 
     try {
-        req.body.password = req.body.numero_documento;
+        
         // Validar email
         const { valid } = await validarEmail(usuario.correo_electronico);
 

@@ -34,6 +34,7 @@ module.exports = function () {
   router.get('/Usuario', verificarAuth, verificarRolGestor, audit('listarUsuarios'), usuarioController.mostrarUsuarios);
   router.put('/Usuario/:idUsuario', verificarAuth, audit('actualizarUsuario'), usuarioController.actualizarUsuario);
   router.get('/Usuario/verificar', usuarioController.verificarCuenta);
+  router.get('/auth/verificar-correo', authController.verificarCorreoEstado);
 
   /* ─────────────── PRODUCTOS ─────────────── */
   router.post('/productos', verificarAuth, verificarRolGestor, audit('crearProducto'), productoController.nuevoProducto);
